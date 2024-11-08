@@ -1,0 +1,74 @@
+import { NgModule } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatStepperModule } from '@angular/material/stepper';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatListModule } from '@angular/material/list';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatTableModule } from '@angular/material/table';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { MatChipsModule } from '@angular/material/chips';
+import { LayoutModule } from '@angular/cdk/layout';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatTabsModule } from '@angular/material/tabs';
+import {DragDropModule} from '@angular/cdk/drag-drop';
+import { DialogModule } from '@angular/cdk/dialog';
+import { MatDividerModule } from '@angular/material/divider';
+
+@NgModule({
+  exports: [
+    MatButtonModule,
+    MatCardModule,
+    MatSidenavModule,
+    MatGridListModule,
+    MatSnackBarModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    MatToolbarModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatRadioModule,
+    MatMenuModule,
+    MatCheckboxModule,
+    MatStepperModule,
+    MatProgressSpinnerModule,
+    MatButtonToggleModule,
+    MatListModule,
+    MatDialogModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatExpansionModule,
+    MatTableModule,
+    MatBottomSheetModule,
+    MatChipsModule,
+    LayoutModule,
+    MatPaginatorModule,
+    MatAutocompleteModule,
+    MatTabsModule,
+    DragDropModule,
+    DialogModule,
+    MatDividerModule,
+  ],
+})
+export class MaterialModule {}
