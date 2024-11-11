@@ -15,7 +15,6 @@ ALLOWED_EXTENSIONS = {
     "py", # python
     "js", "ts", # javascript, typescript
     "java", "jar" #java
-    "rs" # rust
     }
 
 # Initialize the Assistant and Thread globally
