@@ -3,13 +3,16 @@ Go Boiler Project
 ---
 
 ## About
-
+Code style feedback.
 
 ## Objectives
 
 
 ## To-do
-
+[] Turn config inputs into selects
+[] Make the backend connection work with the OpenAI API
+[] Show output as JSON
+[] Text input
 
 ---
 

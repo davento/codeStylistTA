@@ -14,6 +14,7 @@ export class ChangeConfigComponent {
 
   }
 
+  // selector
   configForm: FormGroup = this.fb.group({
     programmingLanguage: ['', [Validators.required]],
     course: ['', [Validators.required]],
