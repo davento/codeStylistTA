@@ -9,10 +9,10 @@ Code style feedback.
 
 
 ## To-do
-[] Turn config inputs into selects
-[] Make the backend connection work with the OpenAI API
-[] Show output as JSON
-[] Text input
+[ ] Turn config inputs into selects
+[ ] Make the backend connection work with the OpenAI API
+[ ] Show output as JSON
+[ ] Text input
 
 ---
 
