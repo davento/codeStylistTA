@@ -14,13 +14,13 @@ export class ChangeConfigComponent {
     private fb: FormBuilder,
     // to call the backend functions
     // also use these later for when there's a database
-    private progLanguageService: ProgLanguageService,
-    private courseService: CourseService
+    // private progLanguageService: ProgLanguageService,
+    // private courseService: CourseService
   ) {
 
   }
 
-  progLang: any[] = [
+  progLangs: any[] = [
     {
       name: "Python",
       extensions: ["py"],
@@ -39,7 +39,7 @@ export class ChangeConfigComponent {
     }
   ];
 
-  course: any[] = [
+  courses: any[] = [
     {
       code: 15900,
       name: "C Programming",
@@ -84,7 +84,7 @@ export class ChangeConfigComponent {
 
   formats: string[] = [
     "JSON",
-    "Report",
+    // "Report",
   ]
 
   // selector

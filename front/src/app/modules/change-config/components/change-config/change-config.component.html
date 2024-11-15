@@ -3,39 +3,47 @@
     <form [formGroup]="configForm">
         <mat-form-field appearance="outline">
             <mat-label>Programming language: </mat-label>
-            <input type="text" formControlName="programmingLanguage" matInput required />
+            <mat-select formControlName="programmingLanguage" required>
+              <mat-option *ngFor="let progLang of progLangs" [value]="progLang">{{progLang.name}}</mat-option>
+            </mat-select>
             <mat-error
                   *ngIf="configForm.controls['programmingLanguage'].hasError('required')"
                 >
                   Programming language required.
-                </mat-error>
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline">
             <mat-label>Course: </mat-label>
-            <input type="text" formControlName="course" matInput required />
+            <mat-select formControlName="course" required>
+              <mat-option *ngFor="let course of courses" [value]="course">{{course.name}}</mat-option>
+            </mat-select>
             <mat-error
                   *ngIf="configForm.controls['course'].hasError('required')"
                 >
                   Course required.
-                </mat-error>
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline">
             <mat-label>Response tone: </mat-label>
-            <input type="text" formControlName="tone" matInput required />
+            <mat-select formControlName="tone" required>
+              <mat-option *ngFor="let tone of tones" [value]="tone">{{tone}}</mat-option>
+            </mat-select>
             <mat-error
                   *ngIf="configForm.controls['tone'].hasError('required')"
                 >
                   Response tone required.
-                </mat-error>
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline">
             <mat-label>Output format: </mat-label>
-            <input type="text" formControlName="format" matInput required />
+            <mat-select formControlName="format" required>
+              <mat-option *ngFor="let format of formats" [value]="format">{{format}}</mat-option>
+            </mat-select>
             <mat-error
                   *ngIf="configForm.controls['format'].hasError('required')"
                 >
                   Output format required.
-                </mat-error>
+            </mat-error>
         </mat-form-field>
     </form>
 </div>
