@@ -1,24 +1,16 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ProgLanguageService } from 'src/app/core/services/http/progLanguage.service';
-import { CourseService } from 'src/app/core/services/http/course.service';
+// import { ProgLanguageService } from 'src/app/core/services/http/progLanguage.service';
+// import { CourseService } from 'src/app/core/services/http/course.service';
 
 @Component({
-  selector: 'app-change-config',
-  templateUrl: './change-config.component.html',
-  styleUrls: ['./change-config.component.css']
+  selector: 'app-change-input',
+  templateUrl: './change-input.component.html',
+  styleUrls: ['./change-input.component.css']
 })
-export class ChangeConfigComponent {
+export class ChangeInputComponent {
 
-  constructor (
-    private fb: FormBuilder,
-    // to call the backend functions
-    // also use these later for when there's a database
-    // private progLanguageService: ProgLanguageService,
-    // private courseService: CourseService
-  ) {
-
-  }
+  code: string = '';
 
   progLangs: any[] = [
     {
@@ -87,8 +79,36 @@ export class ChangeConfigComponent {
     // "Report",
   ]
 
-  // selector
-  // https://material.angular.io/components/select/overview
+  constructor (
+    private fb: FormBuilder,
+    // to call the backend functions
+    // also use these later for when there's a database
+    // private progLanguageService: ProgLanguageService,
+    // private courseService: CourseService
+  ) {
+
+  }
+
+  codeForm: FormGroup = this.fb.group({
+    code: ['', [Validators.required]],
+  });
+
+  cleanCode() {
+    this.codeForm.reset();
+    this.code = '';
+    console.log(this.code);
+  }
+
+  uploadCode() {
+    this.code = this.codeForm.get('code')?.value;
+    console.log(this.code);
+
+    // submit code to main input component(???) 
+    // i want to send everything as part of the same json file and then send that to the backend so....
+    // notify user
+    alert("Code updated.");
+  }
+
   configForm: FormGroup = this.fb.group({
     programmingLanguage: ['', [Validators.required]],
     course: ['', [Validators.required]],
@@ -97,6 +117,18 @@ export class ChangeConfigComponent {
     format: ['', [Validators.required]],
   });
 
-  // make the select comes from the arrays
-  // create html service function to send the variables to the backend
+  evaluate() {
+    const inputData = {
+      code: this.codeForm.get('code')?.value,
+      programmingLanguage: this.configForm.get('programmingLanguage')?.value,
+      course: this.configForm.get('course')?.value,
+      tone: this.configForm.get('tone')?.value,
+      format: this.configForm.get('format')?.value,
+    };
+
+    console.log(inputData);
+
+    // create html service function to send the variables to the backend
+    
+  }
 }

@@ -1,17 +1,15 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ChangeConfigComponent } from './components/change-config/change-config.component';
+import { ChangeInputComponent } from './components/change-input/change-input.component';
 import { MaterialModule } from 'src/app/core/material/material.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-
-
 @NgModule({
   declarations: [
-    ChangeConfigComponent
+    ChangeInputComponent
   ],
   exports: [
-    ChangeConfigComponent
+    ChangeInputComponent
   ],
   imports: [
     CommonModule,
@@ -20,4 +18,4 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     ReactiveFormsModule
   ]
 })
-export class ChangeConfigModule { }
+export class ChangeInputModule { }

@@ -3,8 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FeedbackMainComponent } from './components/feedback-main/feedback-main.component';
 import { MaterialModule } from 'src/app/core/material/material.module';
 
-
-
 @NgModule({
   declarations: [
     FeedbackMainComponent

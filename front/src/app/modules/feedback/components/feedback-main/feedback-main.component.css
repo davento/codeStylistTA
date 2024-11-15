@@ -3,5 +3,11 @@ mat-card-actions button {
 }
 
 mat-card {
-    width: 95%;
+    width: 100%;
+}
+
+@media only screen and (min-width: 992px) {
+    mat-card {
+        width: 95%;
+    }
 }

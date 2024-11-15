@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ChangeConfigComponent } from './change-config.component';
+import { ChangeInputComponent } from './change-input.component';
 
-describe('ChangeConfigComponent', () => {
-  let component: ChangeConfigComponent;
-  let fixture: ComponentFixture<ChangeConfigComponent>;
+describe('ChangeInputComponent', () => {
+  let component: ChangeInputComponent;
+  let fixture: ComponentFixture<ChangeInputComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ChangeConfigComponent ]
+      declarations: [ ChangeInputComponent ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ChangeConfigComponent);
+    fixture = TestBed.createComponent(ChangeInputComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
