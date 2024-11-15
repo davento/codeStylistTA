@@ -3,16 +3,15 @@ Go Boiler Project
 ---
 
 ## About
-Code style feedback.
+Code style feedback tool
 
 ## Objectives
 
 
 ## To-do
-[ ] Turn config inputs into selects
-[ ] Make the backend connection work with the OpenAI API
-[ ] Show output as JSON
-[ ] Text input
+- [ ] Create backend functions
+- [ ] Make the backend connection work with the OpenAI API
+- [ ] Show output as JSON
 
 ---
 
