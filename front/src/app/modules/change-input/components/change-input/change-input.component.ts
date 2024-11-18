@@ -102,10 +102,6 @@ export class ChangeInputComponent {
   uploadCode() {
     this.code = this.codeForm.get('code')?.value;
     console.log(this.code);
-
-    // submit code to main input component(???) 
-    // i want to send everything as part of the same json file and then send that to the backend so....
-    // notify user
     alert("Code updated.");
   }
 
@@ -113,7 +109,6 @@ export class ChangeInputComponent {
     programmingLanguage: ['', [Validators.required]],
     course: ['', [Validators.required]],
     tone: ['', [Validators.required]],
-    // make this json by default and disable it for now
     format: ['', [Validators.required]],
   });
 
@@ -129,6 +124,6 @@ export class ChangeInputComponent {
     console.log(inputData);
 
     // create html service function to send the variables to the backend
-    
+        
   }
 }

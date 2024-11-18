@@ -63,4 +63,3 @@ def upload_file():
             filename=filename,
         )
     return jsonify(success=False, message="File type not allowed")
-
