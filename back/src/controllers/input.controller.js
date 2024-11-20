@@ -6,12 +6,16 @@ export const processInput = async (req, res) => {
         const { code, programmingLanguage, course, tone, format } = req.body;
         console.log([code, programmingLanguage, course, tone, format]);
         let query = `
-        Code: ${code}
-        Programming Language:${programmingLanguage.name}
-        Course: ${course.name}
-        Learning objectives: ${course.learningObjectives}
-        Tone: ${tone}
-        Format: ${format}
+        The values of the variables declared on the initial prompt are the following:
+        a. Name of the course: ${course.name}
+        b. Description of the course: ${course.description}
+        c. Learning objectives of the course: ${course.learningObjectives}
+        d. Code: ${code}
+        e. Programming language used:${programmingLanguage.name}
+        f. Tone to use on reply: ${tone}
+        g. Format to use on reply: ${format}
+
+        With these values, please fulfill the initially stated prompt.
         `;
         console.log(query);
         process(query);
