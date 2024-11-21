@@ -1,8 +1,10 @@
 // open ai functions imports
-import process from "../AIAgent/appAssistant";
+import {process, newThread} from "../AIAgent/appAssistant.js";
 
 export const processInput = async (req, res) => {
     try {
+        newThread();
+
         const { code, programmingLanguage, course, tone, format } = req.body;
         console.log([code, programmingLanguage, course, tone, format]);
         let query = `

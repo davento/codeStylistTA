@@ -4,7 +4,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import helmet from "helmet";
 import morgan from "morgan";
-import inputRouter from "./routes/input.routes";
+import inputRouter from "./routes/input.routes.js";
 
 dotenv.config();
 
@@ -46,3 +46,5 @@ app.use(morgan("combined"));
 app.use("/api", inputRouter);
 
 // maybe add swagger for documentation. we'll se about this later
+
+export default app;

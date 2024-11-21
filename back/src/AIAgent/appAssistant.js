@@ -6,7 +6,7 @@ const ORG_ID = "org-tQQarliDkrBTI1WZcOgFmwJA"
 let api_key=OPENAI_API_KEY;
 let organization=ORG_ID;
 
-const client = new OpenAI(api_key, organization);
+const client = new OpenAI({apiKey: api_key});
 
 // insert the prompt from the other doc; just make sure to leave things as variables so you can insert the rest on the query later
 const prompt = `
@@ -57,14 +57,14 @@ const assistant = client.beta.assistants.create({
 
 const thread = client.beta.threads.create();
 
-async function newThread() {
+export async function newThread() {
     const thread = client.beta.threads.create();
     console.log(thread);
 };
 
 // this query should be called by the controller with its respective parameters
 // modify with try catch?
-async function process(query) {
+export async function process(query) {
     const message = await client.beta.threads.messages.create(
         thread.id,
         {

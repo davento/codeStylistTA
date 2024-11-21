@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { InputService } from 'src/app/core/services/components/input.service';
 // import { ProgLanguageService } from 'src/app/core/services/http/progLanguage.service';
 // import { CourseService } from 'src/app/core/services/http/course.service';
 
@@ -85,6 +86,7 @@ export class ChangeInputComponent {
     // also use these later for when there's a database
     // private progLanguageService: ProgLanguageService,
     // private courseService: CourseService
+    //private inputService: InputService
   ) {
 
   }
@@ -122,6 +124,14 @@ export class ChangeInputComponent {
     };
 
     console.log(inputData);
+
+    // check what is up with the services
+    // this.inputService.processInput().subscribe({
+    //   next: (data) => {
+    //     console.log(data);
+    //     // send data to output component
+    //   },
+    // });
 
     // create html service function to send the variables to the backend
         
