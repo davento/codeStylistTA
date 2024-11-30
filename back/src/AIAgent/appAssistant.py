@@ -90,4 +90,23 @@ def get_response(query: str):
     print(run.status)
     return "Some error occured"
 
+def get_analysis(question: str):
+
+  client = OpenAI(
+    api_key=OPENAI_API_KEY,
+    organization=ORG_ID
+  )
+
+  completion = client.chat.completions.create(
+    model="gpt-4",
+    messages=[
+      {"role": "system", "content": prompt},
+      {"role": "system", "content": question},
+    ]
+  )
+
+  response = completion.choices[0].message.content
+  return response
+
+# https://platform.openai.com/docs/guides/text-generation
 # https://platform.openai.com/docs/assistants/tools/code-interpreter

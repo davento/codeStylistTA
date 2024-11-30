@@ -1,0 +1,8 @@
+name: code-stylist-ta
+channels:
+  - defaults
+dependencies:
+- python=3.14
+- pip
+- pip:
+  - pip-tools

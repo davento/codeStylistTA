@@ -8,37 +8,6 @@ CORS(app)
 @app.route("/input", methods=["POST"])
 def process_input():
     request_data = request.get_json()
-
-    # course = None
-    # course_name = None
-    # course_description = None
-    # course_learning_objectives = None
-    # code = None
-    # programming_language = None
-    # programming_language_name = None
-    # reply_tone = None
-    # reply_format = None
-
-    # if request_data:
-    #     if 'course' in request_data:
-    #         course = request_data['course']
-    #         if 'name' in course:
-    #             course_name = course['name']
-    #         if 'description' in course:
-    #             course_description = course['description']
-    #         # make this a list string thing
-    #         if 'learningObjectives' in course:
-    #             course_learning_objectives = course['learningObjectives']
-    #     if 'code' in request_data:
-    #         code = request_data['code']
-    #     if 'programmingLanguage' in request_data:
-    #         programming_language = request_data['programmingLanguage']
-    #         if 'name' in programming_language:
-    #             programming_language_name = programming_language['name']
-    #     if 'tone' in request_data:
-    #         reply_tone = request_data['tone']
-    #     if 'format' in request_data:
-    #         reply_format = request_data['format']
         
     course = request_data['course']
     course_name = course['name']
@@ -72,7 +41,7 @@ def process_input():
     )
 
     print(query)
-    response = appAssistant.get_response(query)
+    response = appAssistant.get_analysis(query)
     print(response)
 
     if response is not None:
