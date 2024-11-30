@@ -2,7 +2,7 @@ name: code-stylist-ta
 channels:
   - defaults
 dependencies:
-- python=3.14
+- python
 - pip
 - pip:
   - pip-tools
