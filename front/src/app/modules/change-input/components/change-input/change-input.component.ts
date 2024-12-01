@@ -57,7 +57,7 @@ export class ChangeInputComponent {
         "Create Python code as well as methods in Pandas to select, search, change, and summarize data in tables.",
         "Explain how to identify and fill in missing values in data." ,
         "Apply Pandas functions combine and merge datasets, perform a range of data aggregations, groupings and cross tabulations.",
-        "Given multiple data sets, demonstrate how to summarize, transform, combine the data sets, and aggregate and visualize the resulting data set."       
+        "Given multiple data sets, demonstrate how to summarize, transform, combine the data sets, and aggregate and visualize the resulting data set."
       ],
     },
     {
@@ -115,8 +115,13 @@ export class ChangeInputComponent {
   });
 
   evaluate() {
+
+    // get stringified code
+    const rawCode = this.codeForm.get('code')?.value;
+    const stringifiedCode = JSON.stringify(rawCode).substring(1, (rawCode).length-1)
+
     const inputData = {
-      code: this.codeForm.get('code')?.value,
+      code: stringifiedCode,
       programmingLanguage: this.configForm.get('programmingLanguage')?.value,
       course: this.configForm.get('course')?.value,
       tone: this.configForm.get('tone')?.value,
@@ -134,6 +139,6 @@ export class ChangeInputComponent {
     // });
 
     // create html service function to send the variables to the backend
-        
+
   }
 }
