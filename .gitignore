@@ -39,6 +39,7 @@ testem.log
 
 # Python
 */__pycache__/
+./back/*/__pycache__
 
 # System files
 .DS_Store
