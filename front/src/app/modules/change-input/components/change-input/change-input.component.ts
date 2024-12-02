@@ -13,9 +13,10 @@ import { Feedback } from 'src/app/shared/interfaces/Feedback';
 export class ChangeInputComponent {
 
   code: string = '';
-  response?: Feedback;
+  response?: any;
   evaluated: boolean = false;
 
+  // csv file; make an instructor view
   progLangs: any[] = [
     {
       name: "Python",
@@ -28,6 +29,10 @@ export class ChangeInputComponent {
     {
       name: "JavaScript",
       extensions: ["js"],
+    },
+    {
+      name: "Java",
+      extensions: ["java"]
     },
     {
       name: "C",
@@ -132,10 +137,11 @@ export class ChangeInputComponent {
 
     // console.log(inputData);
 
+    // prettyprint
     this.inputService.processInput(inputData).subscribe({
       next: (data) => {
         console.log(data);
-        this.response = data;
+        this.response = JSON.stringify(data);
       },
       error: (error) => {
         console.log(error);

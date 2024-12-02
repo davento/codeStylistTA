@@ -9,9 +9,10 @@ Code style feedback tool
 
 
 ## To-do
-- [ ] Create backend functions
-- [ ] Make the backend connection work with the OpenAI API
-- [ ] Show output as JSON
+- [ ] Instructor view
+- [ ] Pretty JSON
+- [ ] File upload
+- [ ] Bulk Upload Data Script
 
 ---
 
