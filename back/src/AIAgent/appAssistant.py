@@ -49,7 +49,7 @@ If "g. Format to be used to reply" is JSON, have the fields for this response be
 - suggestions
 - explanation
 
-This should also be the default format for your replies.
+This should also be the default format for your replies. And again, please be specific with your feedback.
 '''
 
 # assistant
@@ -90,18 +90,22 @@ def get_response(query: str):
     print(run.status)
     return "Some error occured"
 
-def get_analysis(question: str):
+def get_analysis(query: str):
 
   client = OpenAI(
     api_key=OPENAI_API_KEY,
     organization=ORG_ID
   )
 
+  print("===Query:")
+  print(prompt)
+  print(query)
+
   completion = client.chat.completions.create(
     model="gpt-4",
     messages=[
       {"role": "system", "content": prompt},
-      {"role": "system", "content": question},
+      {"role": "system", "content": query},
     ]
   )
 

@@ -12,12 +12,12 @@ def process_input():
     course = request_data['course']
     course_name = course['name']
     course_description = course['description']
-    course_learning_objectives = course['learningObjectives']
+    course_learning_outcomes = course['learning_outcomes']
     code = request_data['code']
-    programming_language = request_data['programmingLanguage']
+    programming_language = request_data['programming_language']
     programming_language_name = programming_language['name']
-    reply_tone = request_data['tone']
-    reply_format = request_data['format']
+    reply_tone = request_data['reply_tone']
+    reply_format = request_data['reply_format']
 
     query = '''
     The values of the variables declared on the initial prompt are the following:
@@ -33,17 +33,20 @@ def process_input():
     '''.format(
         course_name,
         course_description,
-        course_learning_objectives,
+        course_learning_outcomes,
         code,
         programming_language_name,
         reply_tone,
         reply_format
     )
 
-    print(query)
     response = appAssistant.get_analysis(query)
+    print("===Response:")
     print(response)
 
     if response is not None:
-        return "ok", 200
+        return response, 200
     return "error", 500
+
+if __name__ == '__main__':
+    app.run()

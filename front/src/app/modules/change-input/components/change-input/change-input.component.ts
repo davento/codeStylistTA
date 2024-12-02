@@ -37,7 +37,7 @@ export class ChangeInputComponent {
       code: 15900,
       name: "C Programming",
       description: "Fundamental principles, concepts, and methods of programming in C, with emphasis on applications in the physical sciences and engineering. Basic problem solving and programming techniques; fundamental algorithms and data structures; and use of programming logic in solving engineering problems. Students are expected to complete assignments in a collaborative learning environment.",
-      learningOutcomes: [
+      learning_outcomes: [
         "Understand the fundamental principles, concepts and methods of computer programming.",
         "Use the C programming language to developing solutions in the domains of physical sciences, mathematics, and engineering.",
         "Demonstrate the ability to function as part of a technical team to generate a solution to a programming problem.",
@@ -48,7 +48,7 @@ export class ChangeInputComponent {
       code: 17600,
       name: "Data Engineering In Python",
       description: "The course introduces students to programming fundamentals in Python, including loops, functions and different data types, and provides an introduction to data engineering including working with common data formats and learning the basics of data wrangling. Students will format, extract, clean, filter, transform, search, combine, summarize, aggregate, and visualize a diverse range of data sets. Python libraries including MatPlotLib and Pandas are used.",
-      learningOutcomes: [
+      learning_outcomes: [
         "Write Python code using loops, decision statements, and functions.",
         "Explain how arguments are passed in Python functions and how the scope of variables impacts execution.",
         "Use the operations on lists, tuples, and dictionaries to perform appropriate data manipulations.",
@@ -64,7 +64,7 @@ export class ChangeInputComponent {
       code: 25100,
       name: "Data Structures And Algorithms",
       description: "Running time analysis of algorithms and their implementations, one-dimensional data structures, trees, heaps, additional sorting algorithms, binary search trees, hash tables, graphs, directed graphs, weighted graph algorithms, additional topics.",
-      learningOutcomes: [
+      learning_outcomes: [
         "Understand fundamental data structures, fundamental algorithms, and their implementation."
       ]
     }
@@ -122,13 +122,16 @@ export class ChangeInputComponent {
 
     const inputData = {
       code: stringifiedCode,
-      programmingLanguage: this.configForm.get('programmingLanguage')?.value,
+      programming_language: this.configForm.get('programmingLanguage')?.value,
       course: this.configForm.get('course')?.value,
-      tone: this.configForm.get('tone')?.value,
-      format: this.configForm.get('format')?.value,
+      reply_tone: this.configForm.get('tone')?.value,
+      reply_format: this.configForm.get('format')?.value,
     };
 
-    console.log(inputData);
+    // console.log(inputData);
+
+    // TODO: function routing
+    // create html service function to send the body to the backend
 
     // check what is up with the services
     // this.inputService.processInput().subscribe({
@@ -137,8 +140,6 @@ export class ChangeInputComponent {
     //     // send data to output component
     //   },
     // });
-
-    // create html service function to send the variables to the backend
 
   }
 }
