@@ -7,4 +7,7 @@ import { Component } from '@angular/core';
 })
 export class FeedbackMainComponent {
 
+  // make interface for responses
+  response: any[] = []
+
 }

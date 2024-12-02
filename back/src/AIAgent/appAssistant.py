@@ -44,8 +44,8 @@ If "d. Code" is not code that can be interpreted in "e. Programming language use
 Point "f. Tone to be used to reply" is more in regards to the attitude the wording of your replies has. Make sure to still follow the tone guidelines mentioned beforehand.
 
 If "g. Format to be used to reply" is JSON, have the fields for this response be the following:
-- error location
-- things to fix
+- error_location
+- things_to_fix
 - suggestions
 - explanation
 

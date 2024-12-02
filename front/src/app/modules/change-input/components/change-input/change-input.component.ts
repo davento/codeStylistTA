@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { InputService } from 'src/app/core/services/components/input.service';
+import { Feedback } from 'src/app/shared/interfaces/Feedback';
 // import { ProgLanguageService } from 'src/app/core/services/http/progLanguage.service';
 // import { CourseService } from 'src/app/core/services/http/course.service';
 
@@ -12,6 +13,8 @@ import { InputService } from 'src/app/core/services/components/input.service';
 export class ChangeInputComponent {
 
   code: string = '';
+  response?: Feedback;
+  evaluated: boolean = false;
 
   progLangs: any[] = [
     {
@@ -132,11 +135,13 @@ export class ChangeInputComponent {
     this.inputService.processInput(inputData).subscribe({
       next: (data) => {
         console.log(data);
-        // TODO: send data to output component
+        this.response = data;
       },
       error: (error) => {
         console.log(error);
       },
     });
+
+    this.evaluated = true;
   }
 }
