@@ -82,11 +82,10 @@ export class ChangeInputComponent {
 
   constructor (
     private fb: FormBuilder,
-    // to call the backend functions
+    private inputService: InputService
     // also use these later for when there's a database
     // private progLanguageService: ProgLanguageService,
     // private courseService: CourseService
-    //private inputService: InputService
   ) {
 
   }
@@ -130,16 +129,14 @@ export class ChangeInputComponent {
 
     // console.log(inputData);
 
-    // TODO: function routing
-    // create html service function to send the body to the backend
-
-    // check what is up with the services
-    // this.inputService.processInput().subscribe({
-    //   next: (data) => {
-    //     console.log(data);
-    //     // send data to output component
-    //   },
-    // });
-
+    this.inputService.processInput(inputData).subscribe({
+      next: (data) => {
+        console.log(data);
+        // TODO: send data to output component
+      },
+      error: (error) => {
+        console.log(error);
+      },
+    });
   }
 }

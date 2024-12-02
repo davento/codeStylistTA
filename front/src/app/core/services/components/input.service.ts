@@ -11,7 +11,7 @@ export class InputService {
 
     constructor(private http: HttpClient) {}
 
-    processInput() {
-        return this.http.get<any>(this.API_URL);
+    processInput(inputData: any) {
+        return this.http.post<any>(this.API_URL, inputData);
     }
 }

@@ -7,6 +7,7 @@ import { ChangeInputModule } from './modules/change-input/change-input.module';
 import { FeedbackModule } from './modules/feedback/feedback.module';
 import { MaterialModule } from './core/material/material.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { HttpClientModule } from "@angular/common/http";
 
 @NgModule({
   declarations: [
@@ -21,6 +22,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     FormsModule,
     ChangeInputModule,
     FeedbackModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]
