@@ -28,9 +28,10 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatTabsModule } from '@angular/material/tabs';
-import {DragDropModule} from '@angular/cdk/drag-drop';
+import { DragDropModule} from '@angular/cdk/drag-drop';
 import { DialogModule } from '@angular/cdk/dialog';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @NgModule({
   exports: [
@@ -69,6 +70,7 @@ import { MatDividerModule } from '@angular/material/divider';
     DragDropModule,
     DialogModule,
     MatDividerModule,
+    MatProgressBarModule
   ],
 })
 export class MaterialModule {}

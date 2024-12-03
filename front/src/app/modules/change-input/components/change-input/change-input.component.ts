@@ -13,8 +13,11 @@ import { Feedback } from 'src/app/shared/interfaces/Feedback';
 export class ChangeInputComponent {
 
   code: string = '';
-  response?: any;
+  response?: Feedback[] = [];
   evaluated: boolean = false;
+  isLoading: boolean = false;
+  errorLog: string = '';
+  success: boolean = false;
 
   // csv file; make an instructor view
   progLangs: any[] = [
@@ -121,8 +124,23 @@ export class ChangeInputComponent {
     format: ['', [Validators.required]],
   });
 
+  startLoad() {
+    this.errorLog = '';
+    this.isLoading = true;
+    this.response = [];
+    this.success = false;
+  }
+
+  finishLoad() {
+    this.isLoading = false;
+    this.evaluated = true;
+  }
+
   evaluate() {
 
+    this.startLoad();
+
+    // await asynch
     // get stringified code
     const rawCode = this.codeForm.get('code')?.value;
     const stringifiedCode = JSON.stringify(rawCode).substring(1, (rawCode).length-1)
@@ -137,17 +155,20 @@ export class ChangeInputComponent {
 
     // console.log(inputData);
 
-    // prettyprint
+    // prettyprint; verify json output for error is in correct format too
     this.inputService.processInput(inputData).subscribe({
       next: (data) => {
         console.log(data);
-        this.response = JSON.stringify(data);
+        this.response = data;
+        this.success = true;
       },
       error: (error) => {
         console.log(error);
+        this.errorLog = "Incorrect input, please submit code on the appropriate language.";
       },
     });
 
-    this.evaluated = true;
+    // await asynch for these to execute properly
+    this.finishLoad();
   }
 }
