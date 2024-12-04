@@ -16,8 +16,8 @@
           </form>
         </mat-card-content>
         <mat-card-actions>
-          <button (click)="cleanCode()" mat-stroked-button>Clear</button>
-          <button (click)="uploadCode()" mat-stroked-button>Upload</button>
+          <button (click)="clearCode()" mat-stroked-button id="clearbtn">Clear</button>
+          <button (click)="uploadCode()" mat-stroked-button id="uploadbtn">Upload</button>
         </mat-card-actions>
       </mat-card>
     </div>
@@ -74,7 +74,7 @@
           </form>
       </div>
       <div>
-          <button (click)="startLoad(); evaluate()" mat-stroked-button>Evaluate</button>
+          <button (click)="evaluate()" mat-stroked-button id="analysisbtn">Evaluate</button>
       </div>
     </div>
   </div>
@@ -85,11 +85,10 @@
       <mat-card appearance="outlined">
           <mat-card-content>
               <div *ngIf="evaluated == false">
-                [GenAI output will be filled here]
+                <p>[GenAI output will be filled here]</p>
+                <mat-progress-bar *ngIf="isLoading == true" mode="indeterminate"></mat-progress-bar>
               </div>
-              <!-- async this to make it load properly -->
-              <mat-progress-bar *ngIf="isLoading == true" mode="indeterminate"></mat-progress-bar>
-              <!-- change this to display each item as a component page or sth (check ticketfast) -->
+              <!-- later change this to display each item as a component page -->
               <div *ngIf="success" class="output">
                 <ul *ngFor="let item of response">
                   <li><strong>Error location:</strong> {{item.error_location}}</li>

@@ -18,6 +18,7 @@ export class ChangeInputComponent {
   isLoading: boolean = false;
   errorLog: string = '';
   success: boolean = false;
+  incorrectInputMessage: string = "Incorrect input, please submit code on the appropriate language.";
 
   // csv file; make an instructor view
   progLangs: any[] = [
@@ -105,7 +106,7 @@ export class ChangeInputComponent {
     code: ['', [Validators.required]],
   });
 
-  cleanCode() {
+  clearCode() {
     this.codeForm.reset();
     this.code = '';
     console.log(this.code);
@@ -126,9 +127,22 @@ export class ChangeInputComponent {
 
   startLoad() {
     this.errorLog = '';
+    this.evaluated = false;
     this.isLoading = true;
     this.response = [];
     this.success = false;
+  }
+
+  enableButtons() {
+    (document.getElementById("clearbtn") as HTMLButtonElement).disabled = false;
+    (document.getElementById("uploadbtn") as HTMLButtonElement).disabled = false;
+    (document.getElementById("analysisbtn") as HTMLButtonElement).disabled = false;
+  }
+
+  disableButtons() {
+    (document.getElementById("clearbtn") as HTMLButtonElement).disabled = true;
+    (document.getElementById("uploadbtn") as HTMLButtonElement).disabled = true;
+    (document.getElementById("analysisbtn") as HTMLButtonElement).disabled = true;
   }
 
   finishLoad() {
@@ -140,8 +154,6 @@ export class ChangeInputComponent {
 
     this.startLoad();
 
-    // await asynch
-    // get stringified code
     const rawCode = this.codeForm.get('code')?.value;
     const stringifiedCode = JSON.stringify(rawCode).substring(1, (rawCode).length-1)
 
@@ -155,20 +167,22 @@ export class ChangeInputComponent {
 
     // console.log(inputData);
 
-    // prettyprint; verify json output for error is in correct format too
     this.inputService.processInput(inputData).subscribe({
       next: (data) => {
         console.log(data);
-        this.response = data;
-        this.success = true;
+        if (data == this.incorrectInputMessage) {
+          this.errorLog = this.incorrectInputMessage;
+        } else {
+          this.response = data;
+          this.success = true;
+        }
+        this.finishLoad();
       },
       error: (error) => {
         console.log(error);
-        this.errorLog = "Incorrect input, please submit code on the appropriate language.";
+        this.errorLog = "Server error occurred.";
+        this.finishLoad();
       },
     });
-
-    // await asynch for these to execute properly
-    this.finishLoad();
   }
 }

@@ -12,11 +12,16 @@ Make a tool that can help students improve their coding standards.
 - [ ] Instructor view
     - [ ] Instructor interface
     - [ ] Data CSVs
-- [ ] Loading analysis interface (await/async)
-    - [ ] Loading bar
-    - [ ] Disable forms and buttons
 - [ ] File upload
-- [ ] Bulk Upload Data Script
+    - [ ] Interface and prompt modifications
+    - [ ] Bulk upload data script
+- [x] Loading analysis interface
+    - [x] Loading bar
+    - [x] Disable forms and buttons while analyzing
+
+## To-fix / improve (later)
+- Sometimes throws an error instead of the incorrect output message.
+- Refactor the evaluate function with await and async.
 
 ---
 

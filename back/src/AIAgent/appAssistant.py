@@ -39,7 +39,7 @@ e. Programming language used
 f. Tone to use on reply
 g. Format to use on reply
 
-If "d. Code" is not code that can be interpreted in "e. Programming language used" respond solely with a string response that states "Incorrect input, please submit code on the appropriate language".
+If "d. Code" is not code that can be interpreted in "e. Programming language used" respond only with the following string response: "Incorrect input, please submit code on the appropriate language.".
 
 Point "f. Tone to be used to reply" is more in regards to the attitude the wording of your replies has. Make sure to still follow the tone guidelines mentioned beforehand.
 
