@@ -1,7 +1,18 @@
+<mat-drawer-container>
+  <mat-drawer class="drawer" #drawer mode="over" position="end">
+    <app-side-nav-menu (redirector)="drawer.close()"></app-side-nav-menu>
+  </mat-drawer>
+  <mat-drawer-content>
+    <app-header
+    class="header"
+    [user]="user"
+    (openSideNav)="drawer.toggle()"
+    >
+    </app-header>
+    <router-outlet class="content"></router-outlet>
+  </mat-drawer-content>
+</mat-drawer-container>
+<!-- ^ gotta make that functional -->
 <div>
-  <!-- <h1>Code Stylist wao!</h1> -->
-  <!-- main container -->
-  <app-change-input></app-change-input>
+  <app-analyze></app-analyze>
 </div>
-
-<router-outlet></router-outlet>

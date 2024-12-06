@@ -3,15 +3,18 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ChangeInputModule } from './modules/change-input/change-input.module';
+import { AnalyzeModule } from './modules/analyze/analyze.module';
 import { FeedbackModule } from './modules/feedback/feedback.module';
 import { MaterialModule } from './core/material/material.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from "@angular/common/http";
+import { SharedModule } from './shared/shared.module';
+import { HeaderComponent } from './core/components/header/header.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    HeaderComponent
   ],
   imports: [
     BrowserModule,
@@ -20,9 +23,10 @@ import { HttpClientModule } from "@angular/common/http";
     BrowserAnimationsModule,
     ReactiveFormsModule,
     FormsModule,
-    ChangeInputModule,
+    AnalyzeModule,
     FeedbackModule,
-    HttpClientModule
+    HttpClientModule,
+    SharedModule
   ],
   providers: [],
   bootstrap: [AppComponent]

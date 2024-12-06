@@ -1,15 +1,15 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ChangeInputComponent } from './components/change-input/change-input.component';
+import { AnalyzeComponent } from './components/analyze/analyze.component';
 import { MaterialModule } from 'src/app/core/material/material.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
-    ChangeInputComponent
+    AnalyzeComponent
   ],
   exports: [
-    ChangeInputComponent
+    AnalyzeComponent
   ],
   imports: [
     CommonModule,
@@ -18,4 +18,4 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     ReactiveFormsModule
   ]
 })
-export class ChangeInputModule { }
+export class AnalyzeModule { }

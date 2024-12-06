@@ -6,11 +6,11 @@ import { Feedback } from 'src/app/shared/interfaces/Feedback';
 // import { CourseService } from 'src/app/core/services/http/course.service';
 
 @Component({
-  selector: 'app-change-input',
-  templateUrl: './change-input.component.html',
-  styleUrls: ['./change-input.component.css']
+  selector: 'app-analyze',
+  templateUrl: './analyze.component.html',
+  styleUrls: ['./analyze.component.css']
 })
-export class ChangeInputComponent {
+export class AnalyzeComponent {
 
   code: string = '';
   response?: Feedback[] = [];

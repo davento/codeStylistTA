@@ -1,0 +1,11 @@
+<div class="flex-col" style="padding-bottom: 60px">
+  <div
+  class="flex-between"
+  style="cursor:pointer;"
+  (click)="redirect(option.url)"
+  *ngFor="let option of options">
+    <div class="flex-row">
+      {{option.name}}
+    </div>
+  </div>
+</div>
