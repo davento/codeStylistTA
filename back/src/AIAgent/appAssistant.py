@@ -1,6 +1,9 @@
 from openai import OpenAI
 import openai
 import base64
+import sys
+sys.path.append("../src")
+import src.util as util
 
 OPENAI_API_KEY = "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"
 ORG_ID = "org-tQQarliDkrBTI1WZcOgFmwJA"
@@ -38,7 +41,9 @@ e. Tone to use on reply
 f. Format to use on reply
 g. Code
 
-Note that "g. Code" input is an array of strings, in which each element corresponds to a line of the code and its index number is its line number.
+An upcoming message from the system will provide variables from a. to f.. 
+
+A sequence of user messages will provide g. divided in chunks. These will be delimited by a message saying "Code start" and another one saying "Code end".
 
 If "g. Code" is not code that can be interpreted in "e. Programming language used" respond only with the following string response: "Incorrect input, please submit code on the appropriate language.".
 
@@ -53,6 +58,8 @@ If "f. Format to be used to reply" is JSON, the output should be an array of JSO
 Return only the JSON array. Not plaintext formatted as a JSON. Just the JSON array.
 
 This should also be the default format for your replies. And again, please be specific with your feedback.
+
+Once these values are given, please fulfill the initially stated prompt.
 '''
 
 # assistant
@@ -93,23 +100,48 @@ def get_response(query: str):
     print(run.status)
     return "Some error occured"
 
-def get_analysis(query: str):
+def get_analysis(configValues: str, code: list[str]):
 
   client = OpenAI(
     api_key=OPENAI_API_KEY,
     organization=ORG_ID
   )
 
-  print("===Query:")
+  print("===Initial Prompt:")
   print(prompt)
-  print(query)
+  print(configValues)
+
+  messages_to_send = [
+    {"role": "system", "content": prompt},
+    {"role": "system", "content": configValues},
+    {"role": "user", "content": "Code start"}
+  ]
+
+  # it's detecting the line numbers properly now, but this still needs some fixing
+  # the issue lies now in how to properly slice this input since it's messing it up due to the \n
+  # maybe it'll have to work with the arrays
+  # also definitely add some more logic to the role cuz it's returning some weird answers
+  
+  print("Code Start ====")
+
+  index_start = 0
+  skip = 100
+  index_end = index_start + skip
+  # slice the code in chunks then for every chunk append the following message:
+  while (index_end < len(code)):
+    query = util.convert_code_array_to_numbered_str(code, index_start, index_end)
+    messages_to_send.append({"role": "user", "content": query})
+    print({"role": "user", "content": query})
+    index_start = index_end
+    index_end = index_end + skip if index_end + skip < len(code) else index_start + len(code) - index_start
+    print(index_start, index_end)
+
+  messages_to_send.append({"role": "user", "content": "Code end"})
+  print("==== Code End")
 
   completion = client.chat.completions.create(
     model="gpt-4",
-    messages=[
-      {"role": "system", "content": prompt},
-      {"role": "system", "content": query},
-    ]
+    messages=messages_to_send
   )
 
   response = completion.choices[0].message.content

@@ -1,6 +1,7 @@
 from flask import Flask, request
 from flask_cors import CORS
 import src.AIAgent.appAssistant as appAssistant
+import src.util as util
 
 app = Flask(__name__)
 CORS(app)
@@ -17,26 +18,16 @@ def process_input():
     programming_language_name = programming_language['name']
     reply_tone = request_data['reply_tone']
     reply_format = request_data['reply_format']
-    code = request_data['code']
+    code = util.convert_code_str_to_array(request_data['code'])
 
-    print("---Code:")
-    i = 0
-    while (i < len(code)):
-      print(str(i) + code[i])
-      i += 1
-    print ("-------")
-
-    query = '''
+    configValues = '''
     The values of the variables declared on the initial prompt are the following:
-        a. Name of the course: {}
-        b. Description of the course: {}
-        c. Learning objectives of the course: {}
-        d. Programming language used:{}
-        e. Tone to use on reply: {}
-        f. Format to use on reply: {}
-        g. Code: {}
-
-        With these values, please fulfill the initially stated prompt.
+    a. Name of the course: {}
+    b. Description of the course: {}
+    c. Learning objectives of the course: {}
+    d. Programming language used:{}
+    e. Tone to use on reply: {}
+    f. Format to use on reply: {}
     '''.format(
         course_name,
         course_description,
@@ -44,10 +35,9 @@ def process_input():
         programming_language_name,
         reply_tone,
         reply_format,
-        code,
     )
 
-    response = appAssistant.get_analysis(query)
+    response = appAssistant.get_analysis(configValues, code)
     print("===Response:")
     print(response)
 
