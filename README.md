@@ -15,9 +15,8 @@ Make a tool that can help students improve their coding standards.
 - [ ] File upload
     - [ ] Interface and prompt modifications
     - [ ] Bulk upload data script
-- [x] Loading analysis interface
-    - [x] Loading bar
-    - [x] Disable forms and buttons while analyzing
+- [ ] Chunking sent code / overlap windows
+- [ ] Update prompt respectively
 
 ## To-fix / improve (later)
 - Sometimes throws an error instead of the incorrect output message.

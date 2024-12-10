@@ -131,6 +131,7 @@ export class AnalyzeComponent {
     this.isLoading = true;
     this.response = [];
     this.success = false;
+    this.disableButtons();
   }
 
   enableButtons() {
@@ -148,6 +149,60 @@ export class AnalyzeComponent {
   finishLoad() {
     this.isLoading = false;
     this.evaluated = true;
+    this.enableButtons();
+  }
+
+  convertCodeToStringArray(code: string): string[] {
+    const lines: string[] = [''];
+    let currentLine = '';
+    let isInString = false;
+    let stringDelimiter: string | null = null;
+    let isTripleQuote = false;
+    let i = 0;
+
+    while (i < code.length) {
+      const char = code[i];
+      const nextChar = code[i + 1] || '';
+      const nextNextChar = code[i + 2] || '';
+
+      if (!isInString && char === "'" && nextChar === "'" && nextNextChar === "'") {
+        isInString = true;
+        isTripleQuote = true;
+        stringDelimiter = "'''";
+        i += 2;
+      } else if (isInString && isTripleQuote && char === "'" && nextChar === "'" && nextNextChar === "'") {
+        isInString = false;
+        isTripleQuote = false;
+        stringDelimiter = null;
+        i += 2;
+      } else if (!isInString && (char == '"' || char === "'" || char === "`")) {
+        isInString = true;
+        stringDelimiter = char;
+      } else if (isInString && char === stringDelimiter && !isTripleQuote && code[i-1] !== '\\') {
+        isInString = false;
+        stringDelimiter = null;
+      } else if (isInString && char === '\\') {
+        currentLine += char + nextChar;
+        i++;
+      }
+
+      else if (char === '\n') {
+        if (!isInString) {
+            lines.push(currentLine.trimEnd());
+            currentLine = '';
+        } else {
+            currentLine += char;
+        }
+      } else {
+        currentLine += char;
+      }
+
+      i++;
+    }
+
+    lines.push(currentLine.trimEnd());
+
+    return lines;
   }
 
   evaluate() {
@@ -155,17 +210,21 @@ export class AnalyzeComponent {
     this.startLoad();
 
     const rawCode = this.codeForm.get('code')?.value;
-    const stringifiedCode = JSON.stringify(rawCode).substring(1, (rawCode).length-1)
+    const parsedCode = this.convertCodeToStringArray(rawCode);
+    console.log(parsedCode);
+
+    // this works, it does make the array like it should
+    // all is left is to separate the arrays into chunks
+    // and then modify the prompt so that it sends separate messages
+    // and then groups them all together in a summary
 
     const inputData = {
-      code: stringifiedCode,
+      code: parsedCode,
       programming_language: this.configForm.get('programmingLanguage')?.value,
       course: this.configForm.get('course')?.value,
       reply_tone: this.configForm.get('tone')?.value,
       reply_format: this.configForm.get('format')?.value,
     };
-
-    // console.log(inputData);
 
     this.inputService.processInput(inputData).subscribe({
       next: (data) => {

@@ -13,31 +13,38 @@ def process_input():
     course_name = course['name']
     course_description = course['description']
     course_learning_outcomes = course['learning_outcomes']
-    code = request_data['code']
     programming_language = request_data['programming_language']
     programming_language_name = programming_language['name']
     reply_tone = request_data['reply_tone']
     reply_format = request_data['reply_format']
+    code = request_data['code']
+
+    print("---Code:")
+    i = 0
+    while (i < len(code)):
+      print(str(i) + code[i])
+      i += 1
+    print ("-------")
 
     query = '''
     The values of the variables declared on the initial prompt are the following:
         a. Name of the course: {}
         b. Description of the course: {}
         c. Learning objectives of the course: {}
-        d. Code: {}
-        e. Programming language used:{}
-        f. Tone to use on reply: {}
-        g. Format to use on reply: {}
+        d. Programming language used:{}
+        e. Tone to use on reply: {}
+        f. Format to use on reply: {}
+        g. Code: {}
 
         With these values, please fulfill the initially stated prompt.
     '''.format(
         course_name,
         course_description,
         course_learning_outcomes,
-        code,
         programming_language_name,
         reply_tone,
-        reply_format
+        reply_format,
+        code,
     )
 
     response = appAssistant.get_analysis(query)
