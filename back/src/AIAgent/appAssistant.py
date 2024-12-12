@@ -14,7 +14,7 @@ client = OpenAI(
   )
 
 
-prompt = '''
+role_prompt = '''
 
 You are a professor in computer science at Purdue University. You are teaching an introductory programming class. The specifics of said course will be detailed to you in a future message. These details will include:
 - Name of the course
@@ -31,7 +31,9 @@ Further, you must follow academic integrity guidelines. Therefore, the content o
 2. While you can use student code as context to crafting your response, you must not debug or correct their code in any scenario. 
 
 Once again, do not provide any code in any context.
+'''
 
+instructions_prompt = '''
 Given the initial prompt, consider the following variables:
 a. Name of the course
 b. Description of the course
@@ -41,13 +43,9 @@ e. Tone to use on reply
 f. Format to use on reply
 g. Code
 
-An upcoming message from the system will provide variables from a. to f.. 
+An upcoming message from the system will provide values for variables a to f.
 
-A sequence of user messages will provide g. divided in chunks. These will be delimited by a message saying "Code start" and another one saying "Code end".
-
-If "g. Code" is not code that can be interpreted in "e. Programming language used" respond only with the following string response: "Incorrect input, please submit code on the appropriate language.".
-
-Point "e. Tone to be used to reply" is more in regards to the attitude the wording of your replies has. Make sure to still follow the tone guidelines mentioned beforehand.
+Point "e. Tone to be used to reply" refers to the wording of your replies. Make sure to still follow the tone guidelines mentioned beforehand.
 
 If "f. Format to be used to reply" is JSON, the output should be an array of JSON items, where each JSON represents an error found in the code. Have the fields for this response be the following:
 - error_location (string)
@@ -55,9 +53,19 @@ If "f. Format to be used to reply" is JSON, the output should be an array of JSO
 - suggestions (string)
 - explanation (string)
 
-Return only the JSON array. Not plaintext formatted as a JSON. Just the JSON array.
+Return only the JSON array. Not plaintext formatted as a JSON. Just the JSON array. Nothing more, nothing less.
 
 This should also be the default format for your replies. And again, please be specific with your feedback.
+'''
+
+code_details_prompt = '''
+A sequence of user messages will provide variable g, the code. This sequence is delimited by a message saying "Code start" and another one saying "Code end".
+
+The format of the code is a list of strings, in which each string represents a line on the code. Every string starts with a number that represents its line number. 
+
+A chunk of this list will be provided on each message.
+
+If "g. Code" is not code that can be interpreted in "e. Programming language used" respond only with the following string response: "Incorrect input, please submit code on the appropriate language.".
 
 Once these values are given, please fulfill the initially stated prompt.
 '''
@@ -65,7 +73,7 @@ Once these values are given, please fulfill the initially stated prompt.
 # assistant
 assistant = client.beta.assistants.create(
   name="Code Stylist TA",
-  instructions=prompt,
+  instructions=role_prompt,
   tools=[{"type": "code_interpreter"}],
   model="gpt-4o",
 )
@@ -108,35 +116,32 @@ def get_analysis(configValues: str, code: list[str]):
   )
 
   print("===Initial Prompt:")
-  print(prompt)
+  print(role_prompt)
+  print(instructions_prompt)
   print(configValues)
 
   messages_to_send = [
-    {"role": "system", "content": prompt},
+    {"role": "system", "content": role_prompt},
+    {"role": "system", "content": instructions_prompt},
     {"role": "system", "content": configValues},
-    {"role": "user", "content": "Code start"}
+    {"role": "user", "content": "Code start\n["}
   ]
 
-  # it's detecting the line numbers properly now, but this still needs some fixing
-  # the issue lies now in how to properly slice this input since it's messing it up due to the \n
-  # maybe it'll have to work with the arrays
-  # also definitely add some more logic to the role cuz it's returning some weird answers
+  print("Total number of code lines: ", len(code)-1)
   
   print("Code Start ====")
 
-  index_start = 0
   skip = 100
-  index_end = index_start + skip
   # slice the code in chunks then for every chunk append the following message:
-  while (index_end < len(code)):
+  for index in range(0, len(code)-1, skip):
+    index_start = index+1
+    index_end = index+skip if index+skip < len(code) else len(code)-1
     query = util.convert_code_array_to_numbered_str(code, index_start, index_end)
+    print(query)
+    print("---")
     messages_to_send.append({"role": "user", "content": query})
-    print({"role": "user", "content": query})
-    index_start = index_end
-    index_end = index_end + skip if index_end + skip < len(code) else index_start + len(code) - index_start
-    print(index_start, index_end)
 
-  messages_to_send.append({"role": "user", "content": "Code end"})
+  messages_to_send.append({"role": "user", "content": "]\n Code end"})
   print("==== Code End")
 
   completion = client.chat.completions.create(
