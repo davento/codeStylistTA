@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Python",
+    "extensions": ["py"],
+    "reference_material": ["https://peps.python.org/pep-0008/"]
+  },
+  {
+    "name": "C++",
+    "extensions": ["cpp", "hpp", "h"],
+    "reference_material": ["https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines"]
+  },
+  {
+    "name": "JavaScript",
+    "extensions": ["js"],
+    "reference_material": ["https://developer.mozilla.org/en-US/docs/MDN/Writing_guidelines/Writing_style_guide/Code_style_guide/JavaScript"]
+  },
+  {
+    "name": "Java",
+    "extensions": ["java"],
+    "reference_material": ["https://github.com/piranhacloud/piranha/blob/current/CODE_CONVENTIONS.md"]
+  },
+  {
+    "name": "C",
+    "extensions": ["c", "h"],
+    "reference_material": ["https://www.cs.purdue.edu/homes/cs240/code.html"]
+  },
+  {
+    "name": "Rust",
+    "extensions": ["rs"],
+    "reference_material": ["https://doc.rust-lang.org/nightly/style-guide/"]
+  }
+]

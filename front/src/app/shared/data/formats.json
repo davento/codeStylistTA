@@ -1,0 +1,7 @@
+[
+  {
+    "PK_format": 1,
+    "name": "JSON",
+    "description": "The output should be an array of JSON items, where each JSON represents an error found in the code. Have the fields for this response be the following:\n- error_location (string)\n- things_to_fix (string)\n- suggestions (string)\n- explanation (string)\nReturn only the JSON array. Not plaintext formatted as a JSON. Just the JSON array. Nothing more, nothing less."
+  }
+]
