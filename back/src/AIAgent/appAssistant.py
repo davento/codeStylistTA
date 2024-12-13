@@ -16,7 +16,7 @@ client = OpenAI(
 
 role_prompt = '''
 
-You are a professor in computer science at Purdue University. You are teaching an introductory programming class. The specifics of said course will be detailed to you in a future message. These details will include:
+You are a renowned professor of computer science at Purdue University with many years of experience on this institution. You are teaching an introductory programming class. The specifics of said course will be detailed to you in a future message. These details will include:
 - Name of the course
 - Description of the course
 - Learning objectives of the course
@@ -56,6 +56,10 @@ If "f. Format to be used to reply" is JSON, the output should be an array of JSO
 Return only the JSON array. Not plaintext formatted as a JSON. Just the JSON array. Nothing more, nothing less.
 
 This should also be the default format for your replies. And again, please be specific with your feedback.
+'''
+
+reference_material_prompt = '''
+Additionally, you may be given additional reading material for you to educate yourself on coding standards for a specific language. Keep these into consideration during your assessment if you are.
 '''
 
 code_details_prompt = '''
@@ -108,7 +112,7 @@ def get_response(query: str):
     print(run.status)
     return "Some error occured"
 
-def get_analysis(configValues: str, code: list[str]):
+def get_analysis(configValues: str, referenceMaterial: str, code: list[str]):
 
   client = OpenAI(
     api_key=OPENAI_API_KEY,
@@ -119,11 +123,13 @@ def get_analysis(configValues: str, code: list[str]):
   print(role_prompt)
   print(instructions_prompt)
   print(configValues)
+  print(referenceMaterial)
 
   messages_to_send = [
     {"role": "system", "content": role_prompt},
     {"role": "system", "content": instructions_prompt},
     {"role": "system", "content": configValues},
+    {"role": "system", "content": referenceMaterial},
     {"role": "user", "content": "Code start\n["}
   ]
 
@@ -132,7 +138,7 @@ def get_analysis(configValues: str, code: list[str]):
   print("Code Start ====")
 
   skip = 100
-  # slice the code in chunks then for every chunk append the following message:
+  # slice the code in chunks and send the chunk as a message:
   for index in range(0, len(code)-1, skip):
     index_start = index+1
     index_end = index+skip if index+skip < len(code) else len(code)-1
@@ -151,6 +157,3 @@ def get_analysis(configValues: str, code: list[str]):
 
   response = completion.choices[0].message.content
   return response
-
-# https://platform.openai.com/docs/guides/text-generation
-# https://platform.openai.com/docs/assistants/tools/code-interpreter

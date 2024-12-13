@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { InputService } from 'src/app/core/services/components/input.service';
+import { Course } from 'src/app/shared/interfaces/Course';
 import { Feedback } from 'src/app/shared/interfaces/Feedback';
-// import { ProgLanguageService } from 'src/app/core/services/http/progLanguage.service';
-// import { CourseService } from 'src/app/core/services/http/course.service';
+import { ProgLanguage } from 'src/app/shared/interfaces/ProgLanguage';
 
 @Component({
   selector: 'app-analyze',
@@ -20,31 +20,41 @@ export class AnalyzeComponent {
   success: boolean = false;
   incorrectInputMessage: string = "Incorrect input, please submit code on the appropriate language.";
 
-  // csv file; make an instructor view
-  progLangs: any[] = [
+  // csv/json file + inputService to load them
+  progLangs: ProgLanguage[] = [
     {
       name: "Python",
       extensions: ["py"],
+      reference_material: ["https://peps.python.org/pep-0008/"]
     },
     {
       name: "C++",
       extensions: ["cpp", "hpp", "h"],
+      reference_material: ["https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines"]
     },
     {
       name: "JavaScript",
       extensions: ["js"],
+      reference_material: ["https://developer.mozilla.org/en-US/docs/MDN/Writing_guidelines/Writing_style_guide/Code_style_guide/JavaScript"]
     },
     {
       name: "Java",
-      extensions: ["java"]
+      extensions: ["java"],
+      reference_material: ["https://github.com/piranhacloud/piranha/blob/current/CODE_CONVENTIONS.md"]
     },
     {
       name: "C",
-      extensions: ["c", "h"]
+      extensions: ["c", "h"],
+      reference_material: ["https://www.cs.purdue.edu/homes/cs240/code.html"]
+    },
+    {
+      name: "Rust",
+      extensions: ["rs"],
+      reference_material: ["https://doc.rust-lang.org/nightly/style-guide/"]
     }
   ];
 
-  courses: any[] = [
+  courses: Course[] = [
     {
       code: 15900,
       name: "C Programming",
@@ -73,6 +83,14 @@ export class AnalyzeComponent {
       ],
     },
     {
+      code: 18000,
+      name: "Problem Solving And Object-Oriented Programming",
+      description: "Problem solving and algorithms, implementation of algorithms in a high level programming language, conditionals, the iterative approach and debugging, collections of data, searching and sorting, solving problems by decomposition, the object-oriented approach, subclasses of existing classes, handling exceptions that occur when the program is running, graphical user interfaces (GUIs), data stored in files, abstract data types, a glimpse at topics from other CS courses. Intended primarily for students majoring in computer sciences.",
+      learning_outcomes: [
+        "Understand solving problems by analyzing the problem, designing an algorithm, and programming the solution."
+      ]
+    },
+    {
       code: 25100,
       name: "Data Structures And Algorithms",
       description: "Running time analysis of algorithms and their implementations, one-dimensional data structures, trees, heaps, additional sorting algorithms, binary search trees, hash tables, graphs, directed graphs, weighted graph algorithms, additional topics.",
@@ -95,9 +113,7 @@ export class AnalyzeComponent {
   constructor (
     private fb: FormBuilder,
     private inputService: InputService
-    // also use these later for when there's a database
-    // private progLanguageService: ProgLanguageService,
-    // private courseService: CourseService
+    // add configService when its created
   ) {
 
   }
@@ -156,11 +172,6 @@ export class AnalyzeComponent {
 
     this.startLoad();
 
-    // this works, it does make the array like it should
-    // all is left is to separate the arrays into chunks
-    // and then modify the prompt so that it sends separate messages
-    // and then groups them all together in a summary
-
     const inputData = {
       code: this.code,
       programming_language: this.configForm.get('programmingLanguage')?.value,
@@ -169,6 +180,7 @@ export class AnalyzeComponent {
       reply_format: this.configForm.get('format')?.value,
     };
 
+    // need to think of more error cases and fix this one
     this.inputService.processInput(inputData).subscribe({
       next: (data) => {
         console.log(data);
