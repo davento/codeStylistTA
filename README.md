@@ -11,14 +11,14 @@ To make a tool that can help students improve their coding standards (comments, 
 Note that a teacher (assistant) would still be the one giving the final grade. Instructors are also considered as an additional user of this platform, by having an interface through which they can specify details about the course.
 
 ## To-do
-- [ ] Instructor view
-    - [ ] Instructor interface
-    - [ ] Data CSVs
 - [ ] File upload
     - [ ] Interface and prompt modifications
     - [ ] Bulk upload data script
-- [X] Chunking sent code / overlap windows
-- [X] Update prompt respectively
+- [ ] PDF references
+- [ ] Background for presentation
+- [ ] Instructor view
+    - [ ] Instructor interface
+    - [ ] Data CSVs
 
 ## To-fix / improve (later)
 - Sometimes throws an error instead of the incorrect output message.

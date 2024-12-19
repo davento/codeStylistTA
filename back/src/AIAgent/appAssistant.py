@@ -65,7 +65,7 @@ Additionally, you may be given additional reading material for you to educate yo
 code_details_prompt = '''
 A sequence of user messages will provide variable g, the code. This sequence is delimited by a message saying "Code start" and another one saying "Code end".
 
-The format of the code is a list of strings, in which each string represents a line on the code. Every string starts with a number that represents its line number. 
+The format of the code is a list of strings, in which each string represents a line on the code. Every string starts with a number that represents its line number. The code starts after a space.
 
 A chunk of this list will be provided on each message.
 
@@ -112,24 +112,34 @@ def get_response(query: str):
     print(run.status)
     return "Some error occured"
 
-def get_analysis(configValues: str, referenceMaterial: str, code: list[str]):
+# Files are too long so discarding this for now
+def create_guidelines_message(filename: str, languagename: str):
+  with open(filename, 'rb') as guidelines_file:
+    guidelines= guidelines_file.read()
+
+  message = '''To further educate yourself on {} coding standards, consider the following information:\n{}'''.format(languagename, guidelines)
+  return message
+
+def get_analysis(configValues: str, referenceMaterial: list[str], code: list[str]):
 
   client = OpenAI(
     api_key=OPENAI_API_KEY,
     organization=ORG_ID
   )
 
+  reference_material_message = create_guidelines_message(referenceMaterial[0], referenceMaterial[1])
+
   print("===Initial Prompt:")
   print(role_prompt)
   print(instructions_prompt)
   print(configValues)
-  print(referenceMaterial)
+  print(reference_material_message)
 
   messages_to_send = [
     {"role": "system", "content": role_prompt},
     {"role": "system", "content": instructions_prompt},
     {"role": "system", "content": configValues},
-    {"role": "system", "content": referenceMaterial},
+    {"role": "system", "content": reference_material_message},
     {"role": "user", "content": "Code start\n["}
   ]
 

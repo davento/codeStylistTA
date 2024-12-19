@@ -2,31 +2,31 @@
   {
     "name": "Python",
     "extensions": ["py"],
-    "reference_material": ["https://peps.python.org/pep-0008/"]
+    "guidelines": "./guidelines_files/Python/Python_PEP8_Guidelines.pdf"
   },
   {
     "name": "C++",
     "extensions": ["cpp", "hpp", "h"],
-    "reference_material": ["https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines"]
+    "guidelines": "./guidelines_files/C++/Cpp_Guidelines.md"
   },
   {
     "name": "JavaScript",
     "extensions": ["js"],
-    "reference_material": ["https://developer.mozilla.org/en-US/docs/MDN/Writing_guidelines/Writing_style_guide/Code_style_guide/JavaScript"]
+    "guidelines": "./guidelines_files/JavaScript/JavaScript_Guidelines.pdf"
   },
   {
     "name": "Java",
     "extensions": ["java"],
-    "reference_material": ["https://github.com/piranhacloud/piranha/blob/current/CODE_CONVENTIONS.md"]
+    "guidelines": "./guidelines_files/Java/Java_Guidelines.pdf"
   },
   {
     "name": "C",
     "extensions": ["c", "h"],
-    "reference_material": ["https://www.cs.purdue.edu/homes/cs240/code.html"]
+    "guidelines": "./guidelines_files/C/C_Guidelines.md"
   },
   {
     "name": "Rust",
     "extensions": ["rs"],
-    "reference_material": ["https://doc.rust-lang.org/nightly/style-guide/"]
+    "guidelines": "./guidelines_files/Rust/Rust_Guidelines.pdf"
   }
 ]

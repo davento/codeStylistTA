@@ -78,7 +78,7 @@ def convert_code_array_to_numbered_str(code_array: list[str], index_start: int, 
     i = index_start
     code_full = "["
     for i in range(index_start, index_end+1):
-        code_line = '"' + str(i) + code_array[i] + '"'
+        code_line = '"' + str(i) + " " + code_array[i] + '"'
         if (i != index_end):
             code_line += ", "
         code_full += code_line

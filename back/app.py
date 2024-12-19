@@ -8,19 +8,23 @@ CORS(app)
 
 @app.route("/input", methods=["POST"])
 def process_input():
+
+    # Obtaining data
     request_data = request.get_json()
-        
+
+    # Parsing data
     course = request_data['course']
     course_name = course['name']
     course_description = course['description']
     course_learning_outcomes = course['learning_outcomes']
     programming_language = request_data['programming_language']
     programming_language_name = programming_language['name']
-    programming_language_ref_mat = programming_language['reference_material']
+    programming_language_guidelines = programming_language['guidelines']
     reply_tone = request_data['reply_tone']
     reply_format = request_data['reply_format']
     code = util.convert_code_str_to_array(request_data['code'])
 
+    # Setting values
     configValues = '''
     The values of the variables declared on the initial prompt are the following:
     a. Name of the course: {}
@@ -38,13 +42,10 @@ def process_input():
         reply_format,
     )
 
-    referenceMaterial = '''
-    Consider the information on the following link(s): {} to educate yourself on {} coding standards.
-    '''.format(
-        programming_language_ref_mat,
-        programming_language_name
-    )
+    # Input for create_guidelines_message function on appAssistant.py
+    referenceMaterial = [programming_language_guidelines, programming_language_name]
 
+    # Send them to the analysis
     response = appAssistant.get_analysis(configValues, referenceMaterial, code)
     print("===Response:")
     print(response)
