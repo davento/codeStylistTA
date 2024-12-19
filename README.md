@@ -20,8 +20,8 @@ SHOULDS:
 - [ ] Instructor view
     - [ ] Instructor interface
     - [ ] Data CSVs
-DONE:
-- [X] PDF references. `NOTE: NOT WORKING`
+FIXES:
+- [ ] PDF references. `NOTE: NOT WORKING. MAKE SHORT VERSIONS`
 
 ## To-fix, check and/or improve (later)
 - Sometimes throws an error instead of the incorrect output message.

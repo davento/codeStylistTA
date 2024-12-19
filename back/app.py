@@ -19,6 +19,7 @@ def process_input():
     course_learning_outcomes = course['learning_outcomes']
     programming_language = request_data['programming_language']
     programming_language_name = programming_language['name']
+    programming_language_guidelines = programming_language['guidelines_location']
     reply_tone = request_data['reply_tone']
     reply_format = request_data['reply_format']
     code = util.convert_code_str_to_array(request_data['code'])
@@ -41,8 +42,10 @@ def process_input():
         reply_format,
     )
 
+    guidelines = [programming_language_guidelines, programming_language_name]
+
     # Send them to the analysis
-    response = appAssistant.get_analysis(configValues, code)
+    response = appAssistant.get_analysis(configValues, code, guidelines)
     print("===Response:")
     print(response)
 

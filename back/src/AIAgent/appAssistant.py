@@ -112,15 +112,7 @@ def get_response(query: str):
     print(run.status)
     return "Some error occured"
 
-# Files are too long so discarding this for now
-def create_guidelines_message(filename: str, languagename: str):
-  with open(filename, 'rb') as guidelines_file:
-    guidelines= guidelines_file.read()
-
-  message = '''To further educate yourself on {} coding standards, consider the following information:\n{}'''.format(languagename, guidelines)
-  return message
-
-def get_analysis(configValues: str, code: list[str]):
+def get_analysis(configValues: str, code: list[str], guidelines: any):
 
   client = OpenAI(
     api_key=OPENAI_API_KEY,
@@ -135,9 +127,16 @@ def get_analysis(configValues: str, code: list[str]):
   messages_to_send = [
     {"role": "system", "content": role_prompt},
     {"role": "system", "content": instructions_prompt},
-    {"role": "system", "content": configValues},
-    {"role": "user", "content": "Code start\n["}
+    {"role": "system", "content": configValues}
   ]
+
+  guidelines_message = util.create_guidelines_message(guidelines[0], guidelines[1])
+  if(guidelines_message):
+    messages_to_send.append(guidelines_message)
+  else:
+    print("Guidelines are too long. Excluding.\n\n")
+  
+  messages_to_send.append({"role": "user", "content": "Code start\n["})
 
   print("Total number of code lines: ", len(code)-1)
   
