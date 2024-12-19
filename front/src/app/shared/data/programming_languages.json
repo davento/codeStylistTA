@@ -2,31 +2,31 @@
   {
     "name": "Python",
     "extensions": ["py"],
-    "guidelines": "./guidelines_files/Python/Python_PEP8_Guidelines.pdf"
+    "guidelines_location": "./guidelines_files/Python/Python_PEP8_Guidelines.pdf"
   },
   {
     "name": "C++",
     "extensions": ["cpp", "hpp", "h"],
-    "guidelines": "./guidelines_files/C++/Cpp_Guidelines.md"
+    "guidelines_location": "./guidelines_files/C++/Cpp_Guidelines.md"
   },
   {
     "name": "JavaScript",
     "extensions": ["js"],
-    "guidelines": "./guidelines_files/JavaScript/JavaScript_Guidelines.pdf"
+    "guidelines_location": "./guidelines_files/JavaScript/JavaScript_Guidelines.pdf"
   },
   {
     "name": "Java",
     "extensions": ["java"],
-    "guidelines": "./guidelines_files/Java/Java_Guidelines.pdf"
+    "guidelines_location": "./guidelines_files/Java/Java_Guidelines.pdf"
   },
   {
     "name": "C",
     "extensions": ["c", "h"],
-    "guidelines": "./guidelines_files/C/C_Guidelines.md"
+    "guidelines_location": "./guidelines_files/C/C_Guidelines.md"
   },
   {
     "name": "Rust",
     "extensions": ["rs"],
-    "guidelines": "./guidelines_files/Rust/Rust_Guidelines.pdf"
+    "guidelines_location": "./guidelines_files/Rust/Rust_Guidelines.pdf"
   }
 ]

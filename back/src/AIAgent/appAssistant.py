@@ -120,26 +120,22 @@ def create_guidelines_message(filename: str, languagename: str):
   message = '''To further educate yourself on {} coding standards, consider the following information:\n{}'''.format(languagename, guidelines)
   return message
 
-def get_analysis(configValues: str, referenceMaterial: list[str], code: list[str]):
+def get_analysis(configValues: str, code: list[str]):
 
   client = OpenAI(
     api_key=OPENAI_API_KEY,
     organization=ORG_ID
   )
 
-  reference_material_message = create_guidelines_message(referenceMaterial[0], referenceMaterial[1])
-
   print("===Initial Prompt:")
   print(role_prompt)
   print(instructions_prompt)
   print(configValues)
-  print(reference_material_message)
 
   messages_to_send = [
     {"role": "system", "content": role_prompt},
     {"role": "system", "content": instructions_prompt},
     {"role": "system", "content": configValues},
-    {"role": "system", "content": reference_material_message},
     {"role": "user", "content": "Code start\n["}
   ]
 
