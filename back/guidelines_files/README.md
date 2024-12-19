@@ -1,4 +1,6 @@
-# List of References Used
+# List of Guideline References Used
+
+The following lists the references used for the guidelines per programming language this app considers.
 
 ## Python
 - Guido van Rossum, Barry Warsaw, Alyssa Coghlan (2001). PEP 8 – Style Guide for Python Code [https://peps.python.org/pep-0008/](https://peps.python.org/pep-0008/)
