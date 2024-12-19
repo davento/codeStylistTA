@@ -11,18 +11,22 @@ To make a tool that can help students improve their coding standards (comments, 
 Note that a teacher (assistant) would still be the one giving the final grade. Instructors are also considered as an additional user of this platform, by having an interface through which they can specify details about the course.
 
 ## To-do
+MUSTS:
 - [ ] File upload
     - [ ] Interface and prompt modifications
     - [ ] Bulk upload data script
-- [ ] PDF references
 - [ ] Background for presentation
+SHOULDS:
 - [ ] Instructor view
     - [ ] Instructor interface
     - [ ] Data CSVs
+DONE:
+- [X] PDF references. `NOTE: NOT WORKING`
 
-## To-fix / improve (later)
+## To-fix, check and/or improve (later)
 - Sometimes throws an error instead of the incorrect output message.
 - Refactor the evaluate function with await and async.
+- Use a RAG and upload the code guidelines references there.
 
 ---
 
