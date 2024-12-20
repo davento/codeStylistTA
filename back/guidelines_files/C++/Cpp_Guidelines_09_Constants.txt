@@ -1,0 +1,6 @@
+## Constants and immutability
+* Con.1: By default, make objects immutable
+* Con.2: By default, make member functions `const`
+* Con.3: By default, pass pointers and references to `const`s
+* Con.4: Use `const` to define objects with values that do not change after construction
+* Con.5: Use `constexpr` for values that can be computed at compile time

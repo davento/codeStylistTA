@@ -1,0 +1,21 @@
+## About this document
+
+The rules are not intended to be minimal or orthogonal.
+In particular, general rules can be simple, but unenforceable.
+Also, it is often hard to understand the implications of a general rule.
+More specialized rules are often easier to understand and to enforce, but without general rules, they would just be a long list of special cases.
+We provide rules aimed at helping novices as well as rules supporting expert use.
+Some rules can be completely enforced, but others are based on heuristics.
+
+The rules are not value-neutral.
+They are meant to make code simpler and more correct/safer than most existing C++ code, without loss of performance.
+They are meant to inhibit perfectly valid C++ code that correlates with errors, spurious complexity, and poor performance.
+
+Some rules are hard to check mechanically, but they all meet the minimal criteria that an expert programmer can spot many violations without too much trouble.
+We hope that "mechanical" tools will improve with time to approximate what such an expert programmer notices.
+Also, we assume that the rules will be refined over time to make them more precise and checkable.
+
+A rule is aimed at being simple, rather than carefully phrased to mention every alternative and special case.
+
+This is not a language manual.
+It is meant to be helpful, rather than complete, fully accurate on technical details, or a guide to existing code.

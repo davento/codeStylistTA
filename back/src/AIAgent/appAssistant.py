@@ -112,7 +112,7 @@ def get_response(query: str):
     print(run.status)
     return "Some error occured"
 
-def get_analysis(configValues: str, code: list[str], guidelines: any):
+def get_analysis(configValues: str, code: list[str], guidelines: any=None):
 
   client = OpenAI(
     api_key=OPENAI_API_KEY,
@@ -130,11 +130,15 @@ def get_analysis(configValues: str, code: list[str], guidelines: any):
     {"role": "system", "content": configValues}
   ]
 
-  guidelines_message = util.create_guidelines_message(guidelines[0], guidelines[1])
-  if(guidelines_message):
-    messages_to_send.append(guidelines_message)
+  # TODO: split guidelines in chunks to send as message; maybe split per sections/folder
+  if (guidelines):
+    guidelines_message = util.create_guidelines_message(guidelines[0], guidelines[1])
+    if(guidelines_message):
+      messages_to_send.append(guidelines_message)
+    else:
+      print("Guidelines are too long. Excluding.\n\n")
   else:
-    print("Guidelines are too long. Excluding.\n\n")
+    print("No guidelines provided.\n\n")
   
   messages_to_send.append({"role": "user", "content": "Code start\n["})
 
@@ -154,6 +158,8 @@ def get_analysis(configValues: str, code: list[str], guidelines: any):
 
   messages_to_send.append({"role": "user", "content": "]\n Code end"})
   print("==== Code End")
+
+  # TODO: Add token verification if the guidelines + code is too long
 
   completion = client.chat.completions.create(
     model="gpt-4",

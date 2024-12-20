@@ -7,7 +7,7 @@
   {
     "name": "C++",
     "extensions": ["cpp", "hpp", "h"],
-    "guidelines_location": "./guidelines_files/C++/Cpp_Guidelines.md"
+    "guidelines_location": "./guidelines_files/C++/Cpp_Guidelines_simple.txt"
   },
   {
     "name": "JavaScript",

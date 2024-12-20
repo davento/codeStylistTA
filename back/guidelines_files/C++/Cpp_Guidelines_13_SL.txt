@@ -1,0 +1,28 @@
+## The Standard Library
+* SL.1: Use libraries wherever possible
+* SL.2: Prefer the standard library to other libraries
+* SL.3: Do not add non-standard entities to namespace `std`
+* SL.4: Use the standard library in a type-safe manner
+
+Standard Library Containers:
+* SL.con.1: Prefer using STL `array` or `vector` instead of a C array
+* SL.con.2: Prefer using STL `vector` by default unless you have a reason to use a different container
+* SL.con.3: Avoid bounds errors
+* SL.con.4: don't use `memset` or `memcpy` for arguments that are not trivially-copyable
+
+Standard Library Strings:
+* SL.str.1: Use `std::string` to own character sequences
+* SL.str.2: Use `std::string_view` or `gsl::span<char>` to refer to character sequences
+* SL.str.3: Use `zstring` or `czstring` to refer to a C-style, zero-terminated, sequence of characters
+* SL.str.4: Use `char*` to refer to a single character
+* SL.str.5: Use `std::byte` to refer to byte values that do not necessarily represent characters
+* SL.str.10: Use `std::string` when you need to perform locale-sensitive string operations
+* SL.str.11: Use `gsl::span<char>` rather than `std::string_view` when you need to mutate a string
+* SL.str.12: Use the `s` suffix for string literals meant to be standard-library `string`s
+
+Standard Library Iostream:
+* SL.io.1: Use character-level input only when you have to
+* SL.io.2: When reading, always consider ill-formed input
+* SL.io.3: Prefer iostreams for I/O
+* SL.io.10: Unless you use `printf`-family functions call `ios_base::sync_with_stdio(false)`
+* SL.io.50: Avoid `endl`

@@ -1,0 +1,531 @@
+# C++ Core Guidelines
+
+## About this document
+
+The rules are not intended to be minimal or orthogonal.
+In particular, general rules can be simple, but unenforceable.
+Also, it is often hard to understand the implications of a general rule.
+More specialized rules are often easier to understand and to enforce, but without general rules, they would just be a long list of special cases.
+We provide rules aimed at helping novices as well as rules supporting expert use.
+Some rules can be completely enforced, but others are based on heuristics.
+
+The rules are not value-neutral.
+They are meant to make code simpler and more correct/safer than most existing C++ code, without loss of performance.
+They are meant to inhibit perfectly valid C++ code that correlates with errors, spurious complexity, and poor performance.
+
+Some rules are hard to check mechanically, but they all meet the minimal criteria that an expert programmer can spot many violations without too much trouble.
+We hope that "mechanical" tools will improve with time to approximate what such an expert programmer notices.
+Also, we assume that the rules will be refined over time to make them more precise and checkable.
+
+A rule is aimed at being simple, rather than carefully phrased to mention every alternative and special case.
+
+This is not a language manual.
+It is meant to be helpful, rather than complete, fully accurate on technical details, or a guide to existing code.
+
+## Philosophy
+* P.1: Express ideas directly in code
+* P.2: Write in ISO Standard C++
+* P.3: Express intent on what the code is supposed to do
+* P.4: Ideally, a program should be statically (compile-time) type safe
+* P.5: Prefer compile-time checking to run-time checking
+* P.6: What cannot be checked at compile time should be checkable at run time
+* P.7: Catch run-time errors early
+* P.8: Don't leak any resources
+* P.9: Don't waste time or space
+* P.10: Prefer immutable data to mutable data
+* P.11: Encapsulate messy constructs, rather than spreading through the code
+* P.12: Use supporting tools as appropriate
+* P.13: Use support libraries as appropriate
+
+## Interfaces
+* I.1: Make interfaces explicit
+* I.2: Avoid non-`const` global variables
+* I.3: Avoid singletons
+* I.4: Make interfaces precisely and strongly typed
+* I.5: State preconditions (if any)
+* I.6: Prefer `Expects()` for expressing preconditions
+* I.7: State postconditions
+* I.8: Prefer `Ensures()` for expressing postconditions
+* I.9: If an interface is a template, document its parameters using concepts
+* I.10: Use exceptions to signal a failure to perform a required task
+* I.11: Never transfer ownership by a raw pointer (`T*`) or reference (`T&`)
+* I.12: Declare a pointer that must not be null as `not_null`
+* I.13: Do not pass an array as a single pointer
+* I.22: Avoid complex initialization of global objects
+* I.23: Keep the number of function arguments low
+* I.24: Avoid adjacent parameters that can be invoked by the same arguments in either order with different meaning
+* I.25: Prefer empty abstract classes as interfaces to class hierarchies
+* I.26: If you want a cross-compiler ABI, use a C-style subset
+* I.27: For stable library ABI, consider the Pimpl idiom
+* I.30: Encapsulate rule violations
+
+## Functions
+Function definition rules:
+* F.1: "Package" meaningful operations as carefully named functions
+* F.2: A function should perform a single logical operation
+* F.3: Keep functions short and simple
+* F.4: If a function might have to be evaluated at compile time, declare it `constexpr`
+* F.5: If a function is very small and time-critical, declare it inline
+* F.6: If your function must not throw, declare it `noexcept`
+* F.7: For general use, take `T*` or `T&` arguments rather than smart pointers
+* F.8: Prefer pure functions
+* F.9: Unused parameters should be unnamed
+* F.10: If an operation can be reused, give it a name
+* F.11: Use an unnamed lambda if you need a simple function object in one place only
+
+Parameter passing expression rules:
+* F.15: Prefer simple and conventional ways of passing information
+* F.16: For "in" parameters, pass cheaply-copied types by value and others by reference to `const`
+* F.17: For "in-out" parameters, pass by reference to non-`const`
+* F.18: For "will-move-from" parameters, pass by `X&&` and `std::move` the parameter
+* F.19: For "forward" parameters, pass by `TP&&` and only `std::forward` the parameter
+* F.20: For "out" output values, prefer return values to output parameters
+* F.21: To return multiple "out" values, prefer returning a struct
+* F.60: Prefer `T*` over `T&` when "no argument" is a valid option
+
+Parameter passing semantic rules:
+* F.22: Use `T*` or `owner<T*>` to designate a single object
+* F.23: Use a `not_null<T>` to indicate that "null" is not a valid value
+* F.24: Use a `span<T>` or a `span_p<T>` to designate a half-open sequence
+* F.25: Use a `zstring` or a `not_null<zstring>` to designate a C-style string
+* F.26: Use a `unique_ptr<T>` to transfer ownership where a pointer is needed
+* F.27: Use a `shared_ptr<T>` to share ownership
+
+Value return semantic rules:
+* F.42: Return a `T*` to indicate a position (only)
+* F.43: Never (directly or indirectly) return a pointer or a reference to a local object
+* F.44: Return a `T&` when copy is undesirable and "returning no object" isn't needed
+* F.45: Don't return a `T&&`
+* F.46: `int` is the return type for `main()`
+* F.47: Return `T&` from assignment operators
+* F.48: Don't return `std::move(local)`
+* F.49: Don't return `const T`
+
+Other function rules:
+* F.50: Use a lambda when a function won't do (to capture local variables, or to write a local function)
+* F.51: Where there is a choice, prefer default arguments over overloading
+* F.52: Prefer capturing by reference in lambdas that will be used locally, including passed to algorithms
+* F.53: Avoid capturing by reference in lambdas that will be used non-locally, including returned, stored on the heap, or passed to another thread
+* F.54: When writing a lambda that captures `this` or any class data member, don't use `[=]` default capture
+* F.55: Don't use `va_arg` arguments
+* F.56: Avoid unnecessary condition nesting
+
+## Classes and class hierarchies
+Class rule summary:
+* C.1: Organize related data into structures (`struct`s or `class`es)
+* C.2: Use `class` if the class has an invariant; use `struct` if the data members can vary independently
+* C.3: Represent the distinction between an interface and an implementation using a class
+* C.4: Make a function a member only if it needs direct access to the representation of a class
+* C.5: Place helper functions in the same namespace as the class they support
+* C.7: Don't define a class or enum and declare a variable of its type in the same statement
+* C.8: Use `class` rather than `struct` if any member is non-public
+* C.9: Minimize exposure of members
+
+Concrete types:
+* C.10: Prefer concrete types over class hierarchies
+* C.11: Make concrete types regular
+* C.12: Don't make data members `const` or references in a copyable or movable type
+
+Default operations:
+* C.20: If you can avoid defining any default operations, do
+* C.21: If you define or `=delete` any copy, move, or destructor function, define or `=delete` them all
+* C.22: Make default operations consistent
+
+Destructor rules:
+* C.30: Define a destructor if a class needs an explicit action at object destruction
+* C.31: All resources acquired by a class must be released by the class's destructor
+* C.32: If a class has a raw pointer (`T*`) or reference (`T&`), consider whether it might be owning
+* C.33: If a class has an owning pointer member, define a destructor
+* C.35: A base class destructor should be either public and virtual, or protected and non-virtual
+* C.36: A destructor must not fail
+* C.37: Make destructors `noexcept`
+
+Constructor rules:
+* C.40: Define a constructor if a class has an invariant
+* C.41: A constructor should create a fully initialized object
+* C.42: If a constructor cannot construct a valid object, throw an exception
+* C.43: Ensure that a copyable class has a default constructor
+* C.44: Prefer default constructors to be simple and non-throwing
+* C.45: Don't define a default constructor that only initializes data members; use member initializers instead
+* C.46: By default, declare single-argument constructors `explicit`
+* C.47: Define and initialize data members in the order of member declaration
+* C.48: Prefer default member initializers to member initializers in constructors for constant initializers
+* C.49: Prefer initialization to assignment in constructors
+* C.50: Use a factory function if you need "virtual behavior" during initialization
+* C.51: Use delegating constructors to represent common actions for all constructors of a class
+* C.52: Use inheriting constructors to import constructors into a derived class that does not need further explicit Initialization
+
+Copy and move rules:
+* C.60: Make copy assignment non-`virtual`, take the parameter by `const&`, and return by non-`const&`
+* C.61: A copy operation should copy
+* C.62: Make copy assignment safe for self-assignment
+* C.63: Make move assignment non-`virtual`, take the parameter by `&&`, and return by non-`const&`
+* C.64: A move operation should move and leave its source in a valid state
+* C.65: Make move assignment safe for self-assignment
+* C.66: Make move operations `noexcept`
+* C.67: A polymorphic class should suppress public copy/move
+
+Other default operations rules:
+* C.80: Use `=default` if you have to be explicit about using the default semantics
+* C.81: Use `=delete` when you want to disable default behavior (without wanting an alternative)
+* C.82: Don't call virtual functions in constructors and destructors
+* C.83: For value-like types, consider providing a `noexcept` swap function
+* C.84: A `swap` must not fail
+* C.85: Make `swap` `noexcept`
+* C.86: Make `==` symmetric with respect of operand types and `noexcept`
+* C.87: Beware of `==` on base classes
+* C.89: Make a `hash` `noexcept`
+* C.90: Rely on constructors and assignment operators, not memset and memcpy
+
+Containers and other resource handles:
+* C.100: Follow the STL when defining a container
+* C.101: Give a container value semantics
+* C.102: Give a container move operations
+* C.103: Give a container an initializer list constructor
+* C.104: Give a container a default constructor that sets it to empty
+* C.109: If a resource handle has pointer semantics, provide `*` and `->`
+
+Function objects and lambdas:
+* F.10: If an operation can be reused, give it a name
+* F.11: Use an unnamed lambda if you need a simple function object in one place only
+* F.50: Use a lambda when a function won't do (to capture local variables, or to write a local function)
+* F.52: Prefer capturing by reference in lambdas that will be used locally, including passed to algorithms
+* F.53: Avoid capturing by reference in lambdas that will be used non-locally, including returned, stored on the heap, or passed to another thread
+* ES.28: Use lambdas for complex initialization, especially of `const` variables
+
+Class hierarchy rule:
+* C.120: Use class hierarchies to represent concepts with inherent hierarchical structure (only)
+* C.121: If a base class is used as an interface, make it a pure abstract class
+* C.122: Use abstract classes as interfaces when complete separation of interface and implementation is needed
+
+Designing rules for classes in a hierarchy:
+* C.126: An abstract class typically doesn't need a user-written constructor
+* C.127: A class with a virtual function should have a virtual or protected destructor
+* C.128: Virtual functions should specify exactly one of `virtual`, `override`, or `final`
+* C.129: When designing a class hierarchy, distinguish between implementation inheritance and interface inheritance
+* C.130: For making deep copies of polymorphic classes prefer a virtual `clone` function instead of public copy construction/assignment
+* C.131: Avoid trivial getters and setters
+* C.132: Don't make a function `virtual` without reason
+* C.133: Avoid `protected` data
+* C.134: Ensure all non-`const` data members have the same access level
+* C.135: Use multiple inheritance to represent multiple distinct interfaces
+* C.136: Use multiple inheritance to represent the union of implementation attributes
+* C.137: Use `virtual` bases to avoid overly general base classes
+* C.138: Create an overload set for a derived class and its bases with `using`
+* C.139: Use `final` on classes sparingly
+* C.140: Do not provide different default arguments for a virtual function and an overrider
+
+Accessing objects in a hierarchy rule:
+* C.145: Access polymorphic objects through pointers and references
+* C.146: Use `dynamic_cast` where class hierarchy navigation is unavoidable
+* C.147: Use `dynamic_cast` to a reference type when failure to find the required class is considered an error
+* C.148: Use `dynamic_cast` to a pointer type when failure to find the required class is considered a valid alternative
+* C.149: Use `unique_ptr` or `shared_ptr` to avoid forgetting to `delete` objects created using `new`
+* C.150: Use `make_unique()` to construct objects owned by `unique_ptr`s
+* C.151: Use `make_shared()` to construct objects owned by `shared_ptr`s
+* C.152: Never assign a pointer to an array of derived class objects to a pointer to its base
+* C.153: Prefer virtual function to casting
+
+Overloading and overloaded operators:
+* C.160: Define operators primarily to mimic conventional usage
+* C.161: Use non-member functions for symmetric operators
+* C.162: Overload operations that are roughly equivalent
+* C.163: Overload only for operations that are roughly equivalent
+* C.164: Avoid implicit conversion operators
+* C.165: Use `using` for customization points
+* C.166: Overload unary `&` only as part of a system of smart pointers and references
+* C.167: Use an operator for an operation with its conventional meaning
+* C.168: Define overloaded operators in the namespace of their operands
+* C.170: If you feel like overloading a lambda, use a generic lambda
+
+Unions:
+* C.180: Use `union`s to save Memory
+* C.181: Avoid "naked" `union`s
+* C.182: Use anonymous `union`s to implement tagged unions
+* C.183: Don't use a `union` for type punning
+
+## Enumerations
+* Enum.1: Prefer enumerations over macros
+* Enum.2: Use enumerations to represent sets of related named constants
+* Enum.3: Prefer `enum class`es over "plain" `enum`s
+* Enum.4: Define operations on enumerations for safe and simple use
+* Enum.5: Don't use `ALL_CAPS` for enumerators
+* Enum.6: Avoid unnamed enumerations
+* Enum.7: Specify the underlying type of an enumeration only when necessary
+* Enum.8: Specify enumerator values only when necessary
+
+## Resource management
+* R.1: Manage resources automatically using resource handles and RAII (Resource Acquisition Is Initialization)
+* R.2: In interfaces, use raw pointers to denote individual objects (only)
+* R.3: A raw pointer (a `T*`) is non-owning
+* R.4: A raw reference (a `T&`) is non-owning
+* R.5: Prefer scoped objects, don't heap-allocate unnecessarily
+* R.6: Avoid non-`const` global variables
+
+Allocation and deallocation rule summary:
+* R.10: Avoid `malloc()` and `free()`
+* R.11: Avoid calling `new` and `delete` explicitly
+* R.12: Immediately give the result of an explicit resource allocation to a manager object
+* R.13: Perform at most one explicit resource allocation in a single expression statement
+* R.14: Avoid `[]` parameters, prefer `span`
+* R.15: Always overload matched allocation/deallocation pairs
+
+Smart pointer rule summary:
+* R.20: Use `unique_ptr` or `shared_ptr` to represent ownership
+* R.21: Prefer `unique_ptr` over `shared_ptr` unless you need to share ownership
+* R.22: Use `make_shared()` to make `shared_ptr`s
+* R.23: Use `make_unique()` to make `unique_ptr`s
+* R.24: Use `std::weak_ptr` to break cycles of `shared_ptr`s
+* R.30: Take smart pointers as parameters only to explicitly express lifetime semantics
+* R.31: If you have non-`std` smart pointers, follow the basic pattern from `std`
+* R.32: Take a `unique_ptr<widget>` parameter to express that a function assumes ownership of a `widget`
+* R.33: Take a `unique_ptr<widget>&` parameter to express that a function reseats the `widget`
+* R.34: Take a `shared_ptr<widget>` parameter to express shared ownership
+* R.35: Take a `shared_ptr<widget>&` parameter to express that a function might reseat the shared pointer
+* R.37: Do not pass a pointer or reference obtained from an aliased smart pointer
+
+## Expressions and statements
+* ES.1: Prefer the standard library to other libraries and to "handcrafted code"
+* ES.2: Prefer suitable abstractions to direct use of language features
+* ES.3: Don't repeat yourself, avoid redundant code
+
+Declaration rules:
+* ES.5: Keep scopes small
+* ES.6: Declare names in for-statement initializers and conditions to limit scope
+* ES.7: Keep common and local names short, and keep uncommon and non-local names longer
+* ES.8: Avoid similar-looking names
+* ES.9: Avoid `ALL_CAPS` names
+* ES.10: Declare one name (only) per declaration
+* ES.11: Use `auto` to avoid redundant repetition of type names
+* ES.12: Do not reuse names in nested scopes
+* ES.20: Always initialize an object
+* ES.21: Don't introduce a variable (or constant) before you need to use it
+* ES.22: Don't declare a variable until you have a value to initialize it with
+* ES.23: Prefer the `{}`-initializer syntax
+* ES.24: Use a `unique_ptr<T>` to hold pointers
+* ES.25: Declare an object `const` or `constexpr` unless you want to modify its value later on
+* ES.26: Don't use a variable for two unrelated purposes
+* ES.27: Use `std::array` or `stack_array` for arrays on the stack
+* ES.28: Use lambdas for complex initialization, especially of `const` variables
+* ES.30: Don't use macros for program text manipulation
+* ES.31: Don't use macros for constants or "functions"
+* ES.32: Use `ALL_CAPS` for all macro names
+* ES.33: If you must use macros, give them unique names
+* ES.34: Don't define a (C-style) variadic function
+
+Expression rules:
+* ES.40: Avoid complicated expressions
+* ES.41: If in doubt about operator precedence, parenthesize
+* ES.42: Keep use of pointers simple and straightforward
+* ES.43: Avoid expressions with undefined order of evaluation
+* ES.44: Don't depend on order of evaluation of function arguments
+* ES.45: Avoid "magic constants"; use symbolic constants
+* ES.46: Avoid narrowing conversions
+* ES.47: Use `nullptr` rather than `0` or `NULL`
+* ES.48: Avoid casts
+* ES.49: If you must use a cast, use a named cast
+* ES.50: Don't cast away `const`
+* ES.55: Avoid the need for range checking
+* ES.56: Write `std::move()` only when you need to explicitly move an object to another scope
+* ES.60: Avoid `new` and `delete` outside resource management functions
+* ES.61: Delete arrays using `delete[]` and non-arrays using `delete`
+* ES.62: Don't compare pointers into different arrays
+* ES.63: Don't slice
+* ES.64: Use the `T{e}`notation for construction
+* ES.65: Don't dereference an invalid pointer
+
+Statement rules:
+* ES.70: Prefer a `switch`-statement to an `if`-statement when there is a choice
+* ES.71: Prefer a range-`for`-statement to a `for`-statement when there is a choice
+* ES.72: Prefer a `for`-statement to a `while`-statement when there is an obvious loop variable
+* ES.73: Prefer a `while`-statement to a `for`-statement when there is no obvious loop variable
+* ES.74: Prefer to declare a loop variable in the initializer part of a `for`-statement
+* ES.75: Avoid `do`-statements
+* ES.76: Avoid `goto`
+* ES.77: Minimize the use of `break` and `continue` in loops
+* ES.78: Don't rely on implicit fallthrough in `switch` statements
+* ES.79: Use `default` to handle common cases (only)
+* ES.84: Don't try to declare a local variable with no name
+* ES.85: Make empty statements visible
+* ES.86: Avoid modifying loop control variables inside the body of raw for-loops
+* ES.87: Don't add redundant `==` or `!=` to conditions
+
+Arithmetic rules:
+* ES.100: Don't mix signed and unsigned arithmetic
+* ES.101: Use unsigned types for bit manipulation
+* ES.102: Use signed types for arithmetic
+* ES.103: Don't overflow
+* ES.104: Don't underflow
+* ES.105: Don't divide by integer zero
+* ES.106: Don't try to avoid negative values by using `unsigned`
+* ES.107: Don't use `unsigned` for subscripts, prefer `gsl::index`
+
+## Error handling
+* E.1: Develop an error-handling strategy early in a design
+* E.2: Throw an exception to signal that a function can't perform its assigned task
+* E.3: Use exceptions for error handling only
+* E.4: Design your error-handling strategy around invariants
+* E.5: Let a constructor establish an invariant, and throw if it cannot
+* E.6: Use RAII to prevent leaks
+* E.7: State your preconditions
+* E.8: State your postconditions
+* E.12: Use `noexcept` when exiting a function because of a `throw` is impossible or unacceptable
+* E.13: Never throw while being the direct owner of an object
+* E.14: Use purpose-designed user-defined types as exceptions (not built-in types)
+* E.15: Throw by value, catch exceptions from a hierarchy by reference
+* E.16: Destructors, deallocation, `swap`, and exception type copy/move construction must never fail
+* E.17: Don't try to catch every exception in every function
+* E.18: Minimize the use of explicit `try`/`catch`
+* E.19: Use a `final_action` object to express cleanup if no suitable resource handle is available
+* E.25: If you can't throw exceptions, simulate RAII for resource management
+* E.26: If you can't throw exceptions, consider failing fast
+* E.27: If you can't throw exceptions, use error codes systematically
+* E.28: Avoid error handling based on global state (e.g. `errno`)
+* E.30: Don't use exception specifications
+* E.31: Properly order your `catch`-clauses
+
+## Constants and immutability
+* Con.1: By default, make objects immutable
+* Con.2: By default, make member functions `const`
+* Con.3: By default, pass pointers and references to `const`s
+* Con.4: Use `const` to define objects with values that do not change after construction
+* Con.5: Use `constexpr` for values that can be computed at compile time
+
+## Templates and generic programming
+* T.1: Use templates to raise the level of abstraction of code
+* T.2: Use templates to express algorithms that apply to many argument types
+* T.3: Use templates to express containers and ranges
+* T.4: Use templates to express syntax tree manipulation
+* T.5: Combine generic and OO techniques to amplify their strengths, not their costs
+
+Concept use rule:
+* T.10: Specify concepts for all template arguments
+* T.11: Whenever possible use standard concepts
+* T.12: Prefer concept names over `auto` for local variables
+* T.13: Prefer the shorthand notation for simple, single-type argument concepts
+
+Concept definition rule:
+* T.20: Avoid "concepts" without meaningful semantics
+* T.21: Require a complete set of operations for a concepts
+* T.22: Specify axioms for concepts
+* T.23: Differentiate a refined concept from its more general case by adding new use patterns
+* T.24: Use tag classes or traits to differentiate concepts that differ only in semantics
+* T.25: Avoid complementary constraints
+* T.26: Prefer to define concepts in terms of use-patterns rather than simple syntax
+* T.30: Use concept negation (`!C<T>`) sparingly to express a minor difference
+* T.31: Use concept disjunction (`C1<T> || C2<T>`) sparingly to express alternatives
+
+Template interface rule:
+* T.40: Use function objects to pass operations to algorithms
+* T.41: Require only essential properties in a template's concepts
+* T.42: Use template aliases to simplify notation and hide implementation details
+* T.43: Prefer `using` over `typedef` for defining aliases
+* T.44: Use function templates to deduce class template argument types (where feasible)
+* T.46: Require template arguments to be at least semiregular
+* T.47: Avoid highly visible unconstrained templates with common names
+* T.48: If your compiler does not support concepts, fake them with `enable_if`
+* T.49: Where possible, avoid type-erasure
+
+Template definition rule:
+* T.60: Minimize a template's context dependencies
+* T.61: Do not over-parameterize members
+* T.62: Place non-dependent class template members in a non-templated base class
+* T.64: Use specialization to provide alternative implementations of class templates
+* T.65: Use tag dispatch to provide alternative implementations of functions
+* T.67: Use specialization to provide alternative implementations for irregular types
+* T.68: Use `{}` rather than `()` within templates to avoid ambiguities
+* T.69: Inside a template, don't make an unqualified non-member function call unless you intend it to be a customization point
+
+Template and hierarchy rule:
+* T.80: Do not naively templatize a class hierarchy
+* T.81: Do not mix hierarchies and arrays
+* T.82: Linearize a hierarchy when virtual functions are undesirable
+* T.83: Do not declare a member function template virtual
+* T.84: Use a non-template core implementation to provide an ABI-stable interface
+
+Variadic template:
+* T.100: Use variadic templates when you need a function that takes a variable number of arguments of a variety of types
+* T.103: Don't use variadic templates for homogeneous argument lists
+
+Metaprogramming rule:
+* T.120: Use template metaprogramming only when you really need to
+* T.121: Use template metaprogramming primarily to emulate concepts
+* T.122: Use templates (usually template aliases) to compute types at compile time
+* T.123: Use `constexpr` functions to compute values at compile time
+* T.124: Prefer to use standard-library TMP facilities
+* T.125: If you need to go beyond the standard-library TMP facilities, use an existing library
+
+Other template rules summary:
+* T.140: If an operation can be reused, give it a name
+* T.141: Use an unnamed lambda if you need a simple function object in one place only
+* T.142: Use template variables to simplify notation
+* T.143: Don't write unintentionally non-generic code
+* T.144: Don't specialize function templates
+* T.150: Check that a class matches a concept using `static_assert`
+
+## C-style programming
+* CPL.1: Prefer C++ to C
+* CPL.2: If you must use C, use the common subset of C and C++, and compile the C code as C++
+* CPL.3: If you must use C for interfaces, use C++ in the calling code using such interfaces
+
+## Source files
+* SF.1: Use a `.cpp` suffix for code files and `.h` for interface files if your project doesn't already follow another convention
+* SF.2: A header file must not contain object definitions or non-inline function definitions
+* SF.3: Use header files for all declarations used in multiple source files
+* SF.4: Include header files before other declarations in a file
+* SF.5: A `.cpp` file must include the header file(s) that defines its interface
+* SF.6: Use `using namespace` directives for transition, for foundation libraries (such as `std`), or within a local scope (only)
+* SF.7: Don't write `using namespace` at global scope in a header file
+* SF.8: Use `#include` guards for all header files
+* SF.9: Avoid cyclic dependencies among source files
+* SF.10: Avoid dependencies on implicitly `#include`d names
+* SF.11: Header files should be self-contained
+* SF.12: Prefer the quoted form of `#include` for files relative to the including file and the angle bracket form everywhere else
+* SF.13: Use portable header identifiers in `#include` statements
+* SF.20: Use `namespace`s to express logical structure
+* SF.21: Don't use an unnamed (anonymous) namespace in a header
+* SF.22: Use an unnamed (anonymous) namespace for all internal/non-exported entities
+
+## The Standard Library
+* SL.1: Use libraries wherever possible
+* SL.2: Prefer the standard library to other libraries
+* SL.3: Do not add non-standard entities to namespace `std`
+* SL.4: Use the standard library in a type-safe manner
+
+Standard Library Containers:
+* SL.con.1: Prefer using STL `array` or `vector` instead of a C array
+* SL.con.2: Prefer using STL `vector` by default unless you have a reason to use a different container
+* SL.con.3: Avoid bounds errors
+* SL.con.4: don't use `memset` or `memcpy` for arguments that are not trivially-copyable
+
+Standard Library Strings:
+* SL.str.1: Use `std::string` to own character sequences
+* SL.str.2: Use `std::string_view` or `gsl::span<char>` to refer to character sequences
+* SL.str.3: Use `zstring` or `czstring` to refer to a C-style, zero-terminated, sequence of characters
+* SL.str.4: Use `char*` to refer to a single character
+* SL.str.5: Use `std::byte` to refer to byte values that do not necessarily represent characters
+* SL.str.10: Use `std::string` when you need to perform locale-sensitive string operations
+* SL.str.11: Use `gsl::span<char>` rather than `std::string_view` when you need to mutate a string
+* SL.str.12: Use the `s` suffix for string literals meant to be standard-library `string`s
+
+Standard Library Iostream:
+* SL.io.1: Use character-level input only when you have to
+* SL.io.2: When reading, always consider ill-formed input
+* SL.io.3: Prefer iostreams for I/O
+* SL.io.10: Unless you use `printf`-family functions call `ios_base::sync_with_stdio(false)`
+* SL.io.50: Avoid `endl`
+
+## Architectural ideas
+* A.1: Separate stable code from less stable code
+* A.2: Express potentially reusable parts as a library
+* A.4: There should be no cycles among libraries
+
+## Non-Rules and myths
+* NR.1: Don't insist that all declarations should be at the top of a function
+* NR.2: Don't insist on having only a single `return`-statement in a function
+* NR.3: Don't avoid exceptions
+* NR.4: Don't insist on placing each class definition in its own source file
+* NR.5: Don't use two-phase initialization
+* NR.6: Don't place all cleanup actions at the end of a function and `goto exit`
+* NR.7: Don't make all data members `protected`
+

@@ -1,0 +1,4 @@
+## C-style programming
+* CPL.1: Prefer C++ to C
+* CPL.2: If you must use C, use the common subset of C and C++, and compile the C code as C++
+* CPL.3: If you must use C for interfaces, use C++ in the calling code using such interfaces

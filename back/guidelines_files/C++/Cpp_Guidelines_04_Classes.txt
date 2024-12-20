@@ -1,0 +1,133 @@
+## Classes and class hierarchies
+Class rule summary:
+* C.1: Organize related data into structures (`struct`s or `class`es)
+* C.2: Use `class` if the class has an invariant; use `struct` if the data members can vary independently
+* C.3: Represent the distinction between an interface and an implementation using a class
+* C.4: Make a function a member only if it needs direct access to the representation of a class
+* C.5: Place helper functions in the same namespace as the class they support
+* C.7: Don't define a class or enum and declare a variable of its type in the same statement
+* C.8: Use `class` rather than `struct` if any member is non-public
+* C.9: Minimize exposure of members
+
+Concrete types:
+* C.10: Prefer concrete types over class hierarchies
+* C.11: Make concrete types regular
+* C.12: Don't make data members `const` or references in a copyable or movable type
+
+Default operations:
+* C.20: If you can avoid defining any default operations, do
+* C.21: If you define or `=delete` any copy, move, or destructor function, define or `=delete` them all
+* C.22: Make default operations consistent
+
+Destructor rules:
+* C.30: Define a destructor if a class needs an explicit action at object destruction
+* C.31: All resources acquired by a class must be released by the class's destructor
+* C.32: If a class has a raw pointer (`T*`) or reference (`T&`), consider whether it might be owning
+* C.33: If a class has an owning pointer member, define a destructor
+* C.35: A base class destructor should be either public and virtual, or protected and non-virtual
+* C.36: A destructor must not fail
+* C.37: Make destructors `noexcept`
+
+Constructor rules:
+* C.40: Define a constructor if a class has an invariant
+* C.41: A constructor should create a fully initialized object
+* C.42: If a constructor cannot construct a valid object, throw an exception
+* C.43: Ensure that a copyable class has a default constructor
+* C.44: Prefer default constructors to be simple and non-throwing
+* C.45: Don't define a default constructor that only initializes data members; use member initializers instead
+* C.46: By default, declare single-argument constructors `explicit`
+* C.47: Define and initialize data members in the order of member declaration
+* C.48: Prefer default member initializers to member initializers in constructors for constant initializers
+* C.49: Prefer initialization to assignment in constructors
+* C.50: Use a factory function if you need "virtual behavior" during initialization
+* C.51: Use delegating constructors to represent common actions for all constructors of a class
+* C.52: Use inheriting constructors to import constructors into a derived class that does not need further explicit Initialization
+
+Copy and move rules:
+* C.60: Make copy assignment non-`virtual`, take the parameter by `const&`, and return by non-`const&`
+* C.61: A copy operation should copy
+* C.62: Make copy assignment safe for self-assignment
+* C.63: Make move assignment non-`virtual`, take the parameter by `&&`, and return by non-`const&`
+* C.64: A move operation should move and leave its source in a valid state
+* C.65: Make move assignment safe for self-assignment
+* C.66: Make move operations `noexcept`
+* C.67: A polymorphic class should suppress public copy/move
+
+Other default operations rules:
+* C.80: Use `=default` if you have to be explicit about using the default semantics
+* C.81: Use `=delete` when you want to disable default behavior (without wanting an alternative)
+* C.82: Don't call virtual functions in constructors and destructors
+* C.83: For value-like types, consider providing a `noexcept` swap function
+* C.84: A `swap` must not fail
+* C.85: Make `swap` `noexcept`
+* C.86: Make `==` symmetric with respect of operand types and `noexcept`
+* C.87: Beware of `==` on base classes
+* C.89: Make a `hash` `noexcept`
+* C.90: Rely on constructors and assignment operators, not memset and memcpy
+
+Containers and other resource handles:
+* C.100: Follow the STL when defining a container
+* C.101: Give a container value semantics
+* C.102: Give a container move operations
+* C.103: Give a container an initializer list constructor
+* C.104: Give a container a default constructor that sets it to empty
+* C.109: If a resource handle has pointer semantics, provide `*` and `->`
+
+Function objects and lambdas:
+* F.10: If an operation can be reused, give it a name
+* F.11: Use an unnamed lambda if you need a simple function object in one place only
+* F.50: Use a lambda when a function won't do (to capture local variables, or to write a local function)
+* F.52: Prefer capturing by reference in lambdas that will be used locally, including passed to algorithms
+* F.53: Avoid capturing by reference in lambdas that will be used non-locally, including returned, stored on the heap, or passed to another thread
+* ES.28: Use lambdas for complex initialization, especially of `const` variables
+
+Class hierarchy rule:
+* C.120: Use class hierarchies to represent concepts with inherent hierarchical structure (only)
+* C.121: If a base class is used as an interface, make it a pure abstract class
+* C.122: Use abstract classes as interfaces when complete separation of interface and implementation is needed
+
+Designing rules for classes in a hierarchy:
+* C.126: An abstract class typically doesn't need a user-written constructor
+* C.127: A class with a virtual function should have a virtual or protected destructor
+* C.128: Virtual functions should specify exactly one of `virtual`, `override`, or `final`
+* C.129: When designing a class hierarchy, distinguish between implementation inheritance and interface inheritance
+* C.130: For making deep copies of polymorphic classes prefer a virtual `clone` function instead of public copy construction/assignment
+* C.131: Avoid trivial getters and setters
+* C.132: Don't make a function `virtual` without reason
+* C.133: Avoid `protected` data
+* C.134: Ensure all non-`const` data members have the same access level
+* C.135: Use multiple inheritance to represent multiple distinct interfaces
+* C.136: Use multiple inheritance to represent the union of implementation attributes
+* C.137: Use `virtual` bases to avoid overly general base classes
+* C.138: Create an overload set for a derived class and its bases with `using`
+* C.139: Use `final` on classes sparingly
+* C.140: Do not provide different default arguments for a virtual function and an overrider
+
+Accessing objects in a hierarchy rule:
+* C.145: Access polymorphic objects through pointers and references
+* C.146: Use `dynamic_cast` where class hierarchy navigation is unavoidable
+* C.147: Use `dynamic_cast` to a reference type when failure to find the required class is considered an error
+* C.148: Use `dynamic_cast` to a pointer type when failure to find the required class is considered a valid alternative
+* C.149: Use `unique_ptr` or `shared_ptr` to avoid forgetting to `delete` objects created using `new`
+* C.150: Use `make_unique()` to construct objects owned by `unique_ptr`s
+* C.151: Use `make_shared()` to construct objects owned by `shared_ptr`s
+* C.152: Never assign a pointer to an array of derived class objects to a pointer to its base
+* C.153: Prefer virtual function to casting
+
+Overloading and overloaded operators:
+* C.160: Define operators primarily to mimic conventional usage
+* C.161: Use non-member functions for symmetric operators
+* C.162: Overload operations that are roughly equivalent
+* C.163: Overload only for operations that are roughly equivalent
+* C.164: Avoid implicit conversion operators
+* C.165: Use `using` for customization points
+* C.166: Overload unary `&` only as part of a system of smart pointers and references
+* C.167: Use an operator for an operation with its conventional meaning
+* C.168: Define overloaded operators in the namespace of their operands
+* C.170: If you feel like overloading a lambda, use a generic lambda
+
+Unions:
+* C.180: Use `union`s to save Memory
+* C.181: Avoid "naked" `union`s
+* C.182: Use anonymous `union`s to implement tagged unions
+* C.183: Don't use a `union` for type punning

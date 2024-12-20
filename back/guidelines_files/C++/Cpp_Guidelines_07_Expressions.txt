@@ -1,0 +1,75 @@
+## Expressions and statements
+* ES.1: Prefer the standard library to other libraries and to "handcrafted code"
+* ES.2: Prefer suitable abstractions to direct use of language features
+* ES.3: Don't repeat yourself, avoid redundant code
+
+Declaration rules:
+* ES.5: Keep scopes small
+* ES.6: Declare names in for-statement initializers and conditions to limit scope
+* ES.7: Keep common and local names short, and keep uncommon and non-local names longer
+* ES.8: Avoid similar-looking names
+* ES.9: Avoid `ALL_CAPS` names
+* ES.10: Declare one name (only) per declaration
+* ES.11: Use `auto` to avoid redundant repetition of type names
+* ES.12: Do not reuse names in nested scopes
+* ES.20: Always initialize an object
+* ES.21: Don't introduce a variable (or constant) before you need to use it
+* ES.22: Don't declare a variable until you have a value to initialize it with
+* ES.23: Prefer the `{}`-initializer syntax
+* ES.24: Use a `unique_ptr<T>` to hold pointers
+* ES.25: Declare an object `const` or `constexpr` unless you want to modify its value later on
+* ES.26: Don't use a variable for two unrelated purposes
+* ES.27: Use `std::array` or `stack_array` for arrays on the stack
+* ES.28: Use lambdas for complex initialization, especially of `const` variables
+* ES.30: Don't use macros for program text manipulation
+* ES.31: Don't use macros for constants or "functions"
+* ES.32: Use `ALL_CAPS` for all macro names
+* ES.33: If you must use macros, give them unique names
+* ES.34: Don't define a (C-style) variadic function
+
+Expression rules:
+* ES.40: Avoid complicated expressions
+* ES.41: If in doubt about operator precedence, parenthesize
+* ES.42: Keep use of pointers simple and straightforward
+* ES.43: Avoid expressions with undefined order of evaluation
+* ES.44: Don't depend on order of evaluation of function arguments
+* ES.45: Avoid "magic constants"; use symbolic constants
+* ES.46: Avoid narrowing conversions
+* ES.47: Use `nullptr` rather than `0` or `NULL`
+* ES.48: Avoid casts
+* ES.49: If you must use a cast, use a named cast
+* ES.50: Don't cast away `const`
+* ES.55: Avoid the need for range checking
+* ES.56: Write `std::move()` only when you need to explicitly move an object to another scope
+* ES.60: Avoid `new` and `delete` outside resource management functions
+* ES.61: Delete arrays using `delete[]` and non-arrays using `delete`
+* ES.62: Don't compare pointers into different arrays
+* ES.63: Don't slice
+* ES.64: Use the `T{e}`notation for construction
+* ES.65: Don't dereference an invalid pointer
+
+Statement rules:
+* ES.70: Prefer a `switch`-statement to an `if`-statement when there is a choice
+* ES.71: Prefer a range-`for`-statement to a `for`-statement when there is a choice
+* ES.72: Prefer a `for`-statement to a `while`-statement when there is an obvious loop variable
+* ES.73: Prefer a `while`-statement to a `for`-statement when there is no obvious loop variable
+* ES.74: Prefer to declare a loop variable in the initializer part of a `for`-statement
+* ES.75: Avoid `do`-statements
+* ES.76: Avoid `goto`
+* ES.77: Minimize the use of `break` and `continue` in loops
+* ES.78: Don't rely on implicit fallthrough in `switch` statements
+* ES.79: Use `default` to handle common cases (only)
+* ES.84: Don't try to declare a local variable with no name
+* ES.85: Make empty statements visible
+* ES.86: Avoid modifying loop control variables inside the body of raw for-loops
+* ES.87: Don't add redundant `==` or `!=` to conditions
+
+Arithmetic rules:
+* ES.100: Don't mix signed and unsigned arithmetic
+* ES.101: Use unsigned types for bit manipulation
+* ES.102: Use signed types for arithmetic
+* ES.103: Don't overflow
+* ES.104: Don't underflow
+* ES.105: Don't divide by integer zero
+* ES.106: Don't try to avoid negative values by using `unsigned`
+* ES.107: Don't use `unsigned` for subscripts, prefer `gsl::index`

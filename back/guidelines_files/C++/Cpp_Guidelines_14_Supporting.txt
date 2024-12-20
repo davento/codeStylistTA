@@ -1,0 +1,13 @@
+## Architectural ideas
+* A.1: Separate stable code from less stable code
+* A.2: Express potentially reusable parts as a library
+* A.4: There should be no cycles among libraries
+
+## Non-Rules and myths
+* NR.1: Don't insist that all declarations should be at the top of a function
+* NR.2: Don't insist on having only a single `return`-statement in a function
+* NR.3: Don't avoid exceptions
+* NR.4: Don't insist on placing each class definition in its own source file
+* NR.5: Don't use two-phase initialization
+* NR.6: Don't place all cleanup actions at the end of a function and `goto exit`
+* NR.7: Don't make all data members `protected`

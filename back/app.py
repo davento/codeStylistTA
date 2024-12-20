@@ -45,7 +45,8 @@ def process_input():
     guidelines = [programming_language_guidelines, programming_language_name]
 
     # Send them to the analysis
-    response = appAssistant.get_analysis(configValues, code, guidelines)
+    # Excluding guidelines for now
+    response = appAssistant.get_analysis(configValues, code)
     print("===Response:")
     print(response)
 

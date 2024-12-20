@@ -1,0 +1,9 @@
+## Enumerations
+* Enum.1: Prefer enumerations over macros
+* Enum.2: Use enumerations to represent sets of related named constants
+* Enum.3: Prefer `enum class`es over "plain" `enum`s
+* Enum.4: Define operations on enumerations for safe and simple use
+* Enum.5: Don't use `ALL_CAPS` for enumerators
+* Enum.6: Avoid unnamed enumerations
+* Enum.7: Specify the underlying type of an enumeration only when necessary
+* Enum.8: Specify enumerator values only when necessary

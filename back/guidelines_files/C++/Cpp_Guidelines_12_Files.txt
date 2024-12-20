@@ -1,0 +1,17 @@
+## Source files
+* SF.1: Use a `.cpp` suffix for code files and `.h` for interface files if your project doesn't already follow another convention
+* SF.2: A header file must not contain object definitions or non-inline function definitions
+* SF.3: Use header files for all declarations used in multiple source files
+* SF.4: Include header files before other declarations in a file
+* SF.5: A `.cpp` file must include the header file(s) that defines its interface
+* SF.6: Use `using namespace` directives for transition, for foundation libraries (such as `std`), or within a local scope (only)
+* SF.7: Don't write `using namespace` at global scope in a header file
+* SF.8: Use `#include` guards for all header files
+* SF.9: Avoid cyclic dependencies among source files
+* SF.10: Avoid dependencies on implicitly `#include`d names
+* SF.11: Header files should be self-contained
+* SF.12: Prefer the quoted form of `#include` for files relative to the including file and the angle bracket form everywhere else
+* SF.13: Use portable header identifiers in `#include` statements
+* SF.20: Use `namespace`s to express logical structure
+* SF.21: Don't use an unnamed (anonymous) namespace in a header
+* SF.22: Use an unnamed (anonymous) namespace for all internal/non-exported entities

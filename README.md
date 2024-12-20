@@ -14,20 +14,20 @@ Note that a teacher (assistant) would still be the one giving the final grade. I
 MUSTS:
 - [ ] File upload
     - [ ] Interface and prompt modifications
-    - [ ] Bulk upload data script
 - [ ] Background for presentation
 SHOULDS:
 - [ ] Instructor view
     - [ ] Instructor interface
     - [ ] Data CSVs
-FIXES:
-- [ ] PDF references. `NOTE: NOT WORKING. MAKE SHORT VERSIONS`
+    - [ ] Bulk upload data script
+- [X] Guidelines (WIP)
 
 ## To-fix, check and/or improve (later)
 - Sometimes throws an error instead of the incorrect output message.
 - Refactor the evaluate function with await and async.
-- Use a RAG and upload the code guidelines references there.
-
+- Guidelines for Python, Java and C++ are too long; summarize them + split them in files.
+    - Turn each section into a message; program the behavior for that.
+- Use a RAG and upload the code guidelines references there instead.
 ---
 
 ## Front-end
@@ -45,3 +45,6 @@ Powered by Flask. Create a virtual environment with the [environment.yml](https:
 __**OpenAI API:**__
 - [Text Generation](https://platform.openai.com/docs/guides/text-generation)
 - [Code Interpreter](https://platform.openai.com/docs/assistants/tools/code-interpreter)
+
+__**Code Standard Guidelines References**__
+- [List of Guidelines Used](https://github.com/davento/codeStylistTA/blob/dev/back/guidelines_files/README.md)
