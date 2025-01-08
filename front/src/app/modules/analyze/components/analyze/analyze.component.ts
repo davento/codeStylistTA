@@ -4,6 +4,8 @@ import { InputService } from 'src/app/core/services/components/input.service';
 import { Course } from 'src/app/shared/interfaces/Course';
 import { Feedback } from 'src/app/shared/interfaces/Feedback';
 import { ProgLanguage } from 'src/app/shared/interfaces/ProgLanguage';
+import { Tone } from 'src/app/shared/interfaces/Tone';
+import { Format } from 'src/app/shared/interfaces/Format';
 
 // json imports
 import coursesJSON from "src/app/shared/data/courses.json";
@@ -26,20 +28,11 @@ export class AnalyzeComponent {
   success: boolean = false;
   incorrectInputMessage: string = "Incorrect input, please submit code on the appropriate language.";
 
-  // csv/json file
+  // json file
   progLangs: ProgLanguage[] = progLangsJSON;
-
   courses: Course[] = coursesJSON;
-
-  tones: string[] = [
-    "Formal",
-    "Informal",
-  ];
-
-  formats: string[] = [
-    "JSON",
-    // "Report",
-  ]
+  tones: Tone[] = tonesJSON;
+  formats: Format[] = formatsJSON;
 
   constructor (
     private fb: FormBuilder,

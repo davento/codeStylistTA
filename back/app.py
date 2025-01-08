@@ -6,6 +6,11 @@ import src.util as util
 app = Flask(__name__)
 CORS(app)
 
+@app.route("/upload", methods=["POST"])
+def upload_files():
+    util.upload_files()
+    pass
+
 @app.route("/input", methods=["POST"])
 def process_input():
 
@@ -21,7 +26,9 @@ def process_input():
     programming_language_name = programming_language['name']
     programming_language_guidelines = programming_language['guidelines_location']
     reply_tone = request_data['reply_tone']
+    reply_tone_name = reply_tone['name']
     reply_format = request_data['reply_format']
+    reply_format_name = reply_format['name']
     code = util.convert_code_str_to_array(request_data['code'])
 
     # Setting values
@@ -38,8 +45,8 @@ def process_input():
         course_description,
         course_learning_outcomes,
         programming_language_name,
-        reply_tone,
-        reply_format,
+        reply_tone_name,
+        reply_format_name,
     )
 
     guidelines = [programming_language_guidelines, programming_language_name]

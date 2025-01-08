@@ -52,7 +52,7 @@
               <mat-form-field appearance="outline">
                   <mat-label>Response tone: </mat-label>
                   <mat-select formControlName="tone" required>
-                    <mat-option *ngFor="let tone of tones" [value]="tone">{{tone}}</mat-option>
+                    <mat-option *ngFor="let tone of tones" [value]="tone">{{tone.name}}</mat-option>
                   </mat-select>
                   <mat-error
                         *ngIf="configForm.controls['tone'].hasError('required')"
@@ -63,7 +63,7 @@
               <mat-form-field appearance="outline">
                   <mat-label>Output format: </mat-label>
                   <mat-select formControlName="format" required>
-                    <mat-option *ngFor="let format of formats" [value]="format">{{format}}</mat-option>
+                    <mat-option *ngFor="let format of formats" [value]="format">{{format.name}}</mat-option>
                   </mat-select>
                   <mat-error
                         *ngIf="configForm.controls['format'].hasError('required')"
