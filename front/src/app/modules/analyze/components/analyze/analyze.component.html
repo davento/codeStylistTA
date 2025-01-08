@@ -17,7 +17,23 @@
         </mat-card-content>
         <mat-card-actions>
           <button (click)="clearCode()" mat-stroked-button id="clearbtn">Clear</button>
-          <button (click)="uploadCode()" mat-stroked-button id="uploadbtn">Upload</button>
+          <button (click)="uploadCode()" mat-stroked-button id="uploadbtn">Upload Input</button>
+        </mat-card-actions>
+        <mat-card-content>
+          <ul id="file-list">
+            <li *ngFor="let file of fileList; let i = index">
+              <div class="file-item">
+                <span class="file-name">{{file.name}}</span>
+                <button class="delete-button" mat-icon-button (click)="removeFile(i)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </li>
+          </ul>
+        </mat-card-content>
+        <mat-card-actions>
+          <input type="file" id="file-button" multiple hidden (change)="handleFileChange($event)"/>
+          <button mat-stroked-button id="filebtn" (click)="openFileDialog()">Choose File</button>
         </mat-card-actions>
       </mat-card>
     </div>

@@ -34,6 +34,9 @@ export class AnalyzeComponent {
   tones: Tone[] = tonesJSON;
   formats: Format[] = formatsJSON;
 
+  // Files
+  fileList: File[] = [];
+
   constructor (
     private fb: FormBuilder,
     private inputService: InputService
@@ -92,6 +95,27 @@ export class AnalyzeComponent {
     this.isLoading = false;
     this.evaluated = true;
     this.enableButtons();
+  }
+
+  openFileDialog() {
+    const fileInput = document.getElementById('file-button') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.click();
+    }
+  }
+
+  handleFileChange(event: Event) {
+    const inputElement = event.target as HTMLInputElement;
+    if (inputElement && inputElement.files) {
+      const files = Array.from(inputElement.files);
+      this.fileList = files;
+      }
+    console.log(this.fileList);
+  }
+
+  removeFile(index: number) {
+    this.fileList.splice(index, 1);
+    console.log(this.fileList);
   }
 
   evaluate() {
