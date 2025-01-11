@@ -53,7 +53,7 @@ def process_input():
 
     # Send them to the analysis
     # Excluding guidelines for now
-    response = appAssistant.get_analysis(configValues, code)
+    response = appAssistant.get_analysis(configValues, code, guidelines)
     print("===Response:")
     print(response)
 

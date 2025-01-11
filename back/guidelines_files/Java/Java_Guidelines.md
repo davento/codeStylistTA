@@ -1,222 +1,189 @@
-Eclipse/Sun code conventions with
-* Spaces only
-* Indentation size 4 spaces
-* Maximum line width 160
-* Maximum width for comments 120
-* No indent of Javadoc tags
-* No newline after @param tags
+# CS 180 Java Programming Standards
 
-## Javadoc
+The following standards are to be followed in writing Java programs. They are important enough to be part of the grading criteria for all programs. Any constructs not covered in this standard are to be implemented in a consistent and readable fashion.
 
-### Parameters
+## PURPOSE
+The purpose of these rules are (1) to introduce you to a representative set of coding standards that are typical in professional programming and (2) to help you develop good style as a habit, something you will find necessary to successfully complete large programs. There is no doubt that you can write Java programs to solve the small problems in this course without attention to style. But, you must keep in mind that you are building professional skills, not merely finding the answers to problems handed out as exercises.
 
+
+## FILE NAMES AND JAVA COMPILER
+In this course each Java file name should clearly represent what it is and each should have the ``.java'' suffix. Files names must match the class name. For example, Project 1 should be Project1.java. A lab project that determines the payroll of a small company could be Payroll.java (or even something like Lab3.java).
+
+## INTRODUCTORY DOCUMENTATION
+At the beginning of each Java class there should be a JavaDoc block that contains:
+The program name, your name, and recitation section.
+A brief description of the program that describes the method or algorithm used to obtain the solution, the major data structures (if any) in the program, and other general comments including extra features.
+The date the program was completed.
+
+The format to be used is as follows:
 ```
-@param a The first parameter. For an optimum result, this should be an odd
-number between 0 and 100.
+/**
+ * Program Name
+ * brief description of the program
+ *
+ * @author your name
+ *
+ * @recitation section number and recitation instructor's name
+ *
+ * @date date of completion
+ *
+ */
+ ```
+
+The following is an example of an introductory comment block that follows the format above:
+```
+/**
+ * Project 1 -- Video Calculator
+ * This program inputs the total number of minutes,
+ * the number of minutes for commercials, and the
+ * number of minutes for episodes.  The program
+ * computes the total number of minutes for videos,
+ * the number of videos, and the number of seconds
+ * left over.
+ *
+ * @author Elwood Blues
+ *
+ * @recitation 03 (Andy Scharlott)
+ *
+ * @date September 14, 2005
+ *
+ */
 ```
 
-## Variable naming style
 
-Based on the advice from Uncle Bob's Clean Code, specifically:
+## DECLARATIONS
+You should use mnemonic names for all identifiers. These are names that have meaning in the problem. The names should suggest the use of the identifier.
 
-* No cryptic abbreviations like c, ta, rx, ct, except for the well-established i and j in loops
-* No variable names like ret, rvalue, result etc for variables that are returned from methods. Instead, they should be named after what they actually return.
+Variable identifiers should be in all lower-case letters, except for capital letters used to delimit multiple words in a variable identifier. For example, shipRates, idEntry, numItems, and minScoreRequired.
 
-For example:
+Constant values used in your program will be given in final declarations. Constant identifiers should always appear in all-capital letters; underscore characters delimit multiple words. For example:
+```
+final float BASE = 2.0;       // divisor to obtain base 2
+final char HYPHEN = '-';      // signals word continued on next line
+final int NAME_LENGTH = 20;   // names can be 20 characters
+```
 
-Bad:
+Classes should begin with a capital letter, and multiple words should be indicated by additional capital letters (for example, Date, VehicleNumber, SoftwareEngineer, BankAccount).
 
-```java
-public Permissions getCallerPermission(....) {
-    Permissions rvalue;
-    // ton of code
+Methods should begin with a lowercase letter, and have any multiple words indicated by capital letters (for example, isValidNumber(), area(), setWidth(), etc). Note: Constructors are methods which cannot follow this convention, because their names must exactly match the class name.
 
-    return rvalue;
+Each identifier declaration (including method declarations) must be accompanied by a comment that explains its use.
+
+Avoid declaring globally-visible variables. Globally-visible constants, enumerated types, classes, and file names are okay, but do not use global variables unless the project assignment specifically tells you to do so.
+
+## GENERAL RULES
+Each constant and variable declaration should be on a separate line that includes a comment that explains what each is. For example:
+```
+float volts;                     // voltage in the circuit 
+int amps;                        // amperage in the circuit 
+char circuitName[NAME_LENGTH];  // name of the circuit 
+```
+
+Each statement should be on a line by itself. For example, instead of
+```
+left = nextLeft;    right = nextRight;
+use
+left  = nextLeft;     // move to the left
+right = nextRight;    // move to the right
+```
+
+Each method should be identified by a comment block describing its purpose, parameter(s), and the method(s) it calls. The format to be used is as follows:
+```
+/**
+ * calculates and returns the charge for shipping cargo
+ * between two planets.
+ *
+ * @param distance distance in miles between two planets
+ * @param weight weight in pounds of item being shipped
+ * @return A double representing the cost to ship the item in space
+ */
+public double findSpaceCost(long distance, float weight)
+{
+  // implement here
 }
 ```
 
-Good:
+Comments should be set apart from the code by at least two spaces, making it easy to see where the code ends and comment begins.
 
-```java
-public Permissions getCallerPermissions(....) {
-    Permissions callerPermissions;
-    // ton of code
+## FORMATTING AND COMMENTING OF STATEMENTS
+Alignment and indentation of lines of Java statements add much to the readability of programs. The following guidelines are general so that you may develop your own programming style. Use indentation and blank lines as you see fit to increase the readability of your programs. Use whitespace (blank lines and spaces on lines) liberally! Use parentheses liberally!!
+The body of a control structure, such as an if, a switch, a while, a do, or a for statement, should be indented. The following examples illustrate the only formatting style that is to be used in CS180. Each level of indenting is 4 spaces. (All of the below examples should have 4 spaces for indentation, but not all browsers display it correctly.)
 
-    return callerPermissions;
+if statement
+```
+if (expression)
+{
+    statements
 }
 ```
 
-* No Hungarian variations for collections like usrLst, usArray, arrUsers, UserCol, etc, and no such variation for elements of the collection like el, elm, usrEl, userElem, currentUsr, curUser, userCr, etc. Omit the Hungarian and use the element type name directly and the plural of that for the collection.  
+if-else statement
+```
+if (expression)
+{
+    statements
+}
+else
+{
+    statements
+}
+``` 
 
-For example:
-
-Bad:
-
-```java
-for (User curUsr : colUser) {
-     ...
+switch statement
+```
+switch (selector variable) 
+{
+    case case-1-value: 
+        case 1 statements;
+        break;
+    case case-2-value: 
+        case 2 statements;
+        break;
+    ...
+    case case-n-value: 
+        case n statements;
+        break;
+    default: 
+        default statements;
+        break;
 }
 ```
 
-Good:
-
-```java
-for (User user : users) {
-     ...
+while statement
+```
+while (expression)
+{
+    statements
 }
 ```
 
-## Conditional blocks
+do-while statement
+```
+do
+{
+    statements
+}
+while (expression);
+```
 
-### Handle the short and fast error case for method parameters early instead of the happy path. 
-
-For example:
-
-Bad:
-
-```java
-public void foo(Bar bar) {
-    if (bar != null) {
-        // lots of code here
-    } else {
-        throw new IllegalStateException("Bar should not be null");
-    }
+for statement
+```
+for (initialization; condition; increment)
+{
+    statements
 }
 ```
 
-Good:
+## PROGRAM DESIGN
+Use stepwise refinement. The programming assignments given are ones that can be solved in a step-by-step manner. The method of solution used in your program should exhibit this kind of structure.
 
-```java
-public void foo(Bar bar) {
-    if (bar == null) {
-        throw new IllegalStateException("Bar should not be null");
-    }
+Modularize your program. When a problem solution readily splits into distinct tasks, your program should handle each task in a separate function and in a straightforward manner.
 
-    // lots of code here
-}
-```
+Make your program efficient. Your algorithm should be direct and not unnecessarily complicated. Proper use of data structures will often simplify an algorithm.
 
-### if/else blocks that return don't need to be if/else blocks. 
+Use parameters appropriately. All variables used in a method should either be declared as parameters or be declared locally within the method.
 
-For example:
+## OUTPUT
+All input values should be echoed in a readable manner unless otherwise indicated.
 
-Bad:
-
-```java
-if (foo == something) {
-   return somethingFoo;
-} else if (foo == somethingElse) {
-   return somethingElseFoo;
-}
-```
-   
-Good:
-
-```java
-if (foo == something) {
-   return somethingFoo;
-}
-
-if (foo == somethingElse) {
-   return somethingElseFoo;
-}
-```
-
-
-## Defaults
-
-### Omit initialisation of instance variables to their default values. 
-
-For example:
-
-Bad:
-
-```java
-public class SomeClass {
-    private int someNumber = 0;
-    private Foo someFoo = null;
-    private boolean isFoo = false;
-}
-```
-
-Good:
-
-```java
-public class SomeClass {
-    private int someNumber;
-    private Foo someFoo;
-    private boolean isFoo;
-}
-```
-
-### Omit using the public modifier for interface methods.
-
-For example:
-
-Bad:
-
-```java
-public interface MyInterface {
-    public void MyMethod();
-}
-```
-
-Good:
-
-```java
-public interface MyInterface {
-    void MyMethod();
-}
-```
-
-### Omit unnecessary final modifiers on local and method parameters
-
-Bad:
-
-```java
-public void foo(final Bar bar) {
-    // lots of code here 
-}
-```
-
-Good:
-
-```java
-public void foo(Bar bar) {
-    // lots of code here
-}
-```
-
-### Omit unnecessary usage of `this`
-
-Bad:
-
-```java
-public Foo getFoo() {
-    return this.foo;
-}
-```
-
-Good:
-
-```java
-public Foo getFoo() {
-    return foo;
-}
-```
-
-### Omit unnecessary braces. 
-
-For example:
-
-Bad
-
-```java
-return (1);
-```
-
-Good
-
-```java
-return 1;
-```
+The program output should be readable and clearly labelled. Headings should be used when appropriate.

@@ -59,7 +59,7 @@ This should also be the default format for your replies. And again, please be sp
 '''
 
 reference_material_prompt = '''
-Additionally, you may be given additional reading material for you to educate yourself on coding standards for a specific language. Keep these into consideration during your assessment if you are.
+Additionally, you will be given additional reading material for you to educate yourself on coding standards for the language the input code is in. Keep these into consideration during your assessment.
 '''
 
 code_details_prompt = '''

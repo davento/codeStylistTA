@@ -36,6 +36,7 @@ export class AnalyzeComponent {
 
   // Files
   fileList: File[] = [];
+  acceptType: string = '*/*';
 
   constructor (
     private fb: FormBuilder,
@@ -97,6 +98,17 @@ export class AnalyzeComponent {
     this.enableButtons();
   }
 
+  onLanguageChange() {
+    const selectedLang = this.configForm.get('programmingLanguage')?.value;
+    if (selectedLang) {
+      this.acceptType = selectedLang.extensions;
+      console.log(this.acceptType);
+    }
+    if (this.fileList.length > 0) {
+      this.fileList = [];
+    }
+  }
+
   openFileDialog() {
     const fileInput = document.getElementById('file-button') as HTMLInputElement;
     if (fileInput) {
@@ -116,6 +128,30 @@ export class AnalyzeComponent {
   removeFile(index: number) {
     this.fileList.splice(index, 1);
     console.log(this.fileList);
+  }
+
+  submit() {
+    if (this.fileList?.length > 0) {
+      // get the code of each file and turn it into the code input
+      // then just evaluate
+      // TO-DO: make sure each analysis is on a different "tab"
+      for (let file of this.fileList) {
+        this.readFileContent(file);
+      }
+    }
+    else {
+      this.evaluate();
+    }
+  }
+
+  readFileContent(file: File) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.code = reader.result as string;
+      this.evaluate();
+      console.log(this.code);
+    };
+    reader.readAsText(file);
   }
 
   evaluate() {

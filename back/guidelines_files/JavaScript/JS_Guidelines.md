@@ -1,0 +1,122 @@
+# JavaScript Standard Style
+
+- Use 2 spaces for indentation.
+- Use single quotes for strings except to avoid escaping.
+- No unused variables.
+- Add a space after keywords.
+- Add a space before a function declaration's parentheses.
+- Always use `===` instead of `==`.
+  - Exception: `obj == null` is allowed to check for `null || undefined`.
+- Infix operators must be spaced.
+- Commas should have a space after them.
+- Keep else statements on the same line as their curly braces.
+- For multi-line if statements, use curly braces.
+- Always handle the `err` function parameter.
+- Declare browser globals with a `/* global */` comment.
+  - Exceptions are: `window`, `document`, and `navigator`.
+    - Explicitly referencing the function or property on `window` is okay too, though such code will not run in a Worker which uses `self` instead of `window`.
+  - Prevents accidental use of poorly-named browser globals like `open`, `length`, `event`, and `name`.
+- Multiple blank lines not allowed.
+- For the ternary operator in a multi-line setting, place `?` and `:` on their own lines.
+- For var declarations, write each declaration in its own statement.
+- Wrap conditional assignments with additional parentheses. This makes it clear that the expression is intentionally an assignment (`=`) rather than a typo for equality (`===`).
+- Add spaces inside single line blocks.
+- Use camelcase when naming variables and functions.
+- Trailing commas not allowed.
+- Commas must be placed at the end of the current line.
+- Dot should be on the same line as property.
+- Files must end with a newline.
+- No space between function identifiers and their invocations.
+- Add space between colon and value in key value pairs.
+- Constructor names must begin with a capital letter.
+- Constructor with no arguments must be invoked with parentheses.
+- Objects must contain a getter when a setter is defined.
+- Constructors of derived classes must call `super`.
+- Use array literals instead of array constructors.
+- Avoid using `arguments.callee` and `arguments.caller`.
+- Avoid modifying variables of class declarations.
+- Avoid modifying variables declared using `const`.
+- Avoid using constant expressions in conditions (except loops).
+- No control characters in regular expressions.
+- No `debugger` statements.
+- No `delete` operator on variables.
+- No duplicate arguments in function definitions.
+- No duplicate name in class members.
+- No duplicate keys in object literals.
+- No duplicate `case` labels in `switch` statements.
+- Use a single import statement per module.
+- No empty character classes in regular expressions.
+- No empty destructuring patterns.
+- No using `eval()`.
+- No reassigning exceptions in `catch` clauses.
+- No extending native objects.
+- Avoid unnecessary function binding.
+- Avoid unnecessary boolean casts.
+- No unnecessary parentheses around function expressions.
+- Use `break` to prevent fallthrough in `switch` cases.
+- No floating decimals.
+- Avoid reassigning function declarations.
+- No reassigning read-only global variables.
+- No implied `eval()`.
+- No function declarations in nested blocks.
+- No invalid regular expression strings in `RegExp` constructors.
+- No irregular whitespace.
+- No using `__iterator__`.
+- No labels that share a name with an in scope variable.
+- No label statements.
+- No unnecessary nested blocks.
+- Avoid mixing spaces and tabs for indentation.
+- Do not use multiple spaces except for indentation.
+- No multiline strings.
+- No `new` without assigning object to a variable.
+- No using the `Function` constructor.
+- No using the `Object` constructor.
+- No using `new require`.
+- No using the `Symbol` constructor.
+- No using primitive wrapper instances.
+- No calling global object properties as functions.
+- No octal literals.
+- No octal escape sequences in string literals.
+- Avoid string concatenation when using `__dirname` and `__filename`.
+- Avoid using `__proto__`. Use `getPrototypeOf` instead.
+- No redeclaring variables.
+- Avoid multiple spaces in regular expression literals.
+- Assignments in return statements must be surrounded by parentheses.
+- Avoid assigning a variable to itself
+- Avoid comparing a variable to itself.
+- Avoid using the comma operator.
+- Restricted names should not be shadowed.
+- Sparse arrays are not allowed.
+- Tabs should not be used
+- Regular strings must not contain template literal placeholders.
+- `super()` must be called before using `this`.
+- Only `throw` an `Error` object.
+- Whitespace not allowed at end of line.
+- Initializing to `undefined` is not allowed.
+- No unmodified conditions of loops.
+- No ternary operators when simpler alternatives exist.
+- No unreachable code after `return`, `throw`, `continue`, and `break` statements.
+- No flow control statements in `finally` blocks.
+- The left operand of relational operators must not be negated.
+- Avoid unnecessary use of `.call()` and `.apply()`.
+- Avoid using unnecessary computed property keys on objects.
+- No unnecessary constructor.
+- No unnecessary use of escape.
+- Renaming import, export, and destructured assignments to the same name is not allowed.
+- No whitespace before properties.
+- No using `with` statements.
+- Maintain consistency of newlines between object properties.
+- No padding within blocks.
+- No whitespace between spread operators and their expressions.
+- Semicolons must have a space after and no space before.
+- Must have a space before blocks.
+- No spaces inside parentheses.
+- Unary operators must have a space after.
+- Use spaces inside comments.
+- No spacing in template strings.
+- Use `isNaN()` when checking for `NaN`.
+- `typeof` must be compared to a valid string.
+- Immediately Invoked Function Expressions (IIFEs) must be wrapped.
+- The `*` in `yield*` expressions must have a space before and after.
+- Avoid Yoda conditions.
+- Never start a line with `(`, `[`, \``\`, or a handful of other unlikely possibilities.

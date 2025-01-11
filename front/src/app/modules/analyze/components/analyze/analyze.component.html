@@ -32,8 +32,11 @@
           </ul>
         </mat-card-content>
         <mat-card-actions>
-          <input type="file" id="file-button" multiple hidden (change)="handleFileChange($event)"/>
-          <button mat-stroked-button id="filebtn" (click)="openFileDialog()">Choose File</button>
+          <input type="file" id="file-button" multiple hidden (change)="handleFileChange($event)"
+          [attr.accept]="acceptType"/>
+          <button mat-stroked-button id="filebtn" (click)="openFileDialog()" [disabled]="!configForm.controls['programmingLanguage'].valid">
+            Choose File
+          </button>
         </mat-card-actions>
       </mat-card>
     </div>
@@ -45,7 +48,7 @@
           <form [formGroup]="configForm">
               <mat-form-field appearance="outline">
                   <mat-label>Programming language: </mat-label>
-                  <mat-select formControlName="programmingLanguage" required>
+                  <mat-select formControlName="programmingLanguage" required (selectionChange)="onLanguageChange()">
                     <mat-option *ngFor="let progLang of progLangs" [value]="progLang">{{progLang.name}}</mat-option>
                   </mat-select>
                   <mat-error
@@ -90,7 +93,7 @@
           </form>
       </div>
       <div>
-          <button (click)="evaluate()" mat-stroked-button id="analysisbtn">Evaluate</button>
+          <button (click)="submit()" mat-stroked-button id="analysisbtn">Evaluate</button>
       </div>
     </div>
   </div>

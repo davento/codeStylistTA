@@ -13,14 +13,15 @@ Note that a teacher (assistant) would still be the one giving the final grade. I
 ## To-do
 MUSTS:
 - [ ] File upload
-    - [ ] Interface and prompt modifications
+    - [X] Interface and prompt modifications
+    - [ ] Button functionality
 - [ ] Background for presentation
+- [X] Guidelines
 SHOULDS:
 - [ ] Instructor view
     - [ ] Instructor interface
     - [ ] Data CSVs
     - [ ] Bulk upload data script
-- [X] Guidelines (WIP)
 
 ## To-fix, check and/or improve (later)
 - Sometimes throws an error instead of the incorrect output message.
