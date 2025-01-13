@@ -1,0 +1,15 @@
+<div *ngIf="evaluated === false">
+  <p>[GenAI output will be filled here]</p>
+  <mat-progress-bar *ngIf="isLoading === true" mode="indeterminate"></mat-progress-bar>
+</div>
+<div *ngIf="success" class="output">
+  <ul *ngFor="let item of response">
+    <li><strong>Error location:</strong> {{item.error_location}}</li>
+    <li><strong>Things to fix:</strong> {{item.things_to_fix}}</li>
+    <li><strong>Suggestions:</strong> {{item.suggestions}}</li>
+    <li><strong>Explanation:</strong> {{item.explanation}}</li>
+  </ul>
+</div>
+<div *ngIf="errorLog !== ''">
+  <p id="output-error">{{errorLog}}</p>
+</div>

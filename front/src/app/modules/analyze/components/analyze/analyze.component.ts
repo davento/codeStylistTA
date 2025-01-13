@@ -37,6 +37,7 @@ export class AnalyzeComponent {
   // Files
   fileList: File[] = [];
   acceptType: string = '*/*';
+  multipleFilesAnalyzed: boolean = false;
 
   constructor (
     private fb: FormBuilder,
@@ -134,7 +135,7 @@ export class AnalyzeComponent {
     if (this.fileList?.length > 0) {
       // get the code of each file and turn it into the code input
       // then just evaluate
-      // TO-DO: make sure each analysis is on a different "tab"
+      this.multipleFilesAnalyzed = true;
       for (let file of this.fileList) {
         this.readFileContent(file);
       }
@@ -150,6 +151,9 @@ export class AnalyzeComponent {
       this.code = reader.result as string;
       this.evaluate();
       console.log(this.code);
+      // TO-DO: make sure each analysis is on a different "tab"
+      // https://material.angular.io/components/tabs/overview
+      // create tabs dynamically as analyses are ready
     };
     reader.readAsText(file);
   }

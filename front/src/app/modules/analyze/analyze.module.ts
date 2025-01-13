@@ -3,10 +3,12 @@ import { CommonModule } from '@angular/common';
 import { AnalyzeComponent } from './components/analyze/analyze.component';
 import { MaterialModule } from 'src/app/core/material/material.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FeedbackItemComponent } from './components/analyze/feedback-item/feedback-item.component';
 
 @NgModule({
   declarations: [
-    AnalyzeComponent
+    AnalyzeComponent,
+    FeedbackItemComponent
   ],
   exports: [
     AnalyzeComponent
