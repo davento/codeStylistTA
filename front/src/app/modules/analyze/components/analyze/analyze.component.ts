@@ -6,6 +6,7 @@ import { Feedback } from 'src/app/shared/interfaces/Feedback';
 import { ProgLanguage } from 'src/app/shared/interfaces/ProgLanguage';
 import { Tone } from 'src/app/shared/interfaces/Tone';
 import { Format } from 'src/app/shared/interfaces/Format';
+import { LoadingState } from 'src/app/shared/enums/LoadingState';
 
 // json imports
 import coursesJSON from "src/app/shared/data/courses.json";
@@ -18,26 +19,32 @@ import tonesJSON from "src/app/shared/data/tones.json";
   templateUrl: './analyze.component.html',
   styleUrls: ['./analyze.component.css']
 })
+
 export class AnalyzeComponent {
 
-  code: string = '';
-  response: Feedback[][] = [];
-  evaluated: boolean = false;
-  isLoading: boolean[] = [false];
-  errorLog: string = '';
-  success: boolean = false;
-  incorrectInputMessage: string = "Incorrect input, please submit code on the appropriate language.";
+  // Enums
+  public LoadingState = LoadingState;
 
-  // json file
+  // JSON files
   progLangs: ProgLanguage[] = progLangsJSON;
   courses: Course[] = coursesJSON;
   tones: Tone[] = tonesJSON;
   formats: Format[] = formatsJSON;
 
-  // Files
+  // General data members
+  code: string = '';
+  response: Feedback[][] = [];
+  evaluated: boolean = false;
+  isLoading: number[] = [LoadingState.nothing];
+  errorLog: string = '';
+  success: boolean = false;
+  incorrectInputMessage: string = "Incorrect input, please submit code on the appropriate language.";
+
+  // Data members for file management
   fileList: File[] = [];
-  acceptType: string = '*/*';
+  acceptType: string[] = ['*/*'];
   multipleFilesAnalyzed: boolean = false;
+  wrongFileType: boolean = false;
 
   constructor (
     private fb: FormBuilder,
@@ -123,10 +130,32 @@ export class AnalyzeComponent {
   handleFileChange(event: Event) {
     const inputElement = event.target as HTMLInputElement;
     if (inputElement && inputElement.files) {
+      // get all files added through the file upload button/panel
       const files = Array.from(inputElement.files);
-      this.fileList = files;
+      // consider only valid files
+      const validFiles = files.filter((file) => this.fileIsValidType(file));
+      this.fileList = validFiles;
+      if (this.fileList.length == 0) {
+        this.wrongFileType = true;
+      } else {
+        this.wrongFileType = false;
       }
-    console.log(this.fileList);
+      }
+      if (inputElement) {
+        inputElement.value = '';
+      }
+  }
+
+  fileIsValidType(file: File): boolean {
+
+    const result = this.acceptType.some((extension) => {
+        extension = extension.trim().toLowerCase();
+        const fileExtension = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
+        return fileExtension === extension;
+    });
+
+    console.log(`File ${file.name} validation result ${result}`);
+    return result;
   }
 
   removeFile(index: number) {
@@ -140,28 +169,31 @@ export class AnalyzeComponent {
   async submit() {
     await this.startLoad();
     this.multipleFilesAnalyzed = false;
-    // get the code of each file and turn it into the code input
-    console.log(this.fileList);
+
+    // Get the code of each file and turn it into the code input
     if (this.fileList?.length > 0) {
       this.multipleFilesAnalyzed = true;
       await this.processFilesSequentially();
     }
-    // evaluate directly if using the text input option
+    // Evaluate directly if using the text input option
     else {
       const index = 0;
-      this.isLoading[index] = true;
+      this.isLoading[index] = LoadingState.loading;
       await this.evaluate(this.code);
-      this.isLoading[index] = false;
+      this.isLoading[index] = LoadingState.done;
     }
     this.finishLoad();
   }
 
   async processFilesSequentially() {
     for (const [index, file] of this.fileList.entries()) {
-      this.isLoading[index] = true;
+      this.isLoading[index] = LoadingState.onQueue;
+    }
+    for (const [index, file] of this.fileList.entries()) {
+      this.isLoading[index] = LoadingState.loading;
       const fileContent = await this.readFileContent(file);
       await this.evaluate(fileContent);
-      this.isLoading[index] = false;
+      this.isLoading[index] = LoadingState.done;
     }
   }
 
