@@ -16,26 +16,26 @@ MUSTS:
     - [ ] Background
     - [ ] Abstract
     - [ ] Comments on files
-- [ ] Optimization
-    - [ ] Consider comments during code evaluation
-    - [ ] Assistant
-    - [ ] Component division
-    - [ ] Update Angular version
-- [ ] Debugging
-    - [ ] Evaluate function for multiple files
-    - [ ] Organize error codes
-    - [ ] Test for more files
+        - [X] `app.py`
+        - [ ] `appAssistant.py`
+        - [ ] `analyze.component`
+        - [ ] `feedback-item.component`
+- [X] Debugging
+    - [X] Consider comments during code evaluation
+    - [X] Evaluate function for multiple files
+    - [X] Organize error codes
 - [ ] Testing
+    - [ ] Test for more files
     - [ ] Come up with metrics
     - [ ] Test the data
 - [ ] Presentation
     - [ ] Slides
     - [ ] Practice THURSDAY 23RD 3:30 PM (teams online)
 SHOULDS:
-- [ ] Instructor view
-    - [ ] Instructor interface
-    - [ ] Data CSVs
-    - [ ] Bulk upload data script
+- [ ] Optimizations
+    - [ ] Component division
+    - [ ] Assistant
+    - [ ] Update Angular version
 
 ## To-fix, check and/or improve (later)
 - Sometimes throws an error instead of the incorrect output message.
@@ -43,6 +43,7 @@ SHOULDS:
 - Guidelines for Python, Java and C++ are too long; summarize them + split them in files.
     - Turn each section into a message; program the behavior for that.
 - Use a RAG and upload the code guidelines references there instead.
+- Instructor view (interface, data CSVs for the parameters, bulk upload data script)
 ---
 
 ## Front-end
