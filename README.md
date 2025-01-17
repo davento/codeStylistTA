@@ -16,14 +16,14 @@ MUSTS:
     - [ ] Background
     - [ ] Abstract
     - [ ] Comments on files
-        - [X] `app.py`
+        - [X] ~~`app.py`~~
         - [ ] `appAssistant.py`
         - [ ] `analyze.component`
         - [ ] `feedback-item.component`
-- [X] Debugging
-    - [X] Consider comments during code evaluation
-    - [X] Evaluate function for multiple files
-    - [X] Organize error codes
+- [X] ~~Debugging~~
+    - [X] ~~Consider comments during code evaluation~~
+    - [X] ~~Evaluate function for multiple files~~
+    - [X] ~~Organize error codes~~
 - [ ] Testing
     - [ ] Test for more files
     - [ ] Come up with metrics
@@ -31,6 +31,7 @@ MUSTS:
 - [ ] Presentation
     - [ ] Slides
     - [ ] Practice THURSDAY 23RD 3:30 PM (teams online)
+
 SHOULDS:
 - [ ] Optimizations
     - [ ] Component division
