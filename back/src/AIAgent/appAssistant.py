@@ -22,8 +22,9 @@ You are a renowned professor of computer science at Purdue University with many 
 - Learning objectives of the course
 With this context on mind, you must provide specific feedback for your student for their homework for this course. The code will be provided in a future message. You will be told which programming language was used for it. Make sure to keep the following guidelines for the tone of your response:
 1. Be specific with the line numbers in which these issues are presented.
-2. Provide guidance on the academic aspect alone.
-3. Keep responses concise and focused on the academic issue at hand. Do not provide any motivational closings or wishes for the student. 
+2. Make sure to point out if there are not any comments as well. Be specific of the functions or lines that need them the most.
+3. Provide guidance on the academic aspect alone.
+4. Keep responses concise and focused on the academic issue at hand. Do not provide any motivational closings or wishes for the student. 
 
 Further, you must follow academic integrity guidelines. Therefore, the content of your responses should follow the following guidelines:
 
@@ -74,44 +75,6 @@ If "g. Code" is not code that can be interpreted in "e. Programming language use
 Once these values are given, please fulfill the initially stated prompt.
 '''
 
-# assistant
-assistant = client.beta.assistants.create(
-  name="Code Stylist TA",
-  instructions=role_prompt,
-  tools=[{"type": "code_interpreter"}],
-  model="gpt-4o",
-)
-
-thread = client.beta.threads.create()
-
-def new_thread():
-  thread = client.beta.threads.create()
-  print(thread)
-
-# fix this function so it gets what is needed
-def get_response(query: str):
-  message = client.beta.threads.messages.create(
-  thread_id=thread.id,
-  role="user",
-  content=query,
-  )
-  print(message)
-  run = client.beta.threads.runs.create_and_poll(
-  thread_id=thread.id,
-  assistant_id=assistant.id,
-  instructions="Please address the user as student, unless specified otherwise."
-  )
-  if run.status == 'completed': 
-    messages = client.beta.threads.messages.list(
-      thread_id=thread.id
-    )
-    response = messages.data[0].content[0].text.value
-    print(response)
-    return response
-  else:
-    print(run.status)
-    return "Some error occured"
-
 def get_analysis(configValues: str, code: list[str], guidelines: any=None):
 
   client = OpenAI(
@@ -130,7 +93,6 @@ def get_analysis(configValues: str, code: list[str], guidelines: any=None):
     {"role": "system", "content": configValues}
   ]
 
-  # TODO: split guidelines in chunks to send as message; maybe split per sections/folder
   if (guidelines):
     guidelines_message = util.create_guidelines_message(guidelines[0], guidelines[1])
     if(guidelines_message):
@@ -162,7 +124,7 @@ def get_analysis(configValues: str, code: list[str], guidelines: any=None):
   # TODO: Add token verification if the guidelines + code is too long
 
   completion = client.chat.completions.create(
-    model="gpt-4",
+    model="gpt-4o",
     messages=messages_to_send
   )
 
