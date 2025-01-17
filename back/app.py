@@ -6,11 +6,7 @@ import src.util as util
 app = Flask(__name__)
 CORS(app)
 
-@app.route("/upload", methods=["POST"])
-def upload_files():
-    util.upload_files()
-    pass
-
+# Main function for sending data from the front to the back for processing
 @app.route("/input", methods=["POST"])
 def process_input():
 
@@ -49,10 +45,10 @@ def process_input():
         reply_format_name,
     )
 
+    # Setting guidelines
     guidelines = [programming_language_guidelines, programming_language_name]
 
     # Send them to the analysis
-    # Excluding guidelines for now
     response = appAssistant.get_analysis(configValues, code, guidelines)
     print("===Response:")
     print(response)
