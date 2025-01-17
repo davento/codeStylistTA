@@ -3,4 +3,5 @@ export interface Feedback {
   things_to_fix: string,
   suggestions: string,
   explanation: string
+  error?: string
 }

@@ -10,6 +10,6 @@ export class FeedbackItemComponent {
   @Input() success: boolean = false;
   @Input() evaluated: boolean = false;
   @Input() isLoading: boolean = false;
-  @Input() response: Feedback[] | undefined = [];
+  @Input() response: Feedback[] = [];
   @Input() errorLog: string = '';
 }

@@ -12,11 +12,25 @@ Note that a teacher (assistant) would still be the one giving the final grade. I
 
 ## To-do
 MUSTS:
-- [ ] File upload
-    - [X] Interface and prompt modifications
-    - [ ] Button functionality
-- [ ] Background for presentation
-- [X] Guidelines
+- [ ] Documentation
+    - [ ] Background
+    - [ ] Abstract
+    - [ ] Comments on files
+- [ ] Optimization
+    - [ ] Consider comments during code evaluation
+    - [ ] Assistant
+    - [ ] Component division
+    - [ ] Update Angular version
+- [ ] Debugging
+    - [ ] Evaluate function for multiple files
+    - [ ] Organize error codes
+    - [ ] Test for more files
+- [ ] Testing
+    - [ ] Come up with metrics
+    - [ ] Test the data
+- [ ] Presentation
+    - [ ] Slides
+    - [ ] Practice THURSDAY 23RD 3:30 PM (teams online)
 SHOULDS:
 - [ ] Instructor view
     - [ ] Instructor interface
@@ -39,7 +53,7 @@ Go to the `/front` folder, install the necessary libraries using `npm install` a
 
 ## Back-end
 
-Powered by Flask. Create a virtual environment with the [environment.yml](https://github.com/davento/codeStylistTA/blob/dev/back/environment.yml) file. Activate it to install the necessary libraries shown in [requirements.txt](https://github.com/davento/codeStylistTA/blob/dev/back/requirements.txt) and run the app using ```flask --app app run```.
+Powered by Flask. Create a virtual environment with the [environment.yml](https://github.com/davento/codeStylistTA/blob/dev/back/environment.yml) file. Activate it and install the necessary libraries shown in [requirements.txt](https://github.com/davento/codeStylistTA/blob/dev/back/requirements.txt). Then, run the app using ```flask --app app run```.
 
 ## Extra Resources
 

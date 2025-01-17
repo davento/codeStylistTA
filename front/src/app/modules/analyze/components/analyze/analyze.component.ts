@@ -21,9 +21,9 @@ import tonesJSON from "src/app/shared/data/tones.json";
 export class AnalyzeComponent {
 
   code: string = '';
-  response?: Feedback[] = [];
+  response: Feedback[][] = [];
   evaluated: boolean = false;
-  isLoading: boolean = false;
+  isLoading: boolean[] = [false];
   errorLog: string = '';
   success: boolean = false;
   incorrectInputMessage: string = "Incorrect input, please submit code on the appropriate language.";
@@ -72,29 +72,32 @@ export class AnalyzeComponent {
     format: ['', [Validators.required]],
   });
 
-  startLoad() {
-    this.errorLog = '';
-    this.evaluated = false;
-    this.isLoading = true;
-    this.response = [];
-    this.success = false;
-    this.disableButtons();
+  startLoad(): Promise<void> {
+    return new Promise((resolve) => {
+      this.errorLog = '';
+      this.evaluated = false;
+      this.response = [];
+      this.success = false;
+      this.disableButtons();
+      resolve();
+    })
   }
 
   enableButtons() {
     (document.getElementById("clearbtn") as HTMLButtonElement).disabled = false;
     (document.getElementById("uploadbtn") as HTMLButtonElement).disabled = false;
+    (document.getElementById("filebtn") as HTMLButtonElement).disabled = false;
     (document.getElementById("analysisbtn") as HTMLButtonElement).disabled = false;
   }
 
   disableButtons() {
     (document.getElementById("clearbtn") as HTMLButtonElement).disabled = true;
     (document.getElementById("uploadbtn") as HTMLButtonElement).disabled = true;
+    (document.getElementById("filebtn") as HTMLButtonElement).disabled = true;
     (document.getElementById("analysisbtn") as HTMLButtonElement).disabled = true;
   }
 
   finishLoad() {
-    this.isLoading = false;
     this.evaluated = true;
     this.enableButtons();
   }
@@ -128,65 +131,91 @@ export class AnalyzeComponent {
 
   removeFile(index: number) {
     this.fileList.splice(index, 1);
+    if (this.response) {
+      this.response.splice(index, 1);
+    }
     console.log(this.fileList);
   }
 
-  submit() {
+  async submit() {
+    await this.startLoad();
+    this.multipleFilesAnalyzed = false;
+    // get the code of each file and turn it into the code input
+    console.log(this.fileList);
     if (this.fileList?.length > 0) {
-      // get the code of each file and turn it into the code input
-      // then just evaluate
       this.multipleFilesAnalyzed = true;
-      for (let file of this.fileList) {
-        this.readFileContent(file);
-      }
+      await this.processFilesSequentially();
     }
+    // evaluate directly if using the text input option
     else {
-      this.evaluate();
+      const index = 0;
+      this.isLoading[index] = true;
+      await this.evaluate(this.code);
+      this.isLoading[index] = false;
+    }
+    this.finishLoad();
+  }
+
+  async processFilesSequentially() {
+    for (const [index, file] of this.fileList.entries()) {
+      this.isLoading[index] = true;
+      const fileContent = await this.readFileContent(file);
+      await this.evaluate(fileContent);
+      this.isLoading[index] = false;
     }
   }
 
-  readFileContent(file: File) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.code = reader.result as string;
-      this.evaluate();
-      console.log(this.code);
-      // TO-DO: make sure each analysis is on a different "tab"
-      // https://material.angular.io/components/tabs/overview
-      // create tabs dynamically as analyses are ready
+  readFileContent(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        resolve(reader.result as string);
+        console.log(reader.result as string);
     };
+    reader.onerror = (error) => reject(error);
     reader.readAsText(file);
+    })
   }
 
-  evaluate() {
+  evaluate(code: string): Promise<void> {
 
-    this.startLoad();
+    if (code == '') {
+      this.errorLog = "No code uploaded as input. Please upload a file or upload text input.";
+      return new Promise((reject) => {reject()});
+    }
 
-    const inputData = {
-      code: this.code,
-      programming_language: this.configForm.get('programmingLanguage')?.value,
-      course: this.configForm.get('course')?.value,
-      reply_tone: this.configForm.get('tone')?.value,
-      reply_format: this.configForm.get('format')?.value,
-    };
+    return new Promise((resolve, reject) => {
 
-    // need to think of more error cases and fix this one
-    this.inputService.processInput(inputData).subscribe({
-      next: (data) => {
-        console.log(data);
-        if (data == this.incorrectInputMessage) {
-          this.errorLog = this.incorrectInputMessage;
-        } else {
-          this.response = data;
-          this.success = true;
-        }
-        this.finishLoad();
-      },
-      error: (error) => {
-        console.log(error);
-        this.errorLog = "Server error occurred.";
-        this.finishLoad();
-      },
-    });
+      const inputData = {
+        code: code,
+        programming_language: this.configForm.get('programmingLanguage')?.value,
+        course: this.configForm.get('course')?.value,
+        reply_tone: this.configForm.get('tone')?.value,
+        reply_format: this.configForm.get('format')?.value,
+      };
+
+      // TODO: retouches
+      this.inputService.processInput(inputData).subscribe({
+        // make the data be appended to response
+        next: (data) => {
+          console.log(data);
+          if (data["error"]) {
+            this.errorLog = data["error"];
+            this.success = false;
+          } else {
+            this.response.push(data);
+            console.log(this.response);
+            this.success = true;
+          }
+          resolve();
+        },
+        // need to think of more error cases
+        error: (error) => {
+          console.log(error);
+          this.errorLog = "Server error occurred.";
+          reject(error);
+        },
+      });
+    })
   }
 }
