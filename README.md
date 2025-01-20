@@ -15,11 +15,11 @@ MUSTS:
 - [ ] Documentation
     - [ ] Background
     - [ ] Abstract
-    - [ ] Comments on files
+    - [X] Comments on files
         - [X] ~~`app.py`~~
-        - [ ] `appAssistant.py`
-        - [ ] `analyze.component`
-        - [ ] `feedback-item.component`
+        - [X] ~~`appAssistant.py`~~
+        - [X] ~~`analyze.component`~~
+        - [X] ~~`feedback-item.component`~~
 - [X] ~~Debugging~~
     - [X] ~~Consider comments during code evaluation~~
     - [X] ~~Evaluate function for multiple files~~
@@ -45,6 +45,8 @@ SHOULDS:
     - Turn each section into a message; program the behavior for that.
 - Use a RAG and upload the code guidelines references there instead.
 - Instructor view (interface, data CSVs for the parameters, bulk upload data script)
+- Add token length verification if the guidelines + code is too long
+- Update Angular version
 ---
 
 ## Front-end

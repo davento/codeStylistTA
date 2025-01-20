@@ -8,7 +8,7 @@ import { Tone } from 'src/app/shared/interfaces/Tone';
 import { Format } from 'src/app/shared/interfaces/Format';
 import { LoadingState } from 'src/app/shared/enums/LoadingState';
 
-// json imports
+// JSON imports
 import coursesJSON from "src/app/shared/data/courses.json";
 import progLangsJSON from "src/app/shared/data/programming_languages.json";
 import formatsJSON from "src/app/shared/data/formats.json";
@@ -34,7 +34,7 @@ export class AnalyzeComponent {
   // General data members
   code: string = '';
   response: Feedback[][] = [];
-  evaluated: boolean = false;
+  analyzed: boolean = false;
   isLoading: number[] = [LoadingState.nothing];
   errorLog: string = '';
   success: boolean = false;
@@ -43,9 +43,10 @@ export class AnalyzeComponent {
   // Data members for file management
   fileList: File[] = [];
   acceptType: string[] = ['*/*'];
-  multipleFilesAnalyzed: boolean = false;
+  fileInputIsPresent: boolean = false;
   wrongFileType: boolean = false;
 
+  // Initializing FormBuilder and InputService
   constructor (
     private fb: FormBuilder,
     private inputService: InputService
@@ -56,22 +57,26 @@ export class AnalyzeComponent {
     console.log(tonesJSON);
   }
 
+  // Initialize form for code text input
   codeForm: FormGroup = this.fb.group({
     code: ['', [Validators.required]],
   });
 
+  // Clear code text input
   clearCode() {
     this.codeForm.reset();
     this.code = '';
     console.log(this.code);
   }
 
+  // Upload code text input
   uploadCode() {
     this.code = this.codeForm.get('code')?.value;
     console.log(this.code);
     alert("Code updated.");
   }
 
+  // Initialize form for configuration input
   configForm: FormGroup = this.fb.group({
     programmingLanguage: ['', [Validators.required]],
     course: ['', [Validators.required]],
@@ -79,10 +84,11 @@ export class AnalyzeComponent {
     format: ['', [Validators.required]],
   });
 
+  // Reset values when starting an analysis
   startLoad(): Promise<void> {
     return new Promise((resolve) => {
       this.errorLog = '';
-      this.evaluated = false;
+      this.analyzed = false;
       this.response = [];
       this.success = false;
       this.disableButtons();
@@ -90,6 +96,7 @@ export class AnalyzeComponent {
     })
   }
 
+  // Enabling buttons post-analysis
   enableButtons() {
     (document.getElementById("clearbtn") as HTMLButtonElement).disabled = false;
     (document.getElementById("uploadbtn") as HTMLButtonElement).disabled = false;
@@ -97,6 +104,7 @@ export class AnalyzeComponent {
     (document.getElementById("analysisbtn") as HTMLButtonElement).disabled = false;
   }
 
+  // Disabling buttons pre-analysis
   disableButtons() {
     (document.getElementById("clearbtn") as HTMLButtonElement).disabled = true;
     (document.getElementById("uploadbtn") as HTMLButtonElement).disabled = true;
@@ -104,11 +112,13 @@ export class AnalyzeComponent {
     (document.getElementById("analysisbtn") as HTMLButtonElement).disabled = true;
   }
 
+  // Set values when finishing an analysis
   finishLoad() {
-    this.evaluated = true;
+    this.analyzed = true;
     this.enableButtons();
   }
 
+  // Change accepted files for file input when the language is changed
   onLanguageChange() {
     const selectedLang = this.configForm.get('programmingLanguage')?.value;
     if (selectedLang) {
@@ -120,6 +130,7 @@ export class AnalyzeComponent {
     }
   }
 
+  // Open file input dialog window
   openFileDialog() {
     const fileInput = document.getElementById('file-button') as HTMLInputElement;
     if (fileInput) {
@@ -127,27 +138,30 @@ export class AnalyzeComponent {
     }
   }
 
+  // Behavior for loading file input
   handleFileChange(event: Event) {
     const inputElement = event.target as HTMLInputElement;
     if (inputElement && inputElement.files) {
-      // get all files added through the file upload button/panel
+      // Get all files added through the file upload button/panel
       const files = Array.from(inputElement.files);
-      // consider only valid files
+      // Consider only valid files
       const validFiles = files.filter((file) => this.fileIsValidType(file));
       this.fileList = validFiles;
+      // Notify error if no valid files are attached
       if (this.fileList.length == 0) {
         this.wrongFileType = true;
       } else {
         this.wrongFileType = false;
       }
       }
+      // Reset if no files are included
       if (inputElement) {
         inputElement.value = '';
       }
   }
 
+  // Helper function for validating if a file fits the extensions asked
   fileIsValidType(file: File): boolean {
-
     const result = this.acceptType.some((extension) => {
         extension = extension.trim().toLowerCase();
         const fileExtension = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
@@ -158,6 +172,7 @@ export class AnalyzeComponent {
     return result;
   }
 
+  // File removal behavior
   removeFile(index: number) {
     this.fileList.splice(index, 1);
     if (this.response) {
@@ -166,37 +181,45 @@ export class AnalyzeComponent {
     console.log(this.fileList);
   }
 
+  //
   async submit() {
+    // Pre-analysis behavior
     await this.startLoad();
-    this.multipleFilesAnalyzed = false;
+    this.fileInputIsPresent = false;
 
-    // Get the code of each file and turn it into the code input
+    // Get the code of each file and turn it into the code input for analysis
     if (this.fileList?.length > 0) {
-      this.multipleFilesAnalyzed = true;
+      this.fileInputIsPresent = true;
       await this.processFilesSequentially();
     }
-    // Evaluate directly if using the text input option
+    // Analyze directly if using the text input option
     else {
       const index = 0;
       this.isLoading[index] = LoadingState.loading;
-      await this.evaluate(this.code);
+      await this.analyze(this.code);
       this.isLoading[index] = LoadingState.done;
     }
+
+    // Post-analysis behavior
     this.finishLoad();
   }
 
+  // Helper function for processing file input
   async processFilesSequentially() {
+    // Set all files loading state as queued
     for (const [index, file] of this.fileList.entries()) {
       this.isLoading[index] = LoadingState.onQueue;
     }
+    // Analyzing one file at a time
     for (const [index, file] of this.fileList.entries()) {
       this.isLoading[index] = LoadingState.loading;
       const fileContent = await this.readFileContent(file);
-      await this.evaluate(fileContent);
+      await this.analyze(fileContent);
       this.isLoading[index] = LoadingState.done;
     }
   }
 
+  // Helper function to extract the content (code) of a file
   readFileContent(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -209,15 +232,19 @@ export class AnalyzeComponent {
     })
   }
 
-  evaluate(code: string): Promise<void> {
+  // Analyzing the code
+  analyze(code: string): Promise<void> {
 
+    // Verify if there is a valid input
     if (code == '') {
       this.errorLog = "No code uploaded as input. Please upload a file or upload text input.";
       return new Promise((reject) => {reject()});
     }
 
+    // Do the analysis itself
     return new Promise((resolve, reject) => {
 
+      // Group up all the input data
       const inputData = {
         code: code,
         programming_language: this.configForm.get('programmingLanguage')?.value,
@@ -226,22 +253,29 @@ export class AnalyzeComponent {
         reply_format: this.configForm.get('format')?.value,
       };
 
-      // TODO: retouches
+      // Send it to the back for analysis
       this.inputService.processInput(inputData).subscribe({
-        // make the data be appended to response
+        // Append returned data to the result
         next: (data) => {
+          // Display returned data on the console
           console.log(data);
+
+          // Display errors if any
           if (data["error"]) {
             this.errorLog = data["error"];
             this.success = false;
-          } else {
+          }
+
+          // Add analysis result to the response
+          else {
             this.response.push(data);
             console.log(this.response);
             this.success = true;
           }
           resolve();
         },
-        // need to think of more error cases
+
+        // Return a server error if sending fails
         error: (error) => {
           console.log(error);
           this.errorLog = "Server error occurred.";

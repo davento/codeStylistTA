@@ -8,9 +8,12 @@ import { LoadingState } from 'src/app/shared/enums/LoadingState';
   styleUrls: ['./feedback-item.component.css']
 })
 export class FeedbackItemComponent {
+  // Enums
   public LoadingState = LoadingState;
+
+  // Input content from parent
   @Input() success: boolean = false;
-  @Input() evaluated: boolean = false;
+  @Input() analyzed: boolean = false;
   @Input() isLoading: number = LoadingState.nothing;
   @Input() response: Feedback[] = [];
   @Input() errorLog: string = '';

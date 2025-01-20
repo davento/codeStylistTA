@@ -1,21 +1,20 @@
 from openai import OpenAI
-import openai
-import base64
 import sys
 sys.path.append("../src")
 import src.util as util
 
+# API keys
 OPENAI_API_KEY = "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"
 ORG_ID = "org-tQQarliDkrBTI1WZcOgFmwJA"
 
+# Initializing the API client
 client = OpenAI(
       api_key=OPENAI_API_KEY,
       organization=ORG_ID,
   )
 
-
+# Initial prompt detailing the role/persona the AI will take
 role_prompt = '''
-
 You are a renowned professor of computer science at Purdue University with many years of experience on this institution. You are teaching an introductory programming class. The specifics of said course will be detailed to you in a future message. These details will include:
 - Name of the course
 - Description of the course
@@ -34,6 +33,7 @@ Further, you must follow academic integrity guidelines. Therefore, the content o
 Once again, do not provide any code in any context.
 '''
 
+# Main instructions prompt detailing input to be received
 instructions_prompt = '''
 Given the initial prompt, consider the following variables:
 a. Name of the course
@@ -59,10 +59,12 @@ Return only the JSON array. Not plaintext formatted as a JSON. Just the JSON arr
 This should also be the default format for your replies. And again, please be specific with your feedback.
 '''
 
+# Prompt clarifying the purpose and use of reference material input
 reference_material_prompt = '''
 Additionally, you will be given additional reading material for you to educate yourself on coding standards for the language the input code is in. Keep these into consideration during your assessment.
 '''
 
+# Prompt specifying instructions on the code input.
 code_details_prompt = '''
 A sequence of user messages will provide variable g, the code. This sequence is delimited by a message saying "Code start" and another one saying "Code end".
 
@@ -75,13 +77,16 @@ If "g. Code" is not code that can be interpreted in "e. Programming language use
 Once these values are given, please fulfill the initially stated prompt.
 '''
 
+# Analysis function
 def get_analysis(configValues: str, code: list[str], guidelines: any=None):
 
+  # Initialize client
   client = OpenAI(
     api_key=OPENAI_API_KEY,
     organization=ORG_ID
   )
 
+  # Console checking of the initial system prompts
   print("===Initial Prompt:")
   print(role_prompt)
   print(instructions_prompt)
@@ -93,23 +98,26 @@ def get_analysis(configValues: str, code: list[str], guidelines: any=None):
     {"role": "system", "content": configValues}
   ]
 
+  # Creating guidelines message
   if (guidelines):
     guidelines_message = util.create_guidelines_message(guidelines[0], guidelines[1])
+    # Assuming the guidelines are not too long and there weren't any errors during creation,
     if(guidelines_message):
+      # append the guidelines message
       messages_to_send.append(guidelines_message)
     else:
+      # exclude it
       print("Guidelines are too long. Excluding.\n\n")
   else:
     print("No guidelines provided.\n\n")
   
+  # Start sending the code
   messages_to_send.append({"role": "user", "content": "Code start\n["})
-
   print("Total number of code lines: ", len(code)-1)
   
+  # slice the code in chunks and turn each chunk into a message:
   print("Code Start ====")
-
   skip = 100
-  # slice the code in chunks and send the chunk as a message:
   for index in range(0, len(code)-1, skip):
     index_start = index+1
     index_end = index+skip if index+skip < len(code) else len(code)-1
@@ -117,16 +125,15 @@ def get_analysis(configValues: str, code: list[str], guidelines: any=None):
     print(query)
     print("---")
     messages_to_send.append({"role": "user", "content": query})
-
   messages_to_send.append({"role": "user", "content": "]\n Code end"})
   print("==== Code End")
 
-  # TODO: Add token verification if the guidelines + code is too long
-
+  # Send all the messages
   completion = client.chat.completions.create(
     model="gpt-4o",
     messages=messages_to_send
   )
 
+  # Return response
   response = completion.choices[0].message.content
   return response

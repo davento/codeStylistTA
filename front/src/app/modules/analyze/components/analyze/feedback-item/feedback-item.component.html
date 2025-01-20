@@ -1,9 +1,11 @@
-<div *ngIf="evaluated === false && isLoading != LoadingState.done && errorLog === ''">
+<!-- Progress bar -->
+<div *ngIf="analyzed === false && isLoading != LoadingState.done && errorLog === ''">
   <p *ngIf="isLoading === LoadingState.nothing">[GenAI output will be filled here]</p>
   <p *ngIf="isLoading === LoadingState.onQueue">[File is on queue. Waiting for prior analyses to be done.]</p>
   <p *ngIf="isLoading === LoadingState.loading">[Code is currently being analyzed. Waiting for output.]</p>
   <mat-progress-bar *ngIf="isLoading === LoadingState.loading || isLoading === LoadingState.onQueue" mode="indeterminate"></mat-progress-bar>
 </div>
+<!-- Analysis result -->
 <div *ngIf="success" class="output">
   <ul *ngFor="let item of response">
     <li><strong>Error location:</strong> {{item.error_location}}</li>

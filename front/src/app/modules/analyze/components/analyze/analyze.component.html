@@ -1,7 +1,9 @@
 <div class="container">
+  <!-- Input Column -->
   <div class="column">
+    <!-- Code input -->
     <div class="row">
-      <h1>Files</h1>
+      <h1>Code</h1>
     <div class="code">
       <mat-card appearance="outlined">
         <mat-card-content>
@@ -45,6 +47,7 @@
     </div>
     </div>
 
+    <!-- Configuration input -->
     <div class="row">
       <h1>Configuration</h1>
       <div class="config">
@@ -101,16 +104,19 @@
     </div>
   </div>
 
+  <!-- Output column -->
   <div class="column">
+    <!-- Feedback output -->
     <div class="row">
       <h1>Feedback</h1>
-      <mat-card appearance="outlined" *ngIf="multipleFilesAnalyzed">
+      <!-- File input feedback output -->
+      <mat-card appearance="outlined" *ngIf="fileInputIsPresent">
         <mat-card-content *ngIf="fileList.length > 0">
           <mat-tab-group>
             <mat-tab *ngFor="let file of fileList, let i = index" [label]="file.name">
               <app-feedback-item
                 [success]="success"
-                [evaluated]="evaluated"
+                [analyzed]="analyzed"
                 [isLoading]="isLoading[i]"
                 [response]="response[i]"
                 [errorLog]="errorLog">
@@ -122,18 +128,18 @@
           No files left. Upload files or use the text input box.
         </mat-card-content>
       </mat-card>
-        <mat-card appearance="outlined" *ngIf="!multipleFilesAnalyzed">
-          <mat-card-content>
-            <app-feedback-item
-              [success]="success"
-              [evaluated]="evaluated"
-              [isLoading]="isLoading[0]"
-              [response]="response[0]"
-              [errorLog]="errorLog">
-            </app-feedback-item>
-          </mat-card-content>
-        </mat-card>
-
+      <!-- Text input feedback output -->
+      <mat-card appearance="outlined" *ngIf="!fileInputIsPresent">
+        <mat-card-content>
+          <app-feedback-item
+            [success]="success"
+            [analyzed]="analyzed"
+            [isLoading]="isLoading[0]"
+            [response]="response[0]"
+            [errorLog]="errorLog">
+          </app-feedback-item>
+        </mat-card-content>
+      </mat-card>
     </div>
   </div>
 </div>
