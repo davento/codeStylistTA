@@ -47,14 +47,16 @@ g. Code
 An upcoming message from the system will provide values for variables a to f.
 
 Point "e. Tone to be used to reply" refers to the wording of your replies. Make sure to still follow the tone guidelines mentioned beforehand.
+'''
 
+response_prompt = '''
 If "f. Format to be used to reply" is JSON, the output should be an array of JSON items, where each JSON represents an error found in the code. Have the fields for this response be the following:
 - error_location (string)
 - things_to_fix (string)
 - suggestions (string)
 - explanation (string)
 
-Return only the JSON array. Not plaintext formatted as a JSON. Just the JSON array. Nothing more, nothing less.
+Return only the JSON array. Not plaintext formatted as a JSON. NOT text that starts with '```json' and finishes with '```'. Just the JSON array. Nothing more, nothing less.
 
 This should also be the default format for your replies. And again, please be specific with your feedback.
 '''
@@ -95,6 +97,7 @@ def get_analysis(configValues: str, code: list[str], guidelines: any=None):
   messages_to_send = [
     {"role": "system", "content": role_prompt},
     {"role": "system", "content": instructions_prompt},
+    {"role": "system", "content": response_prompt},
     {"role": "system", "content": configValues}
   ]
 

@@ -127,6 +127,7 @@ export class AnalyzeComponent {
     }
     if (this.fileList.length > 0) {
       this.fileList = [];
+      this.response = [];
     }
   }
 
@@ -146,7 +147,7 @@ export class AnalyzeComponent {
       const files = Array.from(inputElement.files);
       // Consider only valid files
       const validFiles = files.filter((file) => this.fileIsValidType(file));
-      this.fileList = validFiles;
+      this.fileList.push(...validFiles);
       // Notify error if no valid files are attached
       if (this.fileList.length == 0) {
         this.wrongFileType = true;
@@ -161,6 +162,7 @@ export class AnalyzeComponent {
   }
 
   // Helper function for validating if a file fits the extensions asked
+  // TODO: fix that files can't be repeated either
   fileIsValidType(file: File): boolean {
     const result = this.acceptType.some((extension) => {
         extension = extension.trim().toLowerCase();
@@ -280,6 +282,8 @@ export class AnalyzeComponent {
           console.log(error);
           this.errorLog = "Server error occurred.";
           reject(error);
+          this.enableButtons();
+          this.response = [];
         },
       });
     })

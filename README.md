@@ -47,6 +47,7 @@ SHOULDS:
 - Instructor view (interface, data CSVs for the parameters, bulk upload data script)
 - Add token length verification if the guidelines + code is too long
 - Update Angular version
+- Debug output issues with the JSON format not always finishing/closing, starting with \```json```.
 ---
 
 ## Front-end
