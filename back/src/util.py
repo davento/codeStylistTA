@@ -1,13 +1,12 @@
 from tiktoken import encoding_for_model
 
-# Conversion of read code into a list/array in which each line is a string item in it
 def convert_code_str_to_array(code: str) -> list[str]:
-    lines = [""]
+    lines = []
     current_line = ""
     is_in_string = False
     string_delimiter = None
     is_triple_quote = False
-    is_in_multiline_comment = False  # To track if we're inside a block comment
+    is_in_multiline_comment = False
     i = 0
 
     while i < len(code):
@@ -15,75 +14,50 @@ def convert_code_str_to_array(code: str) -> list[str]:
         next_char = code[i + 1] if i + 1 < len(code) else ""
         next_next_char = code[i + 2] if i + 2 < len(code) else ""
 
-        # Handle block comments (Java/C/C++ style /* ... */ and JavaDoc /** ... */)
+        # Handle block comments (JavaDoc /** ... */ and regular /* ... */)
         if not is_in_string and not is_in_multiline_comment and char == "/" and next_char == "*":
-            # If it's a JavaDoc comment, start with /** 
-            if next_char == "*" and next_next_char == "/":
-                current_line += "/**"
-                is_in_multiline_comment = True
-                i += 2  # Skip past the "/**"
-                continue  # Skip to the next iteration (we'll continue processing inside the comment)
-            
-            # Regular multiline comment start: /*
-            current_line += "/*"
             is_in_multiline_comment = True
-            i += 2  # Skip past the "/*"
-            continue  # Skip to the next iteration (we'll continue processing inside the comment)
-
-        # Handle the end of block comments (*/ for both regular and JavaDoc comments)
+            current_line += "/*"
+            i += 1  # Skip past the "*"
+            if next_next_char == "*":  # JavaDoc detected
+                current_line += "*"
+                i += 1  # Skip past second "*"
         elif is_in_multiline_comment and char == "*" and next_char == "/":
-            current_line += "*/"  # Add the end of the comment to the current line
+            current_line += "*/"
             is_in_multiline_comment = False
-            i += 2  # Skip past the "*/"
-            continue  # Skip to the next iteration (start processing regular code again)
-
-        # Handle string literals (single, double, triple quotes)
-        if not is_in_string and char == "'" and next_char == "'" and next_next_char == "'":
+            i += 1  # Skip past "/"
+        elif is_in_multiline_comment and char == "\n":
+            lines.append(current_line.rstrip())  # Store current line
+            current_line = ""  # Start a new line
+        elif not is_in_string and char in ('"', "'", "`"):
             is_in_string = True
-            is_triple_quote = True
-            string_delimiter = "'''"
-            current_line += "'''"
-            i += 2
-        
-        elif is_in_string and is_triple_quote and char == "'" and next_char == "'" and next_next_char == "'":
+            string_delimiter = char
+            is_triple_quote = code[i:i+3] == char * 3  # Check for triple quote
+            current_line += char
+            if is_triple_quote:
+                i += 2  # Skip the next two characters
+        elif is_in_string and char == string_delimiter and not is_triple_quote and code[i - 1] != "\\":
+            is_in_string = False
+            string_delimiter = None
+            current_line += char
+        elif is_in_string and is_triple_quote and char == string_delimiter and next_char == string_delimiter and next_next_char == string_delimiter:
             is_in_string = False
             is_triple_quote = False
             string_delimiter = None
             current_line += "'''"
             i += 2
-        
-        elif not is_in_string and char in ('"', "'", "`"):
-            is_in_string = True
-            string_delimiter = char
-            current_line += char
-        
-        elif is_in_string and char == string_delimiter and not is_triple_quote and code[i - 1] != "\\":
-            is_in_string = False
-            string_delimiter = None
-            current_line += char
-        
-        elif is_in_string and char == "\\":
-            current_line += char + next_char
-            i += 1
-        
-        # Handle newlines and finalize the current line
         elif char == "\n":
-            if is_in_string:
-                current_line += char
-            else:
-                lines.append(current_line.rstrip())  # Add the line to lines, removing trailing whitespace
-                current_line = ""  # Reset the current line for the next line
-        
-        # Regular characters (including inside multiline comments and strings)
+            lines.append(current_line.rstrip())  # Add the line to lines
+            current_line = ""
         else:
             current_line += char
-        
-        i += 1  # Move to the next character
 
-    # Finalize the last line (in case the code doesn't end with a newline)
-    lines.append(current_line.rstrip())
+        i += 1
 
-    print_full_code_array(lines)  # Assuming this function is defined somewhere to print the code nicely.
+    if current_line.strip():
+        lines.append(current_line.rstrip())  # Add the last line if necessary
+
+    print_full_code_array(lines)  # Assuming this function is defined somewhere to print the code nicely.y
 
     return lines
 
@@ -94,7 +68,7 @@ def print_full_code_array(code: list[str]) -> None:
     print("---Code:")
     i = 0
     while (i < len(code)):
-      print(str(i) + " " + code[i])
+      print(str(i+1) + " " + code[i])
       i += 1
     print ("-------")
 
@@ -113,7 +87,7 @@ def convert_code_array_to_numbered_str(code_array: list[str], index_start: int, 
     i = index_start
     code_full = "["
     for i in range(index_start, index_end+1):
-        code_line = '"' + str(i) + " " + code_array[i] + '"'
+        code_line = '"' + str(i+1) + " " + code_array[i] + '"'
         if (i != index_end):
             code_line += ", "
         code_full += code_line
@@ -147,7 +121,7 @@ def create_guidelines_message(file_path: str, language_name: str, token_limit=80
     with open(file_path, 'rb') as guidelines_file:
       guidelines = guidelines_file.read()
     guidelines_prompt = '''To further educate yourself on {} coding standards, consider the following information:\n{}'''.format(language_name, guidelines)
-    print(guidelines_prompt)
+    # print(guidelines_prompt)
     message = {"role": "system", "content": guidelines_prompt}
   return message
 

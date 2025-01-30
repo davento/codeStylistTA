@@ -89,10 +89,10 @@ def get_analysis(configValues: str, code: list[str], guidelines: any=None):
   )
 
   # Console checking of the initial system prompts
-  print("===Initial Prompt:")
-  print(role_prompt)
-  print(instructions_prompt)
-  print(configValues)
+  # print("===Initial Prompt:")
+  # print(role_prompt)
+  # print(instructions_prompt)
+  # print(configValues)
 
   messages_to_send = [
     {"role": "system", "content": role_prompt},
@@ -116,20 +116,20 @@ def get_analysis(configValues: str, code: list[str], guidelines: any=None):
   
   # Start sending the code
   messages_to_send.append({"role": "user", "content": "Code start\n["})
-  print("Total number of code lines: ", len(code)-1)
+  print("Total number of code lines: ", len(code))
   
   # slice the code in chunks and turn each chunk into a message:
-  print("Code Start ====")
+  # print("Code Start ====")
   skip = 100
-  for index in range(0, len(code)-1, skip):
+  for index in range(-1, len(code)-1, skip):
     index_start = index+1
     index_end = index+skip if index+skip < len(code) else len(code)-1
     query = util.convert_code_array_to_numbered_str(code, index_start, index_end)
-    print(query)
-    print("---")
+    # print(query)
+    # print("---")
     messages_to_send.append({"role": "user", "content": query})
   messages_to_send.append({"role": "user", "content": "]\n Code end"})
-  print("==== Code End")
+  # print("==== Code End")
 
   # Send all the messages
   completion = client.chat.completions.create(
