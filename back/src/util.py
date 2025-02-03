@@ -1,62 +1,142 @@
 from tiktoken import encoding_for_model
 import json
 
-def convert_code_str_to_array(code: str) -> list[str]:
+def convert_code_str_to_array(code: str, language: str) -> list[str]:
+    """
+    Processes source code while preserving inline comments (//) and correctly handling:
+    - Proper escaping of quotes in strings (" and ').
+    - Escape sequences (\\, \", \n).
+    - Multiline string formats (triple quotes for Python, backticks for JavaScript).
+    - Multiline comments (/* ... */, #).
+    - Unclosed or incorrectly started strings.
+    - Single-line comments (//) without modifying them.
+
+    Args:
+        code (str): The source code as a string.
+        language (str): The detected programming language (C, C++, Java, JavaScript, Python).
+
+    Returns:
+        list[str]: A list of processed code lines with correct escape handling.
+    """
+
     lines = []
-    current_line = ""
-    is_in_string = False
-    string_delimiter = None
-    is_triple_quote = False
-    is_in_multiline_comment = False
-    i = 0
+    is_in_string = False  # Tracks if inside a string
+    string_delimiter = None  # Stores which quote type started the string
+    is_multiline_string = False  # Tracks if a string continues across lines
+    is_in_comment = False  # Tracks if inside a multiline comment
 
-    while i < len(code):
-        char = code[i]
-        next_char = code[i + 1] if i + 1 < len(code) else ""
-        next_next_char = code[i + 2] if i + 2 < len(code) else ""
+    # Set up language-specific rules
+    if language in ["C", "C++", "Java", "JavaScript"]:
+        single_line_comment = "//"
+        multiline_comment_start = "/*"
+        multiline_comment_end = "*/"
+        string_types = {'"', "'"}
+        supports_backticks = language == "JavaScript"  # JavaScript supports backticks
 
-        # Handle block comments (JavaDoc /** ... */ and regular /* ... */)
-        if not is_in_string and not is_in_multiline_comment and char == "/" and next_char == "*":
-            is_in_multiline_comment = True
-            current_line += "/*"
-            i += 1  # Skip past the "*"
-            if next_next_char == "*":  # JavaDoc detected
-                current_line += "*"
-                i += 1  # Skip past second "*"
-        elif is_in_multiline_comment and char == "*" and next_char == "/":
-            current_line += "*/"
-            is_in_multiline_comment = False
-            i += 1  # Skip past "/"
-        elif is_in_multiline_comment and char == "\n":
-            lines.append(current_line.rstrip())  # Store current line
-            current_line = ""  # Start a new line
-        elif not is_in_string and char in ('"', "'", "`"):
-            is_in_string = True
-            string_delimiter = char
-            is_triple_quote = code[i:i+3] == char * 3  # Check for triple quote
-            current_line += char
-            if is_triple_quote:
-                i += 2  # Skip the next two characters
-        elif is_in_string and char == string_delimiter and not is_triple_quote and code[i - 1] != "\\":
-            is_in_string = False
-            string_delimiter = None
-            current_line += char
-        elif is_in_string and is_triple_quote and char == string_delimiter and next_char == string_delimiter and next_next_char == string_delimiter:
-            is_in_string = False
-            is_triple_quote = False
-            string_delimiter = None
-            current_line += "'''"
-            i += 2
-        elif char == "\n":
-            lines.append(current_line.rstrip())  # Add the line to lines
-            current_line = ""
-        else:
-            current_line += char
+    elif language == "Python":
+        single_line_comment = "#"
+        multiline_comment_start = ('"""', "'''")  # Python uses triple quotes
+        multiline_comment_end = ('"""', "'''")
+        string_types = {'"', "'", '"""', "'''"}
+        supports_backticks = False
 
-        i += 1
+    else:
+        raise ValueError(f"Unsupported language: {language}")
 
-    if current_line.strip():
-        lines.append(current_line.rstrip())  # Add the last line if necessary
+    for line in code.splitlines():  # Process the code line by line
+        processed_line = ""
+        i = 0
+
+        while i < len(line):
+            char = line[i]
+            next_char = line[i + 1] if i + 1 < len(line) else ""
+
+            # Preserve single-line comments (`//` or `#`)
+            if not is_in_string and not is_in_comment and line[i:].startswith(single_line_comment):
+                processed_line += line[i:]  # Keep the entire comment as is
+                break  # Ignore further processing for this line
+
+            # Detect start of a multiline comment
+            if not is_in_string and not is_in_comment and line[i:].startswith(multiline_comment_start):
+                is_in_comment = True
+                processed_line += multiline_comment_start
+                i += len(multiline_comment_start) - 1
+
+            # Detect end of a multiline comment
+            elif is_in_comment and line[i:].startswith(multiline_comment_end):
+                is_in_comment = False
+                processed_line += multiline_comment_end
+                i += len(multiline_comment_end) - 1
+
+            # Preserve content inside a comment
+            elif is_in_comment:
+                processed_line += char
+
+            # Detect the start of a string and escape the opening quote
+            elif not is_in_string and char in string_types:
+                is_in_string = True
+                string_delimiter = char
+                if language == "Python" and i + 2 < len(line) and line[i:i+3] in string_types:
+                    string_delimiter = line[i:i+3]  # Detect triple quotes for Python
+                    processed_line += "\\" + string_delimiter
+                    i += 2  # Skip next two chars
+                else:
+                    processed_line += "\\" + char  # Escape opening quote
+
+            # Detect the end of a string (only if not preceded by a backslash)
+            elif is_in_string and char == string_delimiter:
+                if i > 0 and line[i - 1] != "\\":
+                    is_in_string = False
+                processed_line += "\\" + char  # Escape the closing quote
+
+            # Handle escape sequences (`\` inside strings)
+            elif is_in_string and char == "\\":
+                processed_line += "\\\\"  # Convert `\` to `\\` to preserve it
+
+            # Escape embedded double quotes inside a string
+            elif is_in_string and char == "\"":
+                processed_line += "\\\""  # Convert `"` to `\"` inside a string
+
+            # Detect if a string continues across multiple lines with `+`
+            elif is_in_string and char == "+" and i == len(line) - 1:
+                is_multiline_string = True
+                processed_line += char  # Keep the `+` for proper formatting
+
+            # Handle unclosed strings at the end of a line
+            elif is_in_string and i == len(line) - 1:
+                processed_line += " \\\" (UNCLOSED STRING DETECTED) \\\""  # Auto-close with a warning
+                is_in_string = False  # Reset state
+
+            # Ensure backslashes at the end of a string are properly escaped
+            elif is_in_string and char == "\\" and i == len(line) - 1:
+                processed_line += "\\\\"  # Properly escape a trailing backslash
+
+            # Handle JavaScript backticks
+            elif supports_backticks and char == "`":
+                if is_in_string and string_delimiter == "`":
+                    is_in_string = False  # Close the backtick string
+                else:
+                    is_in_string = True
+                    string_delimiter = "`"
+                processed_line += "\\" + char  # Escape the backtick
+
+            # Ensure single quotes (`'`) are not mistakenly escaped inside a string
+            elif not is_in_string and char == "'":
+                processed_line += char  # Keep single quotes unchanged
+
+            # Process normal characters
+            else:
+                processed_line += char
+
+            i += 1
+
+        # Store the processed line
+        lines.append(processed_line.rstrip())
+
+        # If a string is continued (`+` at the end), keep tracking it
+        if is_multiline_string:
+            is_in_string = True  # Ensure next line is still inside the string
+            is_multiline_string = False  # Reset the flag
 
     print_full_code_array(lines)
 

@@ -4,7 +4,8 @@ MUSTS:
     - [ ] Background
     - [ ] Abstract
 - [ ] Debugging
-    - [ ] Check for "" error
+    - [X] Check for "" error
+    - [ ] Handle case where the first file/file in the middle is empty
     - [ ] Organize error codes
 - [ ] Deployment
     - [ ] Get the app deployment-ready

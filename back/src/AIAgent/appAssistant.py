@@ -74,7 +74,7 @@ The format of the code is a list of strings, in which each string represents a l
 
 A chunk of this list will be provided on each message.
 
-If "g. Code" is not code that can be interpreted in "e. Programming language used" respond only with the following string response: "Incorrect input, please submit code on the appropriate language.".
+Note that there is a message reading (UNCLOSED STRING DETECTED) appended at the end of lines with unclosed quotes.
 
 Once these values are given, please fulfill the initially stated prompt.
 '''
