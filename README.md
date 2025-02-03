@@ -10,44 +10,6 @@ To make a tool that can help students improve their coding standards (comments, 
 
 Note that a teacher (assistant) would still be the one giving the final grade. Instructors are also considered as an additional user of this platform, by having an interface through which they can specify details about the course.
 
-## To-do
-MUSTS:
-- [ ] Documentation
-    - [ ] Background
-    - [ ] Abstract
-    - [X] Comments on files
-        - [X] ~~`app.py`~~
-        - [X] ~~`appAssistant.py`~~
-        - [X] ~~`analyze.component`~~
-        - [X] ~~`feedback-item.component`~~
-- [X] ~~Debugging~~
-    - [X] ~~Consider comments during code evaluation~~
-    - [X] ~~Evaluate function for multiple files~~
-    - [X] ~~Organize error codes~~
-- [ ] Testing
-    - [ ] Test for more files
-    - [ ] Come up with metrics
-    - [ ] Test the data
-- [ ] Presentation
-    - [ ] Slides
-    - [ ] Practice THURSDAY 23RD 3:30 PM (teams online)
-
-SHOULDS:
-- [ ] Optimizations
-    - [ ] Component division
-    - [ ] Assistant
-    - [ ] Update Angular version
-
-## To-fix, check and/or improve (later)
-- Sometimes throws an error instead of the incorrect output message.
-- Refactor the evaluate function with await and async.
-- Guidelines for Python, Java and C++ are too long; summarize them + split them in files.
-    - Turn each section into a message; program the behavior for that.
-- Use a RAG and upload the code guidelines references there instead.
-- Instructor view (interface, data CSVs for the parameters, bulk upload data script)
-- Add token length verification if the guidelines + code is too long
-- Update Angular version
-- Debug output issues with the JSON format not always finishing/closing, starting with \```json```.
 ---
 
 ## Front-end
@@ -59,6 +21,10 @@ Go to the `/front` folder, install the necessary libraries using `npm install` a
 ## Back-end
 
 Powered by Flask. Create a virtual environment with the [environment.yml](https://github.com/davento/codeStylistTA/blob/dev/back/environment.yml) file. Activate it and install the necessary libraries shown in [requirements.txt](https://github.com/davento/codeStylistTA/blob/dev/back/requirements.txt). Then, run the app using ```flask --app app run```.
+
+## Deployment
+
+TO-DO.
 
 ## Extra Resources
 
