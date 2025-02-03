@@ -56,7 +56,7 @@ If "f. Format to be used to reply" is JSON, the output should be an array of JSO
 - suggestions (string)
 - explanation (string)
 
-Return only the JSON array. Not plaintext formatted as a JSON. NOT text that starts with '```json' and finishes with '```'. Just the JSON array. Nothing more, nothing less.
+Return only the JSON array. Nothing more, nothing less.
 
 This should also be the default format for your replies. And again, please be specific with your feedback.
 '''
@@ -119,17 +119,17 @@ def get_analysis(configValues: str, code: list[str], guidelines: any=None):
   print("Total number of code lines: ", len(code))
   
   # slice the code in chunks and turn each chunk into a message:
-  # print("Code Start ====")
+  print("Code Start ====")
   skip = 100
   for index in range(-1, len(code)-1, skip):
     index_start = index+1
     index_end = index+skip if index+skip < len(code) else len(code)-1
     query = util.convert_code_array_to_numbered_str(code, index_start, index_end)
-    # print(query)
-    # print("---")
+    print(query)
+    print("---")
     messages_to_send.append({"role": "user", "content": query})
   messages_to_send.append({"role": "user", "content": "]\n Code end"})
-  # print("==== Code End")
+  print("==== Code End")
 
   # Send all the messages
   completion = client.chat.completions.create(

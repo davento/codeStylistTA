@@ -1,4 +1,5 @@
 from tiktoken import encoding_for_model
+import json
 
 def convert_code_str_to_array(code: str) -> list[str]:
     lines = []
@@ -57,7 +58,7 @@ def convert_code_str_to_array(code: str) -> list[str]:
     if current_line.strip():
         lines.append(current_line.rstrip())  # Add the last line if necessary
 
-    print_full_code_array(lines)  # Assuming this function is defined somewhere to print the code nicely.y
+    print_full_code_array(lines)
 
     return lines
 
@@ -120,11 +121,26 @@ def create_guidelines_message(file_path: str, language_name: str, token_limit=80
     guidelines = ""
     with open(file_path, 'rb') as guidelines_file:
       guidelines = guidelines_file.read()
-    guidelines_prompt = '''To further educate yourself on {} coding standards, consider the following information:\n{}'''.format(language_name, guidelines)
+    guidelines_prompt = '''To further educate yourself on {} coding standards, use the following information:\n{}'''.format(language_name, guidelines)
     # print(guidelines_prompt)
     message = {"role": "system", "content": guidelines_prompt}
   return message
 
-
-def upload_files():
-   pass
+# Function to clean up the response in case it starts with "```json" and ends with "```"
+def clean_json_response(response: str) -> str:
+    # Backtick verification
+    if response.startswith("```json"):
+        # Backtick removal
+        cleaned_response = response[7:-3].strip()
+        try:
+            # Validate the cleaned response as JSON
+            # Will raise a ValueError if not valid JSON
+            json.loads(cleaned_response)
+            return cleaned_response
+        except json.JSONDecodeError:
+            # If it's not valid JSON, raise an error
+            raise ValueError("Invalid JSON format in response")
+    
+    # If the response doesn't start with "```json", return it unchanged
+    else:
+        return response

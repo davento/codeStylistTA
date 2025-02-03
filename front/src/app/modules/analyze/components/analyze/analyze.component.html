@@ -40,7 +40,7 @@
           <input type="file" id="file-button" multiple hidden (change)="handleFileChange($event)"
           [attr.accept]="acceptType"/>
           <button mat-stroked-button id="filebtn" (click)="openFileDialog()" [disabled]="!configForm.controls['programmingLanguage'].valid">
-            Choose File
+            Add File(s)
           </button>
         </mat-card-actions>
       </mat-card>

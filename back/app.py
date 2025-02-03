@@ -54,7 +54,8 @@ def process_input():
     print(response)
 
     if response is not None:
-        return response, 200
+        cleaned_response = util.clean_json_response(response)
+        return cleaned_response, 200
     return "error", 500
 
 if __name__ == '__main__':
