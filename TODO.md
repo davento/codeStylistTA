@@ -5,7 +5,7 @@ MUSTS:
     - [ ] Abstract
 - [ ] Debugging
     - [X] Check for "" error
-    - [ ] Handle case where the first file/file in the middle is empty
+    - [X] Handle case where the first file/file in the middle is empty
     - [ ] Organize error codes
 - [ ] Deployment
     - [ ] Get the app deployment-ready

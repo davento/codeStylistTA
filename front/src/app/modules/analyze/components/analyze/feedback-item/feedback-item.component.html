@@ -6,7 +6,7 @@
   <mat-progress-bar *ngIf="isLoading === LoadingState.loading || isLoading === LoadingState.onQueue" mode="indeterminate"></mat-progress-bar>
 </div>
 <!-- Analysis result -->
-<div *ngIf="success" class="output">
+<div *ngIf="success && errorLog == ''" class="output">
   <ul *ngFor="let item of response">
     <li><strong>Error location:</strong> {{item.error_location}}</li>
     <li><strong>Things to fix:</strong> {{item.things_to_fix}}</li>
