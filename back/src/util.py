@@ -49,7 +49,6 @@ def convert_code_str_to_array(code: str, language: str) -> list[str]:
 
         while i < len(line):
             char = line[i]
-            next_char = line[i + 1] if i + 1 < len(line) else ""
 
             # Preserve single-line comments (`//` or `#`)
             if not is_in_string and not is_in_comment and line[i:].startswith(single_line_comment):
