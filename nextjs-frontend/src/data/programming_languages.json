@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Python",
+    "extensions": [".py"],
+    "guidelines_location": "./guidelines_files/Python/python_guidelines.md"
+  },
+  {
+    "name": "C++",
+    "extensions": [".cpp", ".hpp", ".h"],
+    "guidelines_location": "./guidelines_files/C++/Cpp_guidelines.md"
+  },
+  {
+    "name": "JavaScript",
+    "extensions": [".js"],
+    "guidelines_location": "./guidelines_files/JavaScript/JS_Guidelines.md"
+  },
+  {
+    "name": "Java",
+    "extensions": [".java"],
+    "guidelines_location": "./guidelines_files/Java/Java_Guidelines.md"
+  },
+  {
+    "name": "C",
+    "extensions": [".c", ".h"],
+    "guidelines_location": "./guidelines_files/C/C_Guidelines.md"
+  },
+  {
+    "name": "Rust",
+    "extensions": [".rs"],
+    "guidelines_location": "./guidelines_files/Rust/Rust_Guidelines.pdf"
+  }
+]
