@@ -2,20 +2,14 @@
 
 import { useState, useRef } from 'react'
 import { Loader2, X, UploadCloud, Trash } from 'lucide-react'
-import FeedbackItem from './FeedbackItem'
+import FeedbackSection from './FeedbackSection'
 
-// Import sample JSON data
+// Sample JSON data
 import courses from '@/data/courses.json'
 import progLangs from '@/data/programming_languages.json'
 import formats from '@/data/formats.json'
 import tones from '@/data/tones.json'
-
-interface Feedback {
-    error_location: string
-    things_to_fix: string
-    suggestions: string
-    explanation: string
-}
+import FeedbackItem from "@/components/FeedbackItem";
 
 export enum LoadingState {
     NOTHING = 0,
@@ -24,8 +18,18 @@ export enum LoadingState {
     DONE = 3,
 }
 
+export interface Feedback {
+    error_location: string
+    things_to_fix: string
+    suggestions: string
+    explanation: string
+    codeSnippet?: string
+}
+
 export default function AnalyzeForm() {
-    // Main input states
+    // ----------------------
+    // State & Refs
+    // ----------------------
     const [code, setCode] = useState('')
     const [selectedFiles, setSelectedFiles] = useState<File[]>([])
     const [selectedProgLang, setSelectedProgLang] = useState<any>(null)
@@ -33,8 +37,7 @@ export default function AnalyzeForm() {
     const [selectedTone, setSelectedTone] = useState<any>(null)
     const [selectedFormat, setSelectedFormat] = useState<any>(null)
 
-    // Feedback states
-    const [feedback, setFeedback] = useState<Feedback[][]>([])
+    const [feedback, setFeedback] = useState<Feedback[]>([])
     const [isLoading, setIsLoading] = useState<number[]>([LoadingState.NOTHING])
     const [errorLog, setErrorLog] = useState('')
     const [analysisDone, setAnalysisDone] = useState(false)
@@ -43,20 +46,25 @@ export default function AnalyzeForm() {
 
     const fileInputRef = useRef<HTMLInputElement>(null)
 
-    // Determine accepted file types based on the selected programming language.
+    // Determine accepted file types based on the selected language
     const acceptType = selectedProgLang?.extensions?.join(',') || '*/*'
 
-    // Handle file selection and validate extensions
+    // ----------------------
+    // Handlers
+    // ----------------------
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files
         if (!files) return
         const fileArray = Array.from(files)
+
+        // Validate file types
         const validFiles = fileArray.filter((file) => {
             if (acceptType === '*/*') return true
             const extensions = acceptType.split(',').map((ext) => ext.trim().toLowerCase())
             const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase()
             return extensions.includes(fileExt)
         })
+
         if (validFiles.length === 0) {
             setErrorLog('None of the uploaded files were valid.')
         } else {
@@ -68,10 +76,8 @@ export default function AnalyzeForm() {
 
     const removeFile = (index: number) => {
         setSelectedFiles((files) => files.filter((_, i) => i !== index))
-        setFeedback((fb) => fb.filter((_, i) => i !== index))
     }
 
-    // Read file content asynchronously
     const readFileContent = (file: File): Promise<string> => {
         return new Promise((resolve, reject) => {
             const reader = new FileReader()
@@ -81,37 +87,54 @@ export default function AnalyzeForm() {
         })
     }
 
-    // Clear the code input
     const clearCode = () => {
         setCode('')
     }
 
-    // (Optional) Instant upload action when code changes
     const uploadCode = () => {
         alert('Code updated.')
     }
 
-    // Prepares the UI state for submission
+    // ----------------------
+    // Validation & Submission
+    // ----------------------
+    const validateInput = (): boolean => {
+        if (!code && selectedFiles.length === 0) {
+            setErrorLog('Please enter some code or upload at least one file.')
+            return false
+        }
+        if (!selectedProgLang || !selectedCourse || !selectedTone || !selectedFormat) {
+            setErrorLog('Please complete all configuration fields.')
+            return false
+        }
+        setErrorLog('')
+        return true
+    }
+
     const startLoad = async () => {
         setHasSubmitted(true)
-        setErrorLog('')
         setAnalysisDone(false)
         setFeedback([])
         setSuccess(false)
+
+        if (!validateInput()) {
+            return false
+        }
+
         if (selectedFiles.length > 0) {
             setIsLoading(Array(selectedFiles.length).fill(LoadingState.ON_QUEUE))
         } else {
             setIsLoading([LoadingState.LOADING])
         }
+        return true
     }
 
-    // Called after processing completes
     const finishLoad = () => {
         setAnalysisDone(true)
         setIsLoading((prev) => prev.map(() => LoadingState.DONE))
     }
 
-    // Send one analysis request to the API
+    // Make an API call for each file or typed code
     const analyze = async (codeToAnalyze: string, index: number) => {
         if (codeToAnalyze.trim() === '') {
             setErrorLog('No code provided. Please upload a file or enter your code.')
@@ -143,11 +166,8 @@ export default function AnalyzeForm() {
                 setErrorLog(data.error)
                 setSuccess(false)
             } else {
-                setFeedback((oldFeedback) => {
-                    const newFeedback = [...oldFeedback]
-                    newFeedback[index] = data
-                    return newFeedback
-                })
+                // Append new feedback
+                setFeedback((old) => [...old, data])
                 setSuccess(true)
             }
         } catch (error) {
@@ -163,7 +183,6 @@ export default function AnalyzeForm() {
         })
     }
 
-    // Process files sequentially if any exist
     const processFilesSequentially = async () => {
         for (let i = 0; i < selectedFiles.length; i++) {
             try {
@@ -175,9 +194,10 @@ export default function AnalyzeForm() {
         }
     }
 
-    // Handles the submission process
     const handleSubmit = async () => {
-        await startLoad()
+        const canSubmit = await startLoad()
+        if (!canSubmit) return
+
         if (selectedFiles.length > 0) {
             await processFilesSequentially()
         } else {
@@ -186,8 +206,14 @@ export default function AnalyzeForm() {
         finishLoad()
     }
 
+    const feedbackLoading =
+        !analysisDone || isLoading.some((state) => state !== LoadingState.DONE)
+
+    // ----------------------
+    // Render
+    // ----------------------
     return (
-        <div className="min-h-screen bg-gray-100 p-6">
+        <div className="min-h-screen bg-gray-50 p-6">
             <div className="container mx-auto flex flex-col md:flex-row gap-6">
                 {/* Left Side – Input Form */}
                 <div className="w-full md:w-1/2 space-y-8">
@@ -270,7 +296,7 @@ export default function AnalyzeForm() {
                                     onChange={(e) => {
                                         const lang = progLangs.find((l) => l.name === e.target.value)
                                         setSelectedProgLang(lang)
-                                        // Reset file list when language changes.
+                                        // Reset file list on language changes
                                         setSelectedFiles([])
                                     }}
                                     className="mt-1 block w-full border border-gray-300 rounded-md p-2"
@@ -360,32 +386,15 @@ export default function AnalyzeForm() {
                     </div>
                 </div>
 
-                {/* Right Side – Feedback */}
+                {/* Right Side – Feedback Section */}
                 <div className="w-full md:w-1/2">
                     <div className="bg-white p-6 rounded-lg shadow h-full">
                         <h1 className="text-2xl font-bold mb-4 text-gray-800">Feedback</h1>
-                        {/* Only show feedback area after submit */}
                         {hasSubmitted ? (
-                            <>
-                                {(!analysisDone || isLoading.some((state) => state !== LoadingState.DONE)) && !errorLog && (
-                                    <div className="flex items-center gap-2">
-                                        <Loader2 size={20} className="animate-spin" />
-                                        <p className="text-gray-600">Analyzing code, please wait...</p>
-                                    </div>
-                                )}
-                                {errorLog && (
-                                    <div className="text-red-500">
-                                        <p>{errorLog}</p>
-                                    </div>
-                                )}
-                                {success && feedback.length > 0 && (
-                                    <div className="space-y-4 mt-4">
-                                        {feedback.map((fb, index) => (
-                                            <FeedbackItem key={index} feedback={fb} loading={isLoading[index]} />
-                                        ))}
-                                    </div>
-                                )}
-                            </>
+                            (feedback as any[]).map((fb, index) => (
+                                    <FeedbackItem key={index} feedback={fb} loading={isLoading[index]} />
+                                ))
+
                         ) : (
                             <p className="text-gray-500">Submit your code or files to see feedback.</p>
                         )}

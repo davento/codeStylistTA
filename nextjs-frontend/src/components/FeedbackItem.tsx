@@ -1,10 +1,10 @@
-// components/FeedbackItem.tsx
 'use client'
 
-import { Loader2 } from 'lucide-react'
+import { useState } from 'react'
+import { Loader2, Star, Info } from 'lucide-react'
 import { LoadingState } from './AnalyzeForm'
 
-interface Feedback {
+interface SingleFeedback {
     error_location: string
     things_to_fix: string
     suggestions: string
@@ -12,11 +12,39 @@ interface Feedback {
 }
 
 interface FeedbackItemProps {
-    feedback: Feedback[]
-    loading: number
+    feedback: SingleFeedback[] // Array of feedback objects
+    loading: number // The loading state (LoadingState enum)
 }
 
 export default function FeedbackItem({ feedback, loading }: FeedbackItemProps) {
+    // Store a rating for each feedback item. Default to 0 (no rating).
+    const [ratings, setRatings] = useState<number[]>(() => feedback.map(() => 0))
+    // Track which items have had their rating submitted
+    const [submitted, setSubmitted] = useState<boolean[]>(() => feedback.map(() => false))
+    // Control visibility of info modal
+    const [showInfo, setShowInfo] = useState(false)
+
+    // Handle star click: update the rating for that item.
+    // If the user clicks the current value, deselect (set to 0).
+    const handleRatingChange = (itemIndex: number, ratingValue: number) => {
+        const newRatings = [...ratings]
+        newRatings[itemIndex] = newRatings[itemIndex] === ratingValue ? 0 : ratingValue
+        setRatings(newRatings)
+
+        // Reset submission flag on rating change
+        const newSubmitted = [...submitted]
+        newSubmitted[itemIndex] = false
+        setSubmitted(newSubmitted)
+    }
+
+    // Submit the rating for one item (currently just logs to console)
+    const handleSubmitRating = (itemIndex: number) => {
+        console.log(`Submitted rating for feedback #${itemIndex}: ${ratings[itemIndex]}`)
+        const newSubmitted = [...submitted]
+        newSubmitted[itemIndex] = true
+        setSubmitted(newSubmitted)
+    }
+
     return (
         <div className="border p-4 rounded-md">
             {loading !== LoadingState.DONE ? (
@@ -25,23 +53,83 @@ export default function FeedbackItem({ feedback, loading }: FeedbackItemProps) {
                     <p>Processing...</p>
                 </div>
             ) : (
-                <div className="space-y-2">
+                <div className="space-y-4">
                     {feedback.map((item, idx) => (
-                        <div key={idx} className="bg-gray-100 p-2 rounded-md">
-                            <p>
+                        <div key={idx} className="bg-gray-100 p-4 rounded-md">
+                            <p className="mb-1">
                                 <strong>Error location:</strong> {item.error_location}
                             </p>
-                            <p>
+                            <p className="mb-1">
                                 <strong>Things to fix:</strong> {item.things_to_fix}
                             </p>
-                            <p>
+                            <p className="mb-1">
                                 <strong>Suggestions:</strong> {item.suggestions}
                             </p>
-                            <p>
+                            <p className="mb-2">
                                 <strong>Explanation:</strong> {item.explanation}
                             </p>
+
+                            {/* Star Rating */}
+                            <div className="flex items-center gap-1">
+                                {[1, 2, 3, 4, 5].map((starValue) => (
+                                    <Star
+                                        key={starValue}
+                                        className={`w-5 h-5 cursor-pointer ${
+                                            starValue <= ratings[idx]
+                                                ? 'text-yellow-400 fill-current'
+                                                : 'text-gray-300'
+                                        }`}
+                                        onClick={() => handleRatingChange(idx, starValue)}
+                                    />
+                                ))}
+                                <span className="ml-2 text-sm text-gray-600">
+                  {ratings[idx] > 0 ? `${ratings[idx]}/5` : 'No rating'}
+                </span>
+                            </div>
+
+                            {/* Helper text with info icon */}
+                            <div className="flex items-center gap-1 text-sm text-gray-500">
+                                <p>Your rating helps improve our model.</p>
+                                <Info
+                                    className="w-4 h-4 cursor-pointer text-blue-500"
+                                    onClick={() => setShowInfo(true)}
+                                />
+                            </div>
+
+                            {/* Conditionally show Submit Rating button if rating > 0 */}
+                            {ratings[idx] > 0 && !submitted[idx] && (
+                                <button
+                                    onClick={() => handleSubmitRating(idx)}
+                                    className="mt-2 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                                >
+                                    Submit Rating
+                                </button>
+                            )}
+                            {submitted[idx] && (
+                                <p className="mt-2 text-green-600 text-sm">Rating submitted!</p>
+                            )}
                         </div>
                     ))}
+                </div>
+            )}
+
+            {/* Info Modal */}
+            {showInfo && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-white p-6 rounded-md shadow-lg max-w-md w-full">
+                        <h2 className="text-xl font-bold mb-4">Feedback Information</h2>
+                        <p className="text-gray-700 mb-4">
+                            Your ratings help us continuously improve our model by providing insight into
+                            the quality of our feedback. Please rate each item according to how well it
+                            addresses the issues in your code.
+                        </p>
+                        <button
+                            onClick={() => setShowInfo(false)}
+                            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                        >
+                            Close
+                        </button>
+                    </div>
                 </div>
             )}
         </div>

@@ -20,10 +20,10 @@ export default function Header() {
                             <Link href="/">Home</Link>
                         </li>
                         <li>
-                            <Link href="/login">Log In</Link>
+                            <Link href="/">Log In</Link>
                         </li>
                         <li>
-                            <Link href="/edit">Edit Forms</Link>
+                            <Link href="/">Edit Forms</Link>
                         </li>
                     </ul>
                 </nav>
