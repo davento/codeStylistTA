@@ -36,7 +36,7 @@ export class AnalyzeComponent {
   response: Feedback[][] = [];
   analyzed: boolean = false;
   isLoading: number[] = [LoadingState.nothing];
-  errorLog: string = '';
+  errorLog: string[] = [];
   success: boolean = false;
   incorrectInputMessage: string = "Incorrect input, please submit code on the appropriate language.";
 
@@ -87,7 +87,7 @@ export class AnalyzeComponent {
   // Reset values when starting an analysis
   startLoad(): Promise<void> {
     return new Promise((resolve) => {
-      this.errorLog = '';
+      this.errorLog = [];
       this.analyzed = false;
       this.response = [];
       this.success = false;
@@ -198,7 +198,7 @@ export class AnalyzeComponent {
     else {
       const index = 0;
       this.isLoading[index] = LoadingState.loading;
-      await this.analyze(this.code);
+      await this.analyze(this.code, index);
       this.isLoading[index] = LoadingState.done;
     }
 
@@ -211,12 +211,13 @@ export class AnalyzeComponent {
     // Set all files loading state as queued
     for (const [index, file] of this.fileList.entries()) {
       this.isLoading[index] = LoadingState.onQueue;
+      this.errorLog[index] = '';
     }
     // Analyzing one file at a time
     for (const [index, file] of this.fileList.entries()) {
       this.isLoading[index] = LoadingState.loading;
       const fileContent = await this.readFileContent(file);
-      await this.analyze(fileContent);
+      await this.analyze(fileContent, index);
       this.isLoading[index] = LoadingState.done;
     }
   }
@@ -235,11 +236,17 @@ export class AnalyzeComponent {
   }
 
   // Analyzing the code
-  analyze(code: string): Promise<void> {
+  analyze(code: string, index: number): Promise<void> {
 
     // Verify if there is a valid input
     if (code == '') {
-      this.errorLog = "No code uploaded as input. Please upload a file or upload text input.";
+      this.errorLog[index] = "No code uploaded as input. Please upload a file or upload text input.";
+      this.response.push([{
+        error_location: "",
+        things_to_fix: "",
+        suggestions: "",
+        explanation: ""
+      }])
       return new Promise((reject) => {reject()});
     }
 
@@ -280,7 +287,7 @@ export class AnalyzeComponent {
         // Return a server error if sending fails
         error: (error) => {
           console.log(error);
-          this.errorLog = "Server error occurred.";
+          this.errorLog[index] = "Server error occurred.";
           reject(error);
           this.enableButtons();
           this.response = [];

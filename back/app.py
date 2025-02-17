@@ -25,7 +25,7 @@ def process_input():
     reply_tone_name = reply_tone['name']
     reply_format = request_data['reply_format']
     reply_format_name = reply_format['name']
-    code = util.convert_code_str_to_array(request_data['code'])
+    code = util.convert_code_str_to_array(request_data['code'], programming_language_name)
 
     # Setting values
     configValues = '''
@@ -54,7 +54,8 @@ def process_input():
     print(response)
 
     if response is not None:
-        return response, 200
+        cleaned_response = util.clean_json_response(response)
+        return cleaned_response, 200
     return "error", 500
 
 if __name__ == '__main__':
