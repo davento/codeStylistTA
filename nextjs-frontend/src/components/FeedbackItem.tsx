@@ -37,13 +37,36 @@ export default function FeedbackItem({ feedback, loading }: FeedbackItemProps) {
         setSubmitted(newSubmitted)
     }
 
-    // Submit the rating for one item (currently just logs to console)
-    const handleSubmitRating = (itemIndex: number) => {
-        console.log(`Submitted rating for feedback #${itemIndex}: ${ratings[itemIndex]}`)
-        const newSubmitted = [...submitted]
-        newSubmitted[itemIndex] = true
-        setSubmitted(newSubmitted)
-    }
+    const handleSubmitRating = async (itemIndex: number) => {
+        const payload = {
+            feedback: {
+                error_location: feedback[itemIndex].error_location,
+                things_to_fix: feedback[itemIndex].things_to_fix,
+                suggestions: feedback[itemIndex].suggestions,
+                explanation: feedback[itemIndex].explanation,
+            },
+            rating: ratings[itemIndex],
+        };
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/submit_rating`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+
+            if (response.ok) {
+                console.log(`Submitted rating for feedback #${itemIndex}: ${ratings[itemIndex]}`);
+                const newSubmitted = [...submitted];
+                newSubmitted[itemIndex] = true;
+                setSubmitted(newSubmitted);
+            } else {
+                console.error('Failed to submit rating:', await response.text());
+            }
+        } catch (error) {
+            console.error('Error submitting rating:', error);
+        }
+    };
 
     return (
         <div className="border p-4 rounded-md">
