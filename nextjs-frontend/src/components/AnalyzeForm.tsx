@@ -1,15 +1,9 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { Loader2, X, UploadCloud, Trash } from 'lucide-react'
+import InputForm from './InputForm'
 import FeedbackSection from './FeedbackSection'
-
-// Sample JSON data
-import courses from '@/data/courses.json'
-import progLangs from '@/data/programming_languages.json'
-import formats from '@/data/formats.json'
-import tones from '@/data/tones.json'
-import FeedbackItem from "@/components/FeedbackItem";
+import { Loader2 } from 'lucide-react'
 
 export enum LoadingState {
     NOTHING = 0,
@@ -26,45 +20,58 @@ export interface Feedback {
     codeSnippet?: string
 }
 
+export interface FileFeedback {
+    fileName: string
+    feedbackItems: Feedback[]
+}
+
 export default function AnalyzeForm() {
-    // ----------------------
-    // State & Refs
-    // ----------------------
     const [code, setCode] = useState('')
     const [selectedFiles, setSelectedFiles] = useState<File[]>([])
     const [selectedProgLang, setSelectedProgLang] = useState<any>(null)
     const [selectedCourse, setSelectedCourse] = useState<any>(null)
     const [selectedTone, setSelectedTone] = useState<any>(null)
     const [selectedFormat, setSelectedFormat] = useState<any>(null)
-
-    const [feedback, setFeedback] = useState<Feedback[]>([])
+    const [feedback, setFeedback] = useState<FileFeedback[]>([])
     const [isLoading, setIsLoading] = useState<number[]>([LoadingState.NOTHING])
     const [errorLog, setErrorLog] = useState('')
     const [analysisDone, setAnalysisDone] = useState(false)
     const [success, setSuccess] = useState(false)
     const [hasSubmitted, setHasSubmitted] = useState(false)
+    const [selectedTabIndex, setSelectedTabIndex] = useState(0)
 
     const fileInputRef = useRef<HTMLInputElement>(null)
 
-    // Determine accepted file types based on the selected language
-    const acceptType = selectedProgLang?.extensions?.join(',') || '*/*'
+    // Reset All
+    const resetAll = () => {
+        setCode('')
+        setSelectedFiles([])
+        setSelectedProgLang(null)
+        setSelectedCourse(null)
+        setSelectedTone(null)
+        setSelectedFormat(null)
+        setFeedback([])
+        setIsLoading([LoadingState.NOTHING])
+        setErrorLog('')
+        setAnalysisDone(false)
+        setSuccess(false)
+        setHasSubmitted(false)
+        setSelectedTabIndex(0)
+        if (fileInputRef.current) fileInputRef.current.value = ''
+    }
 
-    // ----------------------
-    // Handlers
-    // ----------------------
+    // File change handler
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files
         if (!files) return
         const fileArray = Array.from(files)
-
-        // Validate file types
+        const acceptType = selectedProgLang?.extensions?.join(',') || '*/*'
         const validFiles = fileArray.filter((file) => {
             if (acceptType === '*/*') return true
             const extensions = acceptType.split(',').map((ext) => ext.trim().toLowerCase())
             const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase()
             return extensions.includes(fileExt)
         })
-
         if (validFiles.length === 0) {
             setErrorLog('None of the uploaded files were valid.')
         } else {
@@ -78,15 +85,6 @@ export default function AnalyzeForm() {
         setSelectedFiles((files) => files.filter((_, i) => i !== index))
     }
 
-    const readFileContent = (file: File): Promise<string> => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader()
-            reader.onload = () => resolve(reader.result as string)
-            reader.onerror = reject
-            reader.readAsText(file)
-        })
-    }
-
     const clearCode = () => {
         setCode('')
     }
@@ -95,9 +93,6 @@ export default function AnalyzeForm() {
         alert('Code updated.')
     }
 
-    // ----------------------
-    // Validation & Submission
-    // ----------------------
     const validateInput = (): boolean => {
         if (!code && selectedFiles.length === 0) {
             setErrorLog('Please enter some code or upload at least one file.')
@@ -134,8 +129,7 @@ export default function AnalyzeForm() {
         setIsLoading((prev) => prev.map(() => LoadingState.DONE))
     }
 
-    // Make an API call for each file or typed code
-    const analyze = async (codeToAnalyze: string, index: number) => {
+    const analyze = async (codeToAnalyze: string, index: number, fileName: string) => {
         if (codeToAnalyze.trim() === '') {
             setErrorLog('No code provided. Please upload a file or enter your code.')
             return Promise.reject()
@@ -166,8 +160,7 @@ export default function AnalyzeForm() {
                 setErrorLog(data.error)
                 setSuccess(false)
             } else {
-                // Append new feedback
-                setFeedback((old) => [...old, data])
+                setFeedback((old) => [...old, { fileName, feedbackItems: data }])
                 setSuccess(true)
             }
         } catch (error) {
@@ -186,8 +179,13 @@ export default function AnalyzeForm() {
     const processFilesSequentially = async () => {
         for (let i = 0; i < selectedFiles.length; i++) {
             try {
-                const content = await readFileContent(selectedFiles[i])
-                await analyze(content, i)
+                const content = await new Promise<string>((resolve, reject) => {
+                    const reader = new FileReader()
+                    reader.onload = () => resolve(reader.result as string)
+                    reader.onerror = reject
+                    reader.readAsText(selectedFiles[i])
+                })
+                await analyze(content, i, selectedFiles[i].name)
             } catch (error) {
                 console.error(error)
             }
@@ -201,205 +199,44 @@ export default function AnalyzeForm() {
         if (selectedFiles.length > 0) {
             await processFilesSequentially()
         } else {
-            await analyze(code, 0)
+            await analyze(code, 0, 'Code Input')
         }
         finishLoad()
     }
 
-    const feedbackLoading =
-        !analysisDone || isLoading.some((state) => state !== LoadingState.DONE)
-
-    // ----------------------
-    // Render
-    // ----------------------
     return (
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="container mx-auto flex flex-col md:flex-row gap-6">
-                {/* Left Side – Input Form */}
-                <div className="w-full md:w-1/2 space-y-8">
-                    {/* Code/Text Input */}
-                    <div className="bg-white p-6 rounded-lg shadow">
-                        <h1 className="text-2xl font-bold mb-4 text-gray-800">Code Input</h1>
-                        <textarea
-                            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Paste your code here..."
-                            value={code}
-                            onChange={(e) => setCode(e.target.value)}
-                            rows={8}
-                        ></textarea>
-                        <div className="flex space-x-4 mt-4">
-                            <button
-                                onClick={clearCode}
-                                className="flex items-center gap-2 px-4 py-2 border border-blue-500 text-blue-500 rounded hover:bg-blue-50 transition"
-                            >
-                                <X size={16} /> Clear
-                            </button>
-                            <button
-                                onClick={uploadCode}
-                                className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-                            >
-                                <UploadCloud size={16} /> Upload Input
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* File Upload */}
-                    <div className="bg-white p-6 rounded-lg shadow">
-                        <h1 className="text-2xl font-bold mb-4 text-gray-800">File Upload</h1>
-                        <div className="flex flex-col gap-2">
-                            <input
-                                type="file"
-                                multiple
-                                ref={fileInputRef}
-                                className="hidden"
-                                onChange={handleFileChange}
-                                accept={acceptType}
-                            />
-                            <button
-                                onClick={() => fileInputRef.current?.click()}
-                                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition"
-                            >
-                                Choose Files
-                            </button>
-                            {selectedFiles.length > 0 && (
-                                <ul className="mt-2 space-y-1">
-                                    {selectedFiles.map((file, index) => (
-                                        <li
-                                            key={index}
-                                            className="flex items-center justify-between border p-2 rounded-md bg-gray-50"
-                                        >
-                                            <span className="text-sm text-gray-700">{file.name}</span>
-                                            <button
-                                                onClick={() => removeFile(index)}
-                                                className="text-red-500 hover:text-red-700"
-                                            >
-                                                <Trash size={16} />
-                                            </button>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                            {errorLog && <p className="text-red-500 mt-2 text-sm">{errorLog}</p>}
-                        </div>
-                    </div>
-
-                    {/* Configuration */}
-                    <div className="bg-white p-6 rounded-lg shadow">
-                        <h1 className="text-2xl font-bold mb-4 text-gray-800">Configuration</h1>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">
-                                    Programming Language
-                                </label>
-                                <select
-                                    value={selectedProgLang ? selectedProgLang.name : ''}
-                                    onChange={(e) => {
-                                        const lang = progLangs.find((l) => l.name === e.target.value)
-                                        setSelectedProgLang(lang)
-                                        // Reset file list on language changes
-                                        setSelectedFiles([])
-                                    }}
-                                    className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                                >
-                                    <option value="">Select language</option>
-                                    {progLangs.map((lang, index) => (
-                                        <option key={index} value={lang.name}>
-                                            {lang.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">
-                                    Course
-                                </label>
-                                <select
-                                    value={selectedCourse ? selectedCourse.name : ''}
-                                    onChange={(e) => {
-                                        const course = courses.find((c) => c.name === e.target.value)
-                                        setSelectedCourse(course)
-                                    }}
-                                    className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                                >
-                                    <option value="">Select course</option>
-                                    {courses.map((course, index) => (
-                                        <option key={index} value={course.name}>
-                                            {course.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">
-                                    Response Tone
-                                </label>
-                                <select
-                                    value={selectedTone ? selectedTone.name : ''}
-                                    onChange={(e) => {
-                                        const tone = tones.find((t) => t.name === e.target.value)
-                                        setSelectedTone(tone)
-                                    }}
-                                    className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                                >
-                                    <option value="">Select tone</option>
-                                    {tones.map((tone, index) => (
-                                        <option key={index} value={tone.name}>
-                                            {tone.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">
-                                    Output Format
-                                </label>
-                                <select
-                                    value={selectedFormat ? selectedFormat.name : ''}
-                                    onChange={(e) => {
-                                        const format = formats.find((f) => f.name === e.target.value)
-                                        setSelectedFormat(format)
-                                    }}
-                                    className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                                >
-                                    <option value="">Select format</option>
-                                    {formats.map((format, index) => (
-                                        <option key={index} value={format.name}>
-                                            {format.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Submit Button */}
-                    <div className="flex justify-end">
-                        <button
-                            onClick={handleSubmit}
-                            className="flex items-center gap-2 px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
-                        >
-                            Evaluate
-                            {isLoading.every((state) => state === LoadingState.LOADING) && (
-                                <Loader2 size={16} className="animate-spin" />
-                            )}
-                        </button>
-                    </div>
-                </div>
-
-                {/* Right Side – Feedback Section */}
-                <div className="w-full md:w-1/2">
-                    <div className="bg-white p-6 rounded-lg shadow h-full">
-                        <h1 className="text-2xl font-bold mb-4 text-gray-800">Feedback</h1>
-                        {hasSubmitted ? (
-                            (feedback as any[]).map((fb, index) => (
-                                    <FeedbackItem key={index} feedback={fb} loading={isLoading[index]} />
-                                ))
-
-                        ) : (
-                            <p className="text-gray-500">Submit your code or files to see feedback.</p>
-                        )}
-                    </div>
-                </div>
+                <InputForm
+                    code={code}
+                    setCode={setCode}
+                    selectedFiles={selectedFiles}
+                    setSelectedFiles={setSelectedFiles}
+                    selectedProgLang={selectedProgLang}
+                    setSelectedProgLang={setSelectedProgLang}
+                    selectedCourse={selectedCourse}
+                    setSelectedCourse={setSelectedCourse}
+                    selectedTone={selectedTone}
+                    setSelectedTone={setSelectedTone}
+                    selectedFormat={selectedFormat}
+                    setSelectedFormat={setSelectedFormat}
+                    errorLog={errorLog}
+                    resetAll={resetAll}
+                    handleSubmit={handleSubmit}
+                    fileInputRef={fileInputRef}
+                    handleFileChange={handleFileChange}
+                    removeFile={removeFile}
+                    clearCode={clearCode}
+                    uploadCode={uploadCode}
+                />
+                <FeedbackSection
+                    hasSubmitted={hasSubmitted}
+                    feedback={feedback}
+                    isLoading={isLoading}
+                    analysisDone={analysisDone}
+                    selectedTabIndex={selectedTabIndex}
+                    setSelectedTabIndex={setSelectedTabIndex}
+                />
             </div>
         </div>
     )

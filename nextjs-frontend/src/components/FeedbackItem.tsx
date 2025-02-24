@@ -12,26 +12,20 @@ interface SingleFeedback {
 }
 
 interface FeedbackItemProps {
+    fileName: string
     feedback: SingleFeedback[] // Array of feedback objects
     loading: number // The loading state (LoadingState enum)
 }
 
-export default function FeedbackItem({ feedback, loading }: FeedbackItemProps) {
-    // Store a rating for each feedback item. Default to 0 (no rating).
+export default function FeedbackItem({ fileName, feedback, loading }: FeedbackItemProps) {
     const [ratings, setRatings] = useState<number[]>(() => feedback.map(() => 0))
-    // Track which items have had their rating submitted
     const [submitted, setSubmitted] = useState<boolean[]>(() => feedback.map(() => false))
-    // Control visibility of info modal
     const [showInfo, setShowInfo] = useState(false)
 
-    // Handle star click: update the rating for that item.
-    // If the user clicks the current value, deselect (set to 0).
     const handleRatingChange = (itemIndex: number, ratingValue: number) => {
         const newRatings = [...ratings]
         newRatings[itemIndex] = newRatings[itemIndex] === ratingValue ? 0 : ratingValue
         setRatings(newRatings)
-
-        // Reset submission flag on rating change
         const newSubmitted = [...submitted]
         newSubmitted[itemIndex] = false
         setSubmitted(newSubmitted)
@@ -39,6 +33,7 @@ export default function FeedbackItem({ feedback, loading }: FeedbackItemProps) {
 
     const handleSubmitRating = async (itemIndex: number) => {
         const payload = {
+            fileName: fileName, // Pass the file name to the backend
             feedback: {
                 error_location: feedback[itemIndex].error_location,
                 things_to_fix: feedback[itemIndex].things_to_fix,
@@ -46,27 +41,27 @@ export default function FeedbackItem({ feedback, loading }: FeedbackItemProps) {
                 explanation: feedback[itemIndex].explanation,
             },
             rating: ratings[itemIndex],
-        };
+        }
 
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/submit_rating`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
-            });
+            })
 
             if (response.ok) {
-                console.log(`Submitted rating for feedback #${itemIndex}: ${ratings[itemIndex]}`);
-                const newSubmitted = [...submitted];
-                newSubmitted[itemIndex] = true;
-                setSubmitted(newSubmitted);
+                console.log(`Submitted rating for feedback #${itemIndex} in file ${fileName}: ${ratings[itemIndex]}`)
+                const newSubmitted = [...submitted]
+                newSubmitted[itemIndex] = true
+                setSubmitted(newSubmitted)
             } else {
-                console.error('Failed to submit rating:', await response.text());
+                console.error('Failed to submit rating:', await response.text())
             }
         } catch (error) {
-            console.error('Error submitting rating:', error);
+            console.error('Error submitting rating:', error)
         }
-    };
+    }
 
     return (
         <div className="border p-4 rounded-md">
@@ -91,8 +86,6 @@ export default function FeedbackItem({ feedback, loading }: FeedbackItemProps) {
                             <p className="mb-2">
                                 <strong>Explanation:</strong> {item.explanation}
                             </p>
-
-                            {/* Star Rating */}
                             <div className="flex items-center gap-1">
                                 {[1, 2, 3, 4, 5].map((starValue) => (
                                     <Star
@@ -109,8 +102,6 @@ export default function FeedbackItem({ feedback, loading }: FeedbackItemProps) {
                   {ratings[idx] > 0 ? `${ratings[idx]}/5` : 'No rating'}
                 </span>
                             </div>
-
-                            {/* Helper text with info icon */}
                             <div className="flex items-center gap-1 text-sm text-gray-500">
                                 <p>Your rating helps improve our model.</p>
                                 <Info
@@ -118,8 +109,6 @@ export default function FeedbackItem({ feedback, loading }: FeedbackItemProps) {
                                     onClick={() => setShowInfo(true)}
                                 />
                             </div>
-
-                            {/* Conditionally show Submit Rating button if rating > 0 */}
                             {ratings[idx] > 0 && !submitted[idx] && (
                                 <button
                                     onClick={() => handleSubmitRating(idx)}
@@ -135,16 +124,12 @@ export default function FeedbackItem({ feedback, loading }: FeedbackItemProps) {
                     ))}
                 </div>
             )}
-
-            {/* Info Modal */}
             {showInfo && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
                     <div className="bg-white p-6 rounded-md shadow-lg max-w-md w-full">
                         <h2 className="text-xl font-bold mb-4">Feedback Information</h2>
                         <p className="text-gray-700 mb-4">
-                            Your ratings help us continuously improve our model by providing insight into
-                            the quality of our feedback. Please rate each item according to how well it
-                            addresses the issues in your code.
+                            Your ratings help us continuously improve our model by providing insight into the quality of our feedback.
                         </p>
                         <button
                             onClick={() => setShowInfo(false)}
