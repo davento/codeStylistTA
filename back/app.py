@@ -119,28 +119,88 @@ def process_input():
 
 @app.route("/submit_rating", methods=["POST"])
 def submit_rating():
-    """
-    Expects JSON payload with:
-      - fileName: name of the file (or "Code Input")
-      - feedback: an object containing:
-           error_location, things_to_fix, suggestions, explanation
-      - rating: a number
-    Updates or appends the row in ratings.csv accordingly.
-    """
     try:
         data = request.get_json()
-        print(data)
-        file_name = data.get('fileName')
-        feedback_data = data.get('feedback')
-        rating = data.get('rating')
-        if feedback_data is None or rating is None or file_name is None:
-            return jsonify({'error': 'Invalid payload, missing fileName, feedback or rating'}), 400
 
-        update_rating_csv(file_name, feedback_data, rating)
-        return jsonify({'success': True}), 200
+        # Extract and log the data
+        file_name = data["fileName"]
+        error_location = data["feedback"]["error_location"]
+        things_to_fix = data["feedback"]["things_to_fix"]
+        suggestions = data["feedback"]["suggestions"]
+        explanation = data["feedback"]["explanation"]
+        rating = data["rating"]
+
+        # Create CSV if it doesn't exist
+        if not os.path.exists('ratings.csv'):
+            logger.info("Creating new ratings.csv file")
+            with open('ratings.csv', 'w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(['file_name', 'error_location', 'things_to_fix',
+                                 'suggestions', 'explanation', 'rating'])
+
+        # Read existing entries
+        existing_entries = []
+        updated = False
+
+        with open('ratings.csv', 'r', newline='') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                if row['file_name'] == file_name and row['error_location'] == error_location:
+                    logger.info(f"Found matching entry for {file_name} at line {error_location}")
+                    # Update existing entry
+                    row['things_to_fix'] = things_to_fix
+                    row['suggestions'] = suggestions
+                    row['explanation'] = explanation
+                    row['rating'] = rating
+                    updated = True
+                existing_entries.append(row)
+
+        # If no matching entry was found, create a new one
+        if not updated:
+            new_entry = {
+                'file_name': file_name,
+                'error_location': error_location,
+                'things_to_fix': things_to_fix,
+                'suggestions': suggestions,
+                'explanation': explanation,
+                'rating': rating
+            }
+            existing_entries.append(new_entry)
+
+        # Write back to CSV
+        with open('ratings.csv', 'w', newline='') as file:
+            fieldnames = ['file_name', 'error_location', 'things_to_fix',
+                          'suggestions', 'explanation', 'rating']
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(existing_entries)
+
+        # Verify the write operation
+        logger.debug("Verifying written data")
+        with open('ratings.csv', 'r', newline='') as file:
+            reader = csv.DictReader(file)
+            written_entries = list(reader)
+
+        success_message = "Rating updated" if updated else "Rating added"
+        return jsonify({
+            "success": True,
+            "message": success_message
+        }), 200
+
+    except KeyError as e:
+        error_msg = f"Missing required field: {str(e)}"
+        logger.error(error_msg, exc_info=True)
+        return jsonify({
+            "success": False,
+            "message": error_msg
+        }), 400
     except Exception as e:
-        print("Error in submit_rating:", e)
-        return jsonify({'error': 'Server error'}), 500
+        error_msg = f"An error occurred: {str(e)}"
+        logger.error(error_msg, exc_info=True)
+        return jsonify({
+            "success": False,
+            "message": error_msg
+        }), 500
 
 
 if __name__ == '__main__':
