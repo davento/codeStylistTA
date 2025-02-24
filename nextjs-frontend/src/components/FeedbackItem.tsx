@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Loader2, Star, Info } from 'lucide-react'
 import { LoadingState } from './AnalyzeForm'
+import { useUser } from '@/context/UserContext'
 
 interface SingleFeedback {
     error_location: string
@@ -18,12 +19,12 @@ interface FeedbackItemProps {
 }
 
 export default function FeedbackItem({ fileName, feedback, loading }: FeedbackItemProps) {
-    // Initialize ratings and submitted state based on feedback length.
+    const { username } = useUser()
     const [ratings, setRatings] = useState<number[]>(() => feedback.map(() => 0))
     const [submitted, setSubmitted] = useState<boolean[]>(() => feedback.map(() => false))
     const [showInfo, setShowInfo] = useState(false)
 
-    // When feedback prop changes (e.g., new file selected), reset rating states.
+    // Reset states when feedback changes (e.g. when switching files)
     useEffect(() => {
         setRatings(feedback.map(() => 0))
         setSubmitted(feedback.map(() => false))
@@ -40,7 +41,8 @@ export default function FeedbackItem({ fileName, feedback, loading }: FeedbackIt
 
     const handleSubmitRating = async (itemIndex: number) => {
         const payload = {
-            fileName, // Pass the file name to the backend
+            username, // Pass the logged in username
+            fileName,
             feedback: {
                 error_location: feedback[itemIndex].error_location,
                 things_to_fix: feedback[itemIndex].things_to_fix,
@@ -51,14 +53,19 @@ export default function FeedbackItem({ fileName, feedback, loading }: FeedbackIt
         }
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/submit_rating`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            })
+            const response = await fetch(
+                process.env.NEXT_PUBLIC_API_URL + '/submit_rating',
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                }
+            )
 
             if (response.ok) {
-                console.log(`Submitted rating for feedback #${itemIndex} in file ${fileName}: ${ratings[itemIndex]}`)
+                console.log(
+                    `Submitted rating for feedback #${itemIndex} in file ${fileName}: ${ratings[itemIndex]}`
+                )
                 const newSubmitted = [...submitted]
                 newSubmitted[itemIndex] = true
                 setSubmitted(newSubmitted)

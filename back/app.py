@@ -8,6 +8,7 @@ import src.util as util
 app = Flask(__name__)
 CORS(app)
 
+USERS_CSV = 'users.csv'
 RATINGS_CSV = 'ratings.csv'
 
 
@@ -116,13 +117,37 @@ def process_input():
         return cleaned_response, 200
     return "error", 500
 
+@app.route("/login", methods=["POST"])
+def login():
+    """
+    Expects JSON payload with:
+      - username
+      - password
+    Checks against a CSV file of users. Returns success if credentials match.
+    """
+    try:
+        data = request.get_json()
+        username = data.get("username")
+        password = data.get("password")
+        if not username or not password:
+            return jsonify({"success": False, "message": "Missing username or password"}), 400
+
+        if os.path.exists(USERS_CSV):
+            with open(USERS_CSV, "r", newline="", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    if row.get("username") == username and row.get("password") == password:
+                        return jsonify({"success": True, "username": username}), 200
+        return jsonify({"success": False, "message": "Invalid credentials"}), 401
+    except Exception as e:
+        return jsonify({"success": False, "message": "Server error"}), 500
 
 @app.route("/submit_rating", methods=["POST"])
 def submit_rating():
     try:
         data = request.get_json()
 
-        # Extract and log the data
+        username = data["username"]
         file_name = data["fileName"]
         error_location = data["feedback"]["error_location"]
         things_to_fix = data["feedback"]["things_to_fix"]
@@ -132,11 +157,10 @@ def submit_rating():
 
         # Create CSV if it doesn't exist
         if not os.path.exists('ratings.csv'):
-            logger.info("Creating new ratings.csv file")
             with open('ratings.csv', 'w', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow(['file_name', 'error_location', 'things_to_fix',
-                                 'suggestions', 'explanation', 'rating'])
+                writer.writerow(['username', 'file_name', 'error_location', 'things_to_fix',
+                               'suggestions', 'explanation', 'rating'])
 
         # Read existing entries
         existing_entries = []
@@ -145,9 +169,9 @@ def submit_rating():
         with open('ratings.csv', 'r', newline='') as file:
             reader = csv.DictReader(file)
             for row in reader:
-                if row['file_name'] == file_name and row['error_location'] == error_location:
-                    logger.info(f"Found matching entry for {file_name} at line {error_location}")
-                    # Update existing entry
+                if (row['file_name'] == file_name and
+                    row['error_location'] == error_location and
+                    row['username'] == username):
                     row['things_to_fix'] = things_to_fix
                     row['suggestions'] = suggestions
                     row['explanation'] = explanation
@@ -158,6 +182,7 @@ def submit_rating():
         # If no matching entry was found, create a new one
         if not updated:
             new_entry = {
+                'username': username,
                 'file_name': file_name,
                 'error_location': error_location,
                 'things_to_fix': things_to_fix,
@@ -169,14 +194,13 @@ def submit_rating():
 
         # Write back to CSV
         with open('ratings.csv', 'w', newline='') as file:
-            fieldnames = ['file_name', 'error_location', 'things_to_fix',
-                          'suggestions', 'explanation', 'rating']
+            fieldnames = ['username', 'file_name', 'error_location', 'things_to_fix',
+                         'suggestions', 'explanation', 'rating']
             writer = csv.DictWriter(file, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(existing_entries)
 
         # Verify the write operation
-        logger.debug("Verifying written data")
         with open('ratings.csv', 'r', newline='') as file:
             reader = csv.DictReader(file)
             written_entries = list(reader)
@@ -184,19 +208,19 @@ def submit_rating():
         success_message = "Rating updated" if updated else "Rating added"
         return jsonify({
             "success": True,
-            "message": success_message
+            "message": success_message,
+            "username": username,
+            "file_name": file_name
         }), 200
 
     except KeyError as e:
         error_msg = f"Missing required field: {str(e)}"
-        logger.error(error_msg, exc_info=True)
         return jsonify({
             "success": False,
             "message": error_msg
         }), 400
     except Exception as e:
         error_msg = f"An error occurred: {str(e)}"
-        logger.error(error_msg, exc_info=True)
         return jsonify({
             "success": False,
             "message": error_msg
