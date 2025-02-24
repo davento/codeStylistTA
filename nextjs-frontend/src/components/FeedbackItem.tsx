@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Loader2, Star, Info } from 'lucide-react'
 import { LoadingState } from './AnalyzeForm'
 
@@ -18,9 +18,16 @@ interface FeedbackItemProps {
 }
 
 export default function FeedbackItem({ fileName, feedback, loading }: FeedbackItemProps) {
+    // Initialize ratings and submitted state based on feedback length.
     const [ratings, setRatings] = useState<number[]>(() => feedback.map(() => 0))
     const [submitted, setSubmitted] = useState<boolean[]>(() => feedback.map(() => false))
     const [showInfo, setShowInfo] = useState(false)
+
+    // When feedback prop changes (e.g., new file selected), reset rating states.
+    useEffect(() => {
+        setRatings(feedback.map(() => 0))
+        setSubmitted(feedback.map(() => false))
+    }, [feedback])
 
     const handleRatingChange = (itemIndex: number, ratingValue: number) => {
         const newRatings = [...ratings]
@@ -33,7 +40,7 @@ export default function FeedbackItem({ fileName, feedback, loading }: FeedbackIt
 
     const handleSubmitRating = async (itemIndex: number) => {
         const payload = {
-            fileName: fileName, // Pass the file name to the backend
+            fileName, // Pass the file name to the backend
             feedback: {
                 error_location: feedback[itemIndex].error_location,
                 things_to_fix: feedback[itemIndex].things_to_fix,
