@@ -62,7 +62,7 @@ export default function FeedbackSection({
                 <h2 className="text-2xl font-bold mb-4 text-gray-800">Feedback</h2>
                 {hasSubmitted ? (
                     feedbackLoading ? (
-                        <FeedbackSkeleton count={6} />
+                        <FeedbackSkeleton count={4} />
                     ) : feedback.length > 0 ? (
                         <div>
                             <div className="mb-4 border-b flex items-center">
