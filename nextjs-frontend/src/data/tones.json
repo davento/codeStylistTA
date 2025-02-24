@@ -1,0 +1,10 @@
+[
+  {
+    "PK_tone": 1,
+    "name": "Formal"
+  },
+  {
+    "PK_tone": 2,
+    "name": "Informal"
+  }
+]
