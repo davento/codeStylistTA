@@ -155,12 +155,14 @@ def submit_rating():
         explanation = data["feedback"]["explanation"]
         rating = data["rating"]
 
+        resolution = data.get("resolution", "neutral")
+
         # Create CSV if it doesn't exist
         if not os.path.exists('ratings.csv'):
             with open('ratings.csv', 'w', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow(['username', 'file_name', 'error_location', 'things_to_fix',
-                               'suggestions', 'explanation', 'rating'])
+                                 'suggestions', 'explanation', 'rating', 'resolution'])
 
         # Read existing entries
         existing_entries = []
@@ -170,12 +172,13 @@ def submit_rating():
             reader = csv.DictReader(file)
             for row in reader:
                 if (row['file_name'] == file_name and
-                    row['error_location'] == error_location and
-                    row['username'] == username):
+                        row['error_location'] == error_location and
+                        row['username'] == username):
                     row['things_to_fix'] = things_to_fix
                     row['suggestions'] = suggestions
                     row['explanation'] = explanation
                     row['rating'] = rating
+                    row['resolution'] = resolution
                     updated = True
                 existing_entries.append(row)
 
@@ -188,14 +191,15 @@ def submit_rating():
                 'things_to_fix': things_to_fix,
                 'suggestions': suggestions,
                 'explanation': explanation,
-                'rating': rating
+                'rating': rating,
+                'resolution': resolution
             }
             existing_entries.append(new_entry)
 
         # Write back to CSV
         with open('ratings.csv', 'w', newline='') as file:
             fieldnames = ['username', 'file_name', 'error_location', 'things_to_fix',
-                         'suggestions', 'explanation', 'rating']
+                          'suggestions', 'explanation', 'rating', 'resolution']
             writer = csv.DictWriter(file, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(existing_entries)
@@ -210,7 +214,8 @@ def submit_rating():
             "success": True,
             "message": success_message,
             "username": username,
-            "file_name": file_name
+            "file_name": file_name,
+            "resolution": resolution
         }), 200
 
     except KeyError as e:

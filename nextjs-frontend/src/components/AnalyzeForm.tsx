@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import InputForm from './InputForm'
 import FeedbackSection from './FeedbackSection'
 import { Loader2 } from 'lucide-react'
+import { useUser } from '@/context/UserContext'
 
 export enum LoadingState {
     NOTHING = 0,
@@ -25,7 +26,22 @@ export interface FileFeedback {
     feedbackItems: Feedback[]
 }
 
+// Define the state structure for localStorage
+interface StoredState {
+    code: string
+    selectedProgLang: any
+    selectedCourse: any
+    selectedTone: any
+    selectedFormat: any
+    feedback: FileFeedback[]
+    isLoading: number[]
+    analysisDone: boolean
+    selectedTabIndex: number
+    // We don't store files as they can't be serialized properly
+}
+
 export default function AnalyzeForm() {
+    const { username } = useUser()
     const [code, setCode] = useState('')
     const [selectedFiles, setSelectedFiles] = useState<File[]>([])
     const [selectedProgLang, setSelectedProgLang] = useState<any>(null)
@@ -39,8 +55,90 @@ export default function AnalyzeForm() {
     const [success, setSuccess] = useState(false)
     const [hasSubmitted, setHasSubmitted] = useState(false)
     const [selectedTabIndex, setSelectedTabIndex] = useState(0)
+    const [processingFiles, setProcessingFiles] = useState<number>(0)
 
     const fileInputRef = useRef<HTMLInputElement>(null)
+
+    // Get storage key with username for better isolation between users
+    const getStorageKey = () => `analyzeFormState_${username || 'anonymous'}`
+    const getFeedbackStorageKey = () => `cached_feedback_${username || 'anonymous'}`
+
+    // Load saved state from localStorage on initial render
+    useEffect(() => {
+        try {
+            // Load form state
+            const savedState = localStorage.getItem(getStorageKey())
+            if (savedState) {
+                const parsedState: StoredState = JSON.parse(savedState)
+
+                setCode(parsedState.code || '')
+                setSelectedProgLang(parsedState.selectedProgLang || null)
+                setSelectedCourse(parsedState.selectedCourse || null)
+                setSelectedTone(parsedState.selectedTone || null)
+                setSelectedFormat(parsedState.selectedFormat || null)
+                setIsLoading(parsedState.isLoading || [LoadingState.NOTHING])
+                setAnalysisDone(parsedState.analysisDone || false)
+                setSelectedTabIndex(parsedState.selectedTabIndex || 0)
+
+                // If there's feedback, we must have submitted before
+                if (parsedState.feedback && parsedState.feedback.length > 0) {
+                    setHasSubmitted(true)
+                }
+            }
+
+            // Load cached feedback (we load this separately to ensure it's always available)
+            const cachedFeedback = localStorage.getItem(getFeedbackStorageKey())
+            if (cachedFeedback) {
+                const parsedFeedback: FileFeedback[] = JSON.parse(cachedFeedback)
+                if (parsedFeedback && parsedFeedback.length > 0) {
+                    setFeedback(parsedFeedback)
+                    setHasSubmitted(true)
+                    setAnalysisDone(true)
+                    // Set all loaded feedback as DONE
+                    setIsLoading(Array(parsedFeedback.length).fill(LoadingState.DONE))
+                }
+            }
+        } catch (error) {
+            console.error('Error loading saved state:', error)
+            // Continue with default state if loading fails
+        }
+    }, [username])
+
+    // Save state to localStorage whenever relevant state changes
+    useEffect(() => {
+        try {
+            const stateToSave: StoredState = {
+                code,
+                selectedProgLang,
+                selectedCourse,
+                selectedTone,
+                selectedFormat,
+                feedback,
+                isLoading,
+                analysisDone,
+                selectedTabIndex
+            }
+            localStorage.setItem(getStorageKey(), JSON.stringify(stateToSave))
+
+            // Always cache feedback separately for better persistence
+            if (feedback && feedback.length > 0) {
+                localStorage.setItem(getFeedbackStorageKey(), JSON.stringify(feedback))
+            }
+        } catch (error) {
+            console.error('Error saving state:', error)
+        }
+    }, [
+        code,
+        selectedProgLang,
+        selectedCourse,
+        selectedTone,
+        selectedFormat,
+        feedback,
+        isLoading,
+        analysisDone,
+        selectedTabIndex,
+        username
+    ])
 
     // Reset All
     const resetAll = () => {
@@ -57,7 +155,12 @@ export default function AnalyzeForm() {
         setSuccess(false)
         setHasSubmitted(false)
         setSelectedTabIndex(0)
+        setProcessingFiles(0)
         if (fileInputRef.current) fileInputRef.current.value = ''
+
+        // Clear localStorage for this user
+        localStorage.removeItem(getStorageKey())
+        localStorage.removeItem(getFeedbackStorageKey())
     }
 
     // File change handler
@@ -108,7 +211,7 @@ export default function AnalyzeForm() {
 
     const startLoad = async () => {
         setHasSubmitted(true)
-        setAnalysisDone(false)
+        // Clear previous feedback for a new submission
         setFeedback([])
         setSuccess(false)
 
@@ -116,22 +219,40 @@ export default function AnalyzeForm() {
             return false
         }
 
+        // Set all files to the LOADING state initially
         if (selectedFiles.length > 0) {
-            setIsLoading(Array(selectedFiles.length).fill(LoadingState.ON_QUEUE))
+            setIsLoading(Array(selectedFiles.length).fill(LoadingState.LOADING))
+            setProcessingFiles(selectedFiles.length)
         } else {
             setIsLoading([LoadingState.LOADING])
+            setProcessingFiles(1)
         }
+
+        // Set analysis done to true to show the loading UI immediately
+        setAnalysisDone(true)
+
         return true
     }
 
     const finishLoad = () => {
+        // Just make sure analysis done is set
         setAnalysisDone(true)
-        setIsLoading((prev) => prev.map(() => LoadingState.DONE))
+    }
+
+    // Read a file and return its content
+    const readFileContent = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader()
+            reader.onload = () => resolve(reader.result as string)
+            reader.onerror = reject
+            reader.readAsText(file)
+        })
     }
 
     const analyze = async (codeToAnalyze: string, index: number, fileName: string) => {
         if (codeToAnalyze.trim() === '') {
             setErrorLog('No code provided. Please upload a file or enter your code.')
+            setProcessingFiles(prev => Math.max(0, prev - 1))
             return Promise.reject()
         }
 
@@ -142,12 +263,6 @@ export default function AnalyzeForm() {
             reply_tone: selectedTone,
             reply_format: selectedFormat,
         }
-
-        setIsLoading((prev) => {
-            const newState = [...prev]
-            newState[index] = LoadingState.LOADING
-            return newState
-        })
 
         try {
             const response = await fetch(process.env.NEXT_PUBLIC_API_URL + '/input', {
@@ -160,36 +275,50 @@ export default function AnalyzeForm() {
                 setErrorLog(data.error)
                 setSuccess(false)
             } else {
-                setFeedback((old) => [...old, { fileName, feedbackItems: data }])
+                // Update feedback and cache it
+                const newFeedback = { fileName, feedbackItems: data };
+                setFeedback(old => {
+                    const newFeedbackArray = [...old, newFeedback];
+                    // Cache the feedback immediately
+                    localStorage.setItem(getFeedbackStorageKey(), JSON.stringify(newFeedbackArray));
+                    return newFeedbackArray;
+                });
                 setSuccess(true)
             }
         } catch (error) {
             console.error(error)
-            setErrorLog('Server error occurred.')
+            setErrorLog(`Server error occurred when processing ${fileName}.`)
             setSuccess(false)
         }
 
+        // Mark this file as done and reduce the count of processing files
         setIsLoading((prev) => {
             const newState = [...prev]
             newState[index] = LoadingState.DONE
             return newState
         })
+
+        setProcessingFiles(prev => Math.max(0, prev - 1))
     }
 
-    const processFilesSequentially = async () => {
-        for (let i = 0; i < selectedFiles.length; i++) {
+    // Process all files simultaneously
+    const processFiles = async () => {
+        // Process all files in parallel
+        const processPromises = selectedFiles.map(async (file, index) => {
             try {
-                const content = await new Promise<string>((resolve, reject) => {
-                    const reader = new FileReader()
-                    reader.onload = () => resolve(reader.result as string)
-                    reader.onerror = reject
-                    reader.readAsText(selectedFiles[i])
-                })
-                await analyze(content, i, selectedFiles[i].name)
+                const content = await readFileContent(file)
+                await analyze(content, index, file.name)
             } catch (error) {
-                console.error(error)
+                console.error(`Error processing file ${file.name}:`, error)
+                setProcessingFiles(prev => Math.max(0, prev - 1))
             }
-        }
+        })
+
+        // Wait for all files to complete (this doesn't block rendering)
+        await Promise.allSettled(processPromises)
+
+        // All processing is done
+        finishLoad()
     }
 
     const handleSubmit = async () => {
@@ -197,11 +326,13 @@ export default function AnalyzeForm() {
         if (!canSubmit) return
 
         if (selectedFiles.length > 0) {
-            await processFilesSequentially()
+            // Process all files in parallel
+            processFiles()
         } else {
+            // Direct code input
             await analyze(code, 0, 'Code Input')
+            finishLoad()
         }
-        finishLoad()
     }
 
     return (
@@ -236,6 +367,8 @@ export default function AnalyzeForm() {
                     analysisDone={analysisDone}
                     selectedTabIndex={selectedTabIndex}
                     setSelectedTabIndex={setSelectedTabIndex}
+                    processingFiles={processingFiles}
+                    totalFiles={selectedFiles.length}
                 />
             </div>
         </div>
