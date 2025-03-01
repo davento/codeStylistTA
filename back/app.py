@@ -4,6 +4,7 @@ import csv
 import os
 import src.AIAgent.appAssistant as appAssistant
 import src.util as util
+import threading
 
 app = Flask(__name__)
 CORS(app)
@@ -11,6 +12,10 @@ CORS(app)
 USERS_CSV = 'users.csv'
 RATINGS_CSV = 'ratings.csv'
 
+
+# Create a semaphore to ensure thread-safe file operations
+# This will allow only one thread to access the CSV file at a time
+csv_semaphore = threading.Semaphore(1)
 
 def update_rating_csv(file_name, feedback_data, rating):
     """
@@ -154,69 +159,74 @@ def submit_rating():
         suggestions = data["feedback"]["suggestions"]
         explanation = data["feedback"]["explanation"]
         rating = data["rating"]
-
         resolution = data.get("resolution", "neutral")
 
-        # Create CSV if it doesn't exist
-        if not os.path.exists('ratings.csv'):
+        # Acquire the semaphore before performing file operations
+        csv_semaphore.acquire()
+        try:
+            # Create CSV if it doesn't exist
+            if not os.path.exists('ratings.csv'):
+                with open('ratings.csv', 'w', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerow(['username', 'file_name', 'error_location', 'things_to_fix',
+                                   'suggestions', 'explanation', 'rating', 'resolution'])
+
+            # Read existing entries
+            existing_entries = []
+            updated = False
+
+            try:
+                with open('ratings.csv', 'r', newline='') as file:
+                    reader = csv.DictReader(file)
+                    for row in reader:
+                        if (row['file_name'] == file_name and
+                            row['error_location'] == error_location and
+                            row['username'] == username):
+                            row['things_to_fix'] = things_to_fix
+                            row['suggestions'] = suggestions
+                            row['explanation'] = explanation
+                            row['rating'] = rating
+                            row['resolution'] = resolution
+                            updated = True
+                        existing_entries.append(row)
+            except FileNotFoundError:
+                with open('ratings.csv', 'w', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerow(['username', 'file_name', 'error_location', 'things_to_fix',
+                                   'suggestions', 'explanation', 'rating', 'resolution'])
+
+            # If no matching entry was found, create a new one
+            if not updated:
+                new_entry = {
+                    'username': username,
+                    'file_name': file_name,
+                    'error_location': error_location,
+                    'things_to_fix': things_to_fix,
+                    'suggestions': suggestions,
+                    'explanation': explanation,
+                    'rating': rating,
+                    'resolution': resolution
+                }
+                existing_entries.append(new_entry)
+
+            # Write back to CSV
             with open('ratings.csv', 'w', newline='') as file:
-                writer = csv.writer(file)
-                writer.writerow(['username', 'file_name', 'error_location', 'things_to_fix',
-                                 'suggestions', 'explanation', 'rating', 'resolution'])
+                fieldnames = ['username', 'file_name', 'error_location', 'things_to_fix',
+                             'suggestions', 'explanation', 'rating', 'resolution']
+                writer = csv.DictWriter(file, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(existing_entries)
 
-        # Read existing entries
-        existing_entries = []
-        updated = False
-
-        with open('ratings.csv', 'r', newline='') as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                if (row['file_name'] == file_name and
-                        row['error_location'] == error_location and
-                        row['username'] == username):
-                    row['things_to_fix'] = things_to_fix
-                    row['suggestions'] = suggestions
-                    row['explanation'] = explanation
-                    row['rating'] = rating
-                    row['resolution'] = resolution
-                    updated = True
-                existing_entries.append(row)
-
-        # If no matching entry was found, create a new one
-        if not updated:
-            new_entry = {
-                'username': username,
-                'file_name': file_name,
-                'error_location': error_location,
-                'things_to_fix': things_to_fix,
-                'suggestions': suggestions,
-                'explanation': explanation,
-                'rating': rating,
-                'resolution': resolution
-            }
-            existing_entries.append(new_entry)
-
-        # Write back to CSV
-        with open('ratings.csv', 'w', newline='') as file:
-            fieldnames = ['username', 'file_name', 'error_location', 'things_to_fix',
-                          'suggestions', 'explanation', 'rating', 'resolution']
-            writer = csv.DictWriter(file, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(existing_entries)
-
-        # Verify the write operation
-        with open('ratings.csv', 'r', newline='') as file:
-            reader = csv.DictReader(file)
-            written_entries = list(reader)
-
-        success_message = "Rating updated" if updated else "Rating added"
-        return jsonify({
-            "success": True,
-            "message": success_message,
-            "username": username,
-            "file_name": file_name,
-            "resolution": resolution
-        }), 200
+            success_message = "Rating updated" if updated else "Rating added"
+            return jsonify({
+                "success": True,
+                "message": success_message,
+                "username": username,
+                "file_name": file_name,
+                "resolution": resolution
+            }), 200
+        finally:
+            csv_semaphore.release()
 
     except KeyError as e:
         error_msg = f"Missing required field: {str(e)}"
