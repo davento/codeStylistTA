@@ -21,7 +21,7 @@ export default function Header() {
         <header className="bg-white shadow-md">
             <div className="container mx-auto flex items-center justify-between p-4">
                 <Link href="/">
-                    <h1 className="text-2xl font-bold text-blue-600">CodeStylist</h1>
+                    <h1 className="text-2xl font-bold text-blue-600">Code Stylist</h1>
                 </Link>
                 <nav className="hidden md:flex items-center">
                     <ul className="flex items-center space-x-6">
