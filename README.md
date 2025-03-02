@@ -14,7 +14,7 @@ Note that a teacher (assistant) would still be the one giving the final grade. I
 
 ## Front-end
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 15.2.5.
+This project was generated with NextJS.
 
 Go to the `/nextjs-frontend` folder and add `.env.local` with the same format as `.env.example`. Then, install the necessary libraries using `npm install` and once that is done, run `npm run dev` for a dev server. Navigate to `http://localhost:3000/`. The application will automatically reload if you change any of the source files.
 
@@ -24,7 +24,7 @@ Powered by Flask. Create a virtual environment with the [environment.yml](https:
 
 ## Deployment
 
-TO-DO.
+Simply run `docker-compose up -d --build`, ensuring that both the .env.local in `/nextjs-frontend` and both `users.csv` and `.env` in `/back` are available and correctly initialized.
 
 ## Extra Resources
 
