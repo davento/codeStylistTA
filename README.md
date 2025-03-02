@@ -24,7 +24,7 @@ Powered by Flask. Create a virtual environment with the [environment.yml](https:
 
 ## Deployment
 
-Simply run `docker-compose up -d --build`, ensuring that both the .env.local in `/nextjs-frontend` and both `users.csv` and `.env` in `/back` are available and correctly initialized.
+Simply run `docker compose up -d --build`, ensuring that both the `.env.local` in `/nextjs-frontend` and both `users.csv` and `.env` in `/back` are available and correctly initialized.
 
 ## Extra Resources
 
