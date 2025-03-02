@@ -19,28 +19,45 @@ interface FeedbackSectionProps {
     analysisDone: boolean
     selectedTabIndex: number
     setSelectedTabIndex: React.Dispatch<React.SetStateAction<number>>
+    processingFiles: number
+    totalFiles: number
 }
 
 export default function FeedbackSection({
-                                            hasSubmitted,
-                                            feedback,
-                                            isLoading,
-                                            analysisDone,
-                                            selectedTabIndex,
-                                            setSelectedTabIndex,
-                                        }: FeedbackSectionProps) {
-    const feedbackLoading = !analysisDone || isLoading.some((state) => state !== LoadingState.DONE)
+    hasSubmitted,
+    feedback,
+    isLoading,
+    analysisDone,
+    selectedTabIndex,
+    setSelectedTabIndex,
+    processingFiles,
+    totalFiles
+}: FeedbackSectionProps) {
+    // We don't wait for all files to be processed before showing feedback
+    // Instead, we show feedback as it becomes available
+    const hasAnyFeedback = feedback.length > 0
+
+    // File processing status
+    const filesCompletedCount = feedback.length
+    const filesRemainingCount = processingFiles
 
     // Always show exactly 3 tabs
     const visibleTabCount = 3
     const [tabWindowStart, setTabWindowStart] = useState(0)
 
+    // Auto-select the most recently completed feedback tab
+    useEffect(() => {
+        if (feedback.length > 0 && (selectedTabIndex >= feedback.length || selectedTabIndex === -1)) {
+            setSelectedTabIndex(feedback.length - 1)
+        }
+    }, [feedback.length, selectedTabIndex, setSelectedTabIndex])
+
     // Adjust the window if the total number of tabs decreases
     useEffect(() => {
-        if (tabWindowStart > feedback.length - visibleTabCount) {
+        if (tabWindowStart > feedback.length - visibleTabCount && feedback.length > 0) {
             setTabWindowStart(Math.max(0, feedback.length - visibleTabCount))
         }
-    }, [feedback.length, tabWindowStart])
+    }, [feedback.length, tabWindowStart, visibleTabCount])
 
     const handleLeftArrow = () => {
         if (tabWindowStart > 0) {
@@ -60,10 +77,34 @@ export default function FeedbackSection({
         <div className="w-full md:w-1/2">
             <div className="bg-white p-6 rounded-lg shadow h-full">
                 <h2 className="text-2xl font-bold mb-4 text-gray-800">Feedback</h2>
+
+                {/* Processing status message - always at the top */}
+                {hasSubmitted && filesRemainingCount > 0 && (
+                    <div className="mb-4 p-3 bg-blue-50 text-blue-700 rounded-md">
+                        <p>
+                            {filesCompletedCount > 0 && (
+                                <span>
+                                    <span className="font-semibold">{filesCompletedCount}</span> of {totalFiles} files processed.{ }
+                                </span>
+                            )}
+                            <span className="font-semibold">{filesRemainingCount}</span> file{filesRemainingCount !== 1 ? 's' : ''} still processing.
+                            <br />
+                            Results appear automatically as they become available.
+                        </p>
+                    </div>
+                )}
+
+                {/* When all files are processed but there were errors */}
+                {hasSubmitted && filesRemainingCount === 0 && filesCompletedCount < totalFiles && totalFiles > 0 && (
+                    <div className="mb-4 p-3 bg-yellow-50 text-yellow-700 rounded-md">
+                        <p>
+                            All processing complete. <span className="font-semibold">{filesCompletedCount}</span> of {totalFiles} files processed successfully.
+                        </p>
+                    </div>
+                )}
+
                 {hasSubmitted ? (
-                    feedbackLoading ? (
-                        <FeedbackSkeleton count={4} />
-                    ) : feedback.length > 0 ? (
+                    hasAnyFeedback ? (
                         <div>
                             <div className="mb-4 border-b flex items-center">
                                 <button
@@ -110,15 +151,23 @@ export default function FeedbackSection({
                                 </button>
                             </div>
                             <div className="overflow-y-auto max-h-[110vh]">
-                                <FeedbackItem
-                                    fileName={feedback[selectedTabIndex].fileName}
-                                    feedback={feedback[selectedTabIndex].feedbackItems}
-                                    loading={isLoading[selectedTabIndex] || LoadingState.DONE}
-                                />
+                                {selectedTabIndex < feedback.length && selectedTabIndex >= 0 && (
+                                    <FeedbackItem
+                                        fileName={feedback[selectedTabIndex].fileName}
+                                        feedback={feedback[selectedTabIndex].feedbackItems}
+                                        loading={isLoading[selectedTabIndex] || LoadingState.DONE}
+                                        tabIndex={selectedTabIndex}
+                                    />
+                                )}
                             </div>
                         </div>
                     ) : (
-                        <p className="text-gray-500">No feedback available.</p>
+                        // When no feedback is available yet but analysis has started
+                        analysisDone ? (
+                            <FeedbackSkeleton count={2} />
+                        ) : (
+                            <p className="text-gray-500">Processing your files. Please wait...</p>
+                        )
                     )
                 ) : (
                     <p className="text-gray-500">Submit your code or files to see feedback.</p>

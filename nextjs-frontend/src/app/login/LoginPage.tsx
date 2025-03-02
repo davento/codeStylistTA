@@ -13,20 +13,25 @@ export default function LoginPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        const res = await fetch(
-            process.env.NEXT_PUBLIC_API_URL + '/login',
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password }),
+        try {
+            const res = await fetch(
+                process.env.NEXT_PUBLIC_API_URL + '/login',
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password }),
+                }
+            )
+            const data = await res.json()
+            if (res.ok) {
+                setLoggedInUsername(data.username) // This will also save to localStorage
+                router.push('/') // Redirect to home
+            } else {
+                setError(data.message || 'Login failed')
             }
-        )
-        const data = await res.json()
-        if (res.ok) {
-            setLoggedInUsername(data.username)
-            router.push('/') // Redirect to home
-        } else {
-            setError(data.message || 'Login failed')
+        } catch (error) {
+            console.error('Login error:', error)
+            setError('Connection error. Please try again.')
         }
     }
 
