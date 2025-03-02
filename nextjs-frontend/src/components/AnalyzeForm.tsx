@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from 'react'
 import InputForm from './InputForm'
 import FeedbackSection from './FeedbackSection'
-import { Loader2 } from 'lucide-react'
 import { useUser } from '@/context/UserContext'
 
 export enum LoadingState {
@@ -171,7 +170,7 @@ export default function AnalyzeForm() {
         const acceptType = selectedProgLang?.extensions?.join(',') || '*/*'
         const validFiles = fileArray.filter((file) => {
             if (acceptType === '*/*') return true
-            const extensions = acceptType.split(',').map((ext) => ext.trim().toLowerCase())
+            const extensions = acceptType.split(',').map((ext: any) => ext.trim().toLowerCase())
             const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase()
             return extensions.includes(fileExt)
         })
