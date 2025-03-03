@@ -17,5 +17,7 @@ RUN npm run build
 # Set Next.js port using environment variable
 ENV PORT=5003
 
+EXPOSE 5003
+
 # Command to run the application
 CMD ["npm", "run", "start"]
