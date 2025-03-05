@@ -14,10 +14,11 @@ COPY . ./
 # Build the application
 RUN npm run build
 
-# Set Next.js port using environment variable
-ENV PORT=5003
+# Set Next.js port and host using environment variables
+ENV PORT=8080
+ENV HOSTNAME=0.0.0.0
 
-EXPOSE 5003
+EXPOSE 8080
 
 # Command to run the application
 CMD ["npm", "run", "start"]

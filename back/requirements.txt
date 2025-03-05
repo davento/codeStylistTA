@@ -11,3 +11,4 @@ tqdm==4.66.2
 Werkzeug==3.0.1
 python-dotenv
 tiktoken==0.8.0
+gunicorn==21.2.0

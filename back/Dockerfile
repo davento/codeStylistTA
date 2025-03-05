@@ -11,7 +11,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application
 COPY . .
 
-EXPOSE 5003
+EXPOSE 8080
 
-# Command to run the application
-CMD ["flask", "--app", "app", "run", "--host", "0.0.0.0", "--port", "5003"]
+# No need to use the Flask development server in production
+# Using gunicorn for better performance
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "app:app"]
