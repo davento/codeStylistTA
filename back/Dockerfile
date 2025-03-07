@@ -11,8 +11,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application
 COPY . .
 
-EXPOSE 8080
+# Expose backend on port 6380
+EXPOSE 6380
 
-# No need to use the Flask development server in production
-# Using gunicorn for better performance
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "app:app"]
+# Run Gunicorn, binding to port 6380
+CMD ["gunicorn", "--bind", "0.0.0.0:6380", "app:app"]
