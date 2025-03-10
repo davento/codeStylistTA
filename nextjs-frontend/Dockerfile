@@ -11,6 +11,9 @@ RUN npm ci
 # Copy the rest of the frontend application
 COPY . ./
 
+# Remove _next folder from public directory if it exists
+RUN rm -rf ./public/_next
+
 # Build the application
 RUN npm run build
 
