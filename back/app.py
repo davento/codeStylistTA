@@ -9,8 +9,12 @@ import threading
 app = Flask(__name__)
 CORS(app)
 
-USERS_CSV = 'users.csv'
-RATINGS_CSV = 'ratings.csv'
+DATA_DIR = os.environ.get('DATA_DIR', 'data')
+os.makedirs(DATA_DIR, exist_ok=True)  # Create the directory if it doesn't exist
+
+# Update CSV file paths to use the data directory
+USERS_CSV = os.path.join(DATA_DIR, 'users.csv')
+RATINGS_CSV = os.path.join(DATA_DIR, 'ratings.csv')
 
 
 # Create a semaphore to ensure thread-safe file operations
@@ -165,8 +169,8 @@ def submit_rating():
         csv_semaphore.acquire()
         try:
             # Create CSV if it doesn't exist
-            if not os.path.exists('ratings.csv'):
-                with open('ratings.csv', 'w', newline='') as file:
+            if not os.path.exists(RATINGS_CSV):
+                with open(RATINGS_CSV, 'w', newline='') as file:
                     writer = csv.writer(file)
                     writer.writerow(['username', 'file_name', 'error_location', 'things_to_fix',
                                    'suggestions', 'explanation', 'rating', 'resolution'])
@@ -176,7 +180,7 @@ def submit_rating():
             updated = False
 
             try:
-                with open('ratings.csv', 'r', newline='') as file:
+                with open(RATINGS_CSV, 'r', newline='') as file:
                     reader = csv.DictReader(file)
                     for row in reader:
                         if (row['file_name'] == file_name and
@@ -190,7 +194,7 @@ def submit_rating():
                             updated = True
                         existing_entries.append(row)
             except FileNotFoundError:
-                with open('ratings.csv', 'w', newline='') as file:
+                with open(RATINGS_CSV, 'w', newline='') as file:
                     writer = csv.writer(file)
                     writer.writerow(['username', 'file_name', 'error_location', 'things_to_fix',
                                    'suggestions', 'explanation', 'rating', 'resolution'])
@@ -210,7 +214,7 @@ def submit_rating():
                 existing_entries.append(new_entry)
 
             # Write back to CSV
-            with open('ratings.csv', 'w', newline='') as file:
+            with open(RATINGS_CSV, 'w', newline='') as file:
                 fieldnames = ['username', 'file_name', 'error_location', 'things_to_fix',
                              'suggestions', 'explanation', 'rating', 'resolution']
                 writer = csv.DictWriter(file, fieldnames=fieldnames)
@@ -243,4 +247,4 @@ def submit_rating():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=6980)
+    app.run(host='0.0.0.0', port=5002)

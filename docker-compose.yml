@@ -6,12 +6,14 @@ services:
       context: ./back
       dockerfile: Dockerfile
     ports:
-      - "6380:6380"
+      - "5002:5002"
     expose:
-      - "6380"
+      - "5002"
     env_file:
       - ./back/.env
     restart: unless-stopped
+    volumes:
+      - ./back/data:/data
     networks:
       - app-network
 
@@ -20,9 +22,9 @@ services:
       context: ./nextjs-frontend
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "5001:5001"
     expose:
-      - "8080"
+      - "5001"
     env_file:
       - ./nextjs-frontend/.env.local
     depends_on:
@@ -34,3 +36,7 @@ services:
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  data:
+    driver: local

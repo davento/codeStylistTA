@@ -8,11 +8,14 @@ COPY requirements.txt .
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Create data directory
+RUN mkdir -p /app/data
+
 # Copy the rest of the application
 COPY . .
 
-# Expose backend on port 6380
-EXPOSE 6380
+# Expose backend on port 5002
+EXPOSE 5002
 
-# Run Gunicorn, binding to port 6380
-CMD ["gunicorn", "--bind", "0.0.0.0:6380", "app:app"]
+# Run Gunicorn, binding to port 5002
+CMD ["gunicorn", "--bind", "0.0.0.0:5002", "app:app"]
