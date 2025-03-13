@@ -18,10 +18,10 @@ RUN rm -rf ./public/_next
 RUN npm run build
 
 # Set Next.js port and host using environment variables
-ENV PORT=5001
+ENV PORT=5005
 ENV HOSTNAME=0.0.0.0
 
-EXPOSE 5001
+EXPOSE 5005
 
-# Command to run the application
+# 5 Command to run the application
 CMD ["npm", "run", "start"]

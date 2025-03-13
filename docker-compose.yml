@@ -6,9 +6,9 @@ services:
       context: ./back
       dockerfile: Dockerfile
     ports:
-      - "5002:5002"
+      - "4651:4651"
     expose:
-      - "5002"
+      - "4651"
     env_file:
       - ./back/.env
     restart: unless-stopped
@@ -22,9 +22,9 @@ services:
       context: ./nextjs-frontend
       dockerfile: Dockerfile
     ports:
-      - "5001:5001"
+      - "5005:5005"
     expose:
-      - "5001"
+      - "5005"
     env_file:
       - ./nextjs-frontend/.env.local
     depends_on:
