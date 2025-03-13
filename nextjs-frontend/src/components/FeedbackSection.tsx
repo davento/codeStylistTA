@@ -194,7 +194,7 @@ export default function FeedbackSection({
                                     <ChevronRight size={20} className="text-gray-600" />
                                 </button>
                             </div>
-                            <div className="overflow-y-auto max-h-[110vh]">
+                            <div className="overflow-y-auto max-h-[130vh]">
                                 {selectedTabIndex >= 0 && selectedTabIndex < allTabs.length && (
                                     allTabs[selectedTabIndex].isProcessing ? (
                                         <FeedbackSkeleton count={2} />
