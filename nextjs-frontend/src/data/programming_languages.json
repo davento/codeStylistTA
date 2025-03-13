@@ -7,7 +7,7 @@
   {
     "name": "C++",
     "extensions": [".cpp", ".hpp", ".h"],
-    "guidelines_location": "./guidelines_files/C++/Cpp_guidelines.md"
+    "guidelines_location": "./guidelines_files/C++/Cpp_Guidelines.md"
   },
   {
     "name": "JavaScript",
@@ -23,10 +23,5 @@
     "name": "C",
     "extensions": [".c", ".h"],
     "guidelines_location": "./guidelines_files/C/C_Guidelines.md"
-  },
-  {
-    "name": "Rust",
-    "extensions": [".rs"],
-    "guidelines_location": "./guidelines_files/Rust/Rust_Guidelines.pdf"
   }
 ]

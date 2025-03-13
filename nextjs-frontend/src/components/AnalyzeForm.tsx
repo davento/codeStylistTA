@@ -286,7 +286,7 @@ export default function AnalyzeForm() {
             }
         } catch (error) {
             console.error(error)
-            setErrorLog(`Server error occurred when processing ${fileName}.`)
+            setErrorLog(`${fileName} was invalid, please try again with another file.`)
             setSuccess(false)
         }
 
@@ -368,6 +368,7 @@ export default function AnalyzeForm() {
                     setSelectedTabIndex={setSelectedTabIndex}
                     processingFiles={processingFiles}
                     totalFiles={selectedFiles.length}
+                    selectedFiles={selectedFiles} // Added this prop to pass the files to FeedbackSection
                 />
             </div>
         </div>

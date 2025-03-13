@@ -21,6 +21,7 @@ interface FeedbackSectionProps {
     setSelectedTabIndex: React.Dispatch<React.SetStateAction<number>>
     processingFiles: number
     totalFiles: number
+    selectedFiles: File[] // Add this to get access to all file names
 }
 
 export default function FeedbackSection({
@@ -31,7 +32,8 @@ export default function FeedbackSection({
     selectedTabIndex,
     setSelectedTabIndex,
     processingFiles,
-    totalFiles
+    totalFiles,
+    selectedFiles
 }: FeedbackSectionProps) {
     // We don't wait for all files to be processed before showing feedback
     // Instead, we show feedback as it becomes available
@@ -45,19 +47,52 @@ export default function FeedbackSection({
     const visibleTabCount = 3
     const [tabWindowStart, setTabWindowStart] = useState(0)
 
-    // Auto-select the most recently completed feedback tab
+    // Get all tabs (both completed and still processing)
+    const getAllTabs = () => {
+        // Start with completed files
+        const completedFiles = feedback.map(f => ({
+            fileName: f.fileName,
+            isProcessing: false,
+            feedbackIndex: feedback.findIndex(item => item.fileName === f.fileName)
+        }));
+
+        // Add files that are still processing
+        const processingFiles = selectedFiles
+            .filter(file => !feedback.some(f => f.fileName === file.name))
+            .map(file => ({
+                fileName: file.name,
+                isProcessing: true,
+                feedbackIndex: -1
+            }));
+
+        // Add direct code input if it's processing
+        const directInput = isLoading[0] === LoadingState.LOADING &&
+                           !feedback.some(f => f.fileName === 'Code Input') &&
+                           selectedFiles.length === 0
+                           ? [{ fileName: 'Code Input', isProcessing: true, feedbackIndex: -1 }]
+                           : [];
+
+        return [...completedFiles, ...processingFiles, ...directInput];
+    };
+
+    const allTabs = hasSubmitted && analysisDone ? getAllTabs() : [];
+
+    // Auto-select the most recently completed feedback tab (keep existing behavior)
     useEffect(() => {
         if (feedback.length > 0 && (selectedTabIndex >= feedback.length || selectedTabIndex === -1)) {
             setSelectedTabIndex(feedback.length - 1)
+        } else if (analysisDone && selectedTabIndex === -1 && allTabs.length > 0) {
+            // Set first tab as selected when processing starts
+            setSelectedTabIndex(0)
         }
-    }, [feedback.length, selectedTabIndex, setSelectedTabIndex])
+    }, [feedback.length, selectedTabIndex, setSelectedTabIndex, analysisDone, allTabs.length])
 
     // Adjust the window if the total number of tabs decreases
     useEffect(() => {
-        if (tabWindowStart > feedback.length - visibleTabCount && feedback.length > 0) {
-            setTabWindowStart(Math.max(0, feedback.length - visibleTabCount))
+        if (tabWindowStart > Math.max(0, allTabs.length - visibleTabCount) && allTabs.length > 0) {
+            setTabWindowStart(Math.max(0, allTabs.length - visibleTabCount))
         }
-    }, [feedback.length, tabWindowStart, visibleTabCount])
+    }, [allTabs.length, tabWindowStart, visibleTabCount])
 
     const handleLeftArrow = () => {
         if (tabWindowStart > 0) {
@@ -66,12 +101,12 @@ export default function FeedbackSection({
     }
 
     const handleRightArrow = () => {
-        if (tabWindowStart + visibleTabCount < feedback.length) {
+        if (tabWindowStart + visibleTabCount < allTabs.length) {
             setTabWindowStart(tabWindowStart + 1)
         }
     }
 
-    const visibleTabs = feedback.slice(tabWindowStart, tabWindowStart + visibleTabCount)
+    const visibleTabs = allTabs.slice(tabWindowStart, tabWindowStart + visibleTabCount)
 
     return (
         <div className="w-full md:w-1/2">
@@ -104,7 +139,7 @@ export default function FeedbackSection({
                 )}
 
                 {hasSubmitted ? (
-                    hasAnyFeedback ? (
+                    allTabs.length > 0 ? (
                         <div>
                             <div className="mb-4 border-b flex items-center">
                                 <button
@@ -116,7 +151,7 @@ export default function FeedbackSection({
                                 </button>
                                 <nav className="flex flex-grow overflow-hidden">
                                     <div className="grid grid-cols-3 w-full">
-                                        {visibleTabs.map((fileFeedback, idx) => {
+                                        {visibleTabs.map((tab, idx) => {
                                             const globalIndex = tabWindowStart + idx
                                             return (
                                                 <Popover key={globalIndex}>
@@ -129,13 +164,22 @@ export default function FeedbackSection({
                                                                     : 'text-gray-600'
                                                             }`}
                                                         >
-                                                            <span className="block truncate px-2">
-                                                                {fileFeedback.fileName}
-                                                            </span>
+
+                                                            <span
+                                                                className="flex items-center justify-center w-full gap-2">
+    <span className="truncate text-center">{tab.fileName}</span>
+                                                                {tab.isProcessing && (
+                                                                    <span
+                                                                        className="flex-shrink-0 w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                                                                )}
+</span>
                                                         </button>
                                                     </PopoverTrigger>
                                                     <PopoverContent className="w-auto p-2">
-                                                        <p className="text-sm">{fileFeedback.fileName}</p>
+                                                    <p className="text-sm">{tab.fileName}</p>
+                                                        {tab.isProcessing && (
+                                                            <p className="text-xs text-blue-500">Processing...</p>
+                                                        )}
                                                     </PopoverContent>
                                                 </Popover>
                                             )
@@ -144,20 +188,24 @@ export default function FeedbackSection({
                                 </nav>
                                 <button
                                     onClick={handleRightArrow}
-                                    disabled={tabWindowStart + visibleTabCount >= feedback.length}
+                                    disabled={tabWindowStart + visibleTabCount >= allTabs.length}
                                     className="p-2 disabled:opacity-50 shrink-0"
                                 >
                                     <ChevronRight size={20} className="text-gray-600" />
                                 </button>
                             </div>
                             <div className="overflow-y-auto max-h-[110vh]">
-                                {selectedTabIndex < feedback.length && selectedTabIndex >= 0 && (
-                                    <FeedbackItem
-                                        fileName={feedback[selectedTabIndex].fileName}
-                                        feedback={feedback[selectedTabIndex].feedbackItems}
-                                        loading={isLoading[selectedTabIndex] || LoadingState.DONE}
-                                        tabIndex={selectedTabIndex}
-                                    />
+                                {selectedTabIndex >= 0 && selectedTabIndex < allTabs.length && (
+                                    allTabs[selectedTabIndex].isProcessing ? (
+                                        <FeedbackSkeleton count={2} />
+                                    ) : (
+                                        <FeedbackItem
+                                            fileName={feedback[allTabs[selectedTabIndex].feedbackIndex].fileName}
+                                            feedback={feedback[allTabs[selectedTabIndex].feedbackIndex].feedbackItems}
+                                            loading={LoadingState.DONE}
+                                            tabIndex={selectedTabIndex}
+                                        />
+                                    )
                                 )}
                             </div>
                         </div>

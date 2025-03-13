@@ -1,10 +1,11 @@
 'use client'
 
-import { X, UploadCloud, Trash } from 'lucide-react'
+import { X, UploadCloud, Trash, AlertCircle } from 'lucide-react'
 import courses from '@/data/courses.json'
 import progLangs from '@/data/programming_languages.json'
 import formats from '@/data/formats.json'
 import tones from '@/data/tones.json'
+import { useState, useEffect } from 'react'
 
 interface InputFormProps {
     code: string
@@ -52,6 +53,55 @@ export default function InputForm({
                                       uploadCode,
                                   }: InputFormProps) {
     const acceptType = selectedProgLang?.extensions?.join(',') || '*/*'
+    const [formErrors, setFormErrors] = useState<{[key: string]: string}>({})
+    const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false)
+
+    // Validate the form whenever relevant inputs change
+    useEffect(() => {
+        if (!hasAttemptedSubmit) return;
+
+        validateForm();
+    }, [code, selectedFiles, selectedProgLang, selectedCourse, selectedTone, selectedFormat, hasAttemptedSubmit]);
+
+    // Form validation function
+    const validateForm = () => {
+        const errors: {[key: string]: string} = {};
+
+        // Check if code or files are provided
+        if (!code && selectedFiles.length === 0) {
+            errors.input = "Please either enter code or upload files to analyze";
+        }
+
+        // Check configuration selections
+        if (!selectedProgLang) {
+            errors.language = "Please select a programming language";
+        }
+
+        if (!selectedCourse) {
+            errors.course = "Please select a course";
+        }
+
+        if (!selectedTone) {
+            errors.tone = "Please select a response tone";
+        }
+
+        if (!selectedFormat) {
+            errors.format = "Please select an output format";
+        }
+
+        setFormErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+    // Custom submit handler with validation
+    const submitWithValidation = () => {
+        setHasAttemptedSubmit(true);
+        const isValid = validateForm();
+
+        if (isValid) {
+            handleSubmit();
+        }
+    };
 
     return (
         <div className="w-full md:w-1/2 space-y-8">
@@ -69,7 +119,7 @@ export default function InputForm({
             <div className="bg-white p-6 rounded-lg shadow">
                 <h2 className="text-xl font-bold mb-4 text-gray-800">Code Input</h2>
                 <textarea
-                    className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className={`w-full p-3 border ${formErrors.input && !code ? 'border-red-500 bg-red-50' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                     placeholder="Paste your code here..."
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
@@ -105,7 +155,7 @@ export default function InputForm({
                     />
                     <button
                         onClick={() => fileInputRef.current?.click()}
-                        className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition"
+                        className={`px-4 py-2 ${formErrors.input && selectedFiles.length === 0 && !code ? 'bg-red-100 text-red-800 border border-red-500' : 'bg-gray-200 text-gray-800'} rounded hover:bg-gray-300 transition`}
                     >
                         Choose Files
                     </button>
@@ -128,6 +178,12 @@ export default function InputForm({
                         </ul>
                     )}
                     {errorLog && <p className="text-red-500 mt-2 text-sm">{errorLog}</p>}
+                    {formErrors.input && !code && selectedFiles.length === 0 && (
+                        <div className="flex items-center gap-2 text-red-600 mt-2">
+                            <AlertCircle size={16} />
+                            <p className="text-sm">{formErrors.input}</p>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -147,7 +203,7 @@ export default function InputForm({
                                 // Reset file list on language change
                                 setSelectedFiles([])
                             }}
-                            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                            className={`mt-1 block w-full border ${formErrors.language ? 'border-red-500 bg-red-50' : 'border-gray-300'} rounded-md p-2`}
                         >
                             <option value="">Select language</option>
                             {progLangs.map((lang, index) => (
@@ -156,6 +212,9 @@ export default function InputForm({
                                 </option>
                             ))}
                         </select>
+                        {formErrors.language && (
+                            <p className="text-red-500 mt-1 text-sm">{formErrors.language}</p>
+                        )}
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Course</label>
@@ -165,7 +224,7 @@ export default function InputForm({
                                 const course = courses.find((c) => c.name === e.target.value)
                                 setSelectedCourse(course)
                             }}
-                            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                            className={`mt-1 block w-full border ${formErrors.course ? 'border-red-500 bg-red-50' : 'border-gray-300'} rounded-md p-2`}
                         >
                             <option value="">Select course</option>
                             {courses.map((course, index) => (
@@ -174,6 +233,9 @@ export default function InputForm({
                                 </option>
                             ))}
                         </select>
+                        {formErrors.course && (
+                            <p className="text-red-500 mt-1 text-sm">{formErrors.course}</p>
+                        )}
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">
@@ -185,7 +247,7 @@ export default function InputForm({
                                 const tone = tones.find((t) => t.name === e.target.value)
                                 setSelectedTone(tone)
                             }}
-                            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                            className={`mt-1 block w-full border ${formErrors.tone ? 'border-red-500 bg-red-50' : 'border-gray-300'} rounded-md p-2`}
                         >
                             <option value="">Select tone</option>
                             {tones.map((tone, index) => (
@@ -194,6 +256,9 @@ export default function InputForm({
                                 </option>
                             ))}
                         </select>
+                        {formErrors.tone && (
+                            <p className="text-red-500 mt-1 text-sm">{formErrors.tone}</p>
+                        )}
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">
@@ -205,7 +270,7 @@ export default function InputForm({
                                 const format = formats.find((f) => f.name === e.target.value)
                                 setSelectedFormat(format)
                             }}
-                            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                            className={`mt-1 block w-full border ${formErrors.format ? 'border-red-500 bg-red-50' : 'border-gray-300'} rounded-md p-2`}
                         >
                             <option value="">Select format</option>
                             {formats.map((format, index) => (
@@ -214,6 +279,9 @@ export default function InputForm({
                                 </option>
                             ))}
                         </select>
+                        {formErrors.format && (
+                            <p className="text-red-500 mt-1 text-sm">{formErrors.format}</p>
+                        )}
                     </div>
                 </div>
             </div>
@@ -221,7 +289,7 @@ export default function InputForm({
             {/* Submit Button */}
             <div className="flex justify-end">
                 <button
-                    onClick={handleSubmit}
+                    onClick={submitWithValidation}
                     className="flex items-center gap-2 px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
                 >
                     Evaluate
