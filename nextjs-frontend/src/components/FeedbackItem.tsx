@@ -34,7 +34,7 @@ interface SavedFeedbackData {
 }
 
 export default function FeedbackItem({ fileName, feedback, loading, tabIndex }: FeedbackItemProps) {
-    const {username} = useUser()
+    const { username } = useUser()
     const [ratings, setRatings] = useState<number[]>([])
     const [resolutions, setResolutions] = useState<ResolutionStatus[]>([])
     const [submitted, setSubmitted] = useState<boolean[]>([])
@@ -46,9 +46,7 @@ export default function FeedbackItem({ fileName, feedback, loading, tabIndex }: 
 
     // Generate unique id for a feedback item
     const getFeedbackItemId = (idx: number) => {
-        return `${fileName}|${idx}|${tabIndex}|${
-            feedback[idx]?.error_location?.substring(0, 20) || ''
-        }`
+        return `${fileName}|${idx}|${tabIndex}|${feedback[idx]?.error_location?.substring(0, 20) || ''}`
     }
 
     // Initialize state arrays with the right size
@@ -58,11 +56,11 @@ export default function FeedbackItem({ fileName, feedback, loading, tabIndex }: 
             setResolutions(Array(feedback.length).fill('neutral'))
             setSubmitted(Array(feedback.length).fill(false))
         }
-    }, [])
+    }, [feedback])
 
     // Load persisted data from localStorage when component mounts or feedback changes
     useEffect(() => {
-        if (feedback.length === 0) return;
+        if (feedback.length === 0) return
 
         try {
             // Create properly sized arrays regardless of what's in storage
@@ -153,7 +151,7 @@ export default function FeedbackItem({ fileName, feedback, loading, tabIndex }: 
     }
 
     const handleRatingChange = (itemIndex: number, ratingValue: number) => {
-        if (!isInitialized) return;
+        if (!isInitialized) return
 
         setRatings(prev => {
             const newRatings = [...prev]
@@ -173,7 +171,7 @@ export default function FeedbackItem({ fileName, feedback, loading, tabIndex }: 
     }
 
     const handleResolutionChange = (itemIndex: number, status: ResolutionStatus) => {
-        if (!isInitialized) return;
+        if (!isInitialized) return
 
         setResolutions(prev => {
             const newResolutions = [...prev]
@@ -192,10 +190,10 @@ export default function FeedbackItem({ fileName, feedback, loading, tabIndex }: 
     }
 
     const handleSubmitRating = async (itemIndex: number) => {
-        if (!isInitialized) return;
+        if (!isInitialized) return
 
         const payload = {
-            username: username || 'anonymous', // Use anonymous if no username
+            username: username || 'anonymous',
             fileName,
             feedback: {
                 error_location: feedback[itemIndex].error_location,
@@ -204,7 +202,7 @@ export default function FeedbackItem({ fileName, feedback, loading, tabIndex }: 
                 explanation: feedback[itemIndex].explanation,
             },
             rating: ratings[itemIndex],
-            resolution: resolutions[itemIndex] // Include resolution status in payload
+            resolution: resolutions[itemIndex]
         }
 
         try {
@@ -212,7 +210,7 @@ export default function FeedbackItem({ fileName, feedback, loading, tabIndex }: 
                 process.env.NEXT_PUBLIC_API_URL + '/submit_rating',
                 {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
                 }
             )
@@ -228,7 +226,6 @@ export default function FeedbackItem({ fileName, feedback, loading, tabIndex }: 
                     return newSubmitted
                 })
 
-                // Save updated submission status to localStorage
                 saveDataToLocalStorage(itemIndex, undefined, undefined, true)
             } else {
                 console.error('Failed to submit rating:', await response.text())
@@ -256,14 +253,23 @@ export default function FeedbackItem({ fileName, feedback, loading, tabIndex }: 
         return `${baseClass} bg-white text-gray-400 border border-gray-200 hover:bg-gray-50`;
     };
 
-    // If not initialized yet, show a loading state
+    // If not initialized yet and there's feedback, show a loading state
     if (!isInitialized && feedback.length > 0) {
         return (
             <div className="border p-4 rounded-md">
                 <div className="flex items-center gap-2">
-                    <Loader2 size={20} className="animate-spin"/>
+                    <Loader2 size={20} className="animate-spin" />
                     <p>Loading feedback data...</p>
                 </div>
+            </div>
+        );
+    }
+
+    // If processing is done and no feedback was returned, show a specific error message.
+    if (loading === LoadingState.DONE && feedback.length === 0) {
+        return (
+            <div className="border p-4 rounded-md">
+                <p className="text-red-500 font-bold">Error, no feedback returned.</p>
             </div>
         );
     }
@@ -272,7 +278,7 @@ export default function FeedbackItem({ fileName, feedback, loading, tabIndex }: 
         <div className="border p-4 rounded-md">
             {loading !== LoadingState.DONE ? (
                 <div className="flex items-center gap-2">
-                    <Loader2 size={20} className="animate-spin"/>
+                    <Loader2 size={20} className="animate-spin" />
                     <p>Processing...</p>
                 </div>
             ) : (
@@ -321,21 +327,21 @@ export default function FeedbackItem({ fileName, feedback, loading, tabIndex }: 
                                         onClick={() => handleResolutionChange(idx, 'yes')}
                                         title="Yes, issue resolved"
                                     >
-                                        <ThumbsUp size={16} className="mr-1"/> Yes
+                                        <ThumbsUp size={16} className="mr-1" /> Yes
                                     </button>
                                     <button
                                         className={getResolutionButtonClass('no', resolutions[idx])}
                                         onClick={() => handleResolutionChange(idx, 'no')}
                                         title="No, issue not resolved"
                                     >
-                                        <ThumbsDown size={16} className="mr-1"/> No
+                                        <ThumbsDown size={16} className="mr-1" /> No
                                     </button>
                                     <button
                                         className={getResolutionButtonClass('neutral', resolutions[idx])}
                                         onClick={() => handleResolutionChange(idx, 'neutral')}
                                         title="Not applicable"
                                     >
-                                        <Minus size={16} className="mr-1"/> N/A
+                                        <Minus size={16} className="mr-1" /> N/A
                                     </button>
                                 </div>
                             </div>

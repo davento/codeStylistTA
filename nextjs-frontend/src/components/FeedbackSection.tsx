@@ -21,24 +21,22 @@ interface FeedbackSectionProps {
     setSelectedTabIndex: React.Dispatch<React.SetStateAction<number>>
     processingFiles: number
     totalFiles: number
-    selectedFiles: File[] // Add this to get access to all file names
+    selectedFiles: File[] // To get access to all file names
+    hasCodeInput: boolean // New prop to indicate if there's code input
 }
 
 export default function FeedbackSection({
-    hasSubmitted,
-    feedback,
-    isLoading,
-    analysisDone,
-    selectedTabIndex,
-    setSelectedTabIndex,
-    processingFiles,
-    totalFiles,
-    selectedFiles
-}: FeedbackSectionProps) {
-    // We don't wait for all files to be processed before showing feedback
-    // Instead, we show feedback as it becomes available
-    const hasAnyFeedback = feedback.length > 0
-
+                                            hasSubmitted,
+                                            feedback,
+                                            isLoading,
+                                            analysisDone,
+                                            selectedTabIndex,
+                                            setSelectedTabIndex,
+                                            processingFiles,
+                                            totalFiles,
+                                            selectedFiles,
+                                            hasCodeInput,
+                                        }: FeedbackSectionProps) {
     // File processing status
     const filesCompletedCount = feedback.length
     const filesRemainingCount = processingFiles
@@ -50,32 +48,33 @@ export default function FeedbackSection({
     // Get all tabs (both completed and still processing)
     const getAllTabs = () => {
         // Start with completed files
-        const completedFiles = feedback.map(f => ({
+        const completedFiles = feedback.map((f) => ({
             fileName: f.fileName,
             isProcessing: false,
-            feedbackIndex: feedback.findIndex(item => item.fileName === f.fileName)
-        }));
+            feedbackIndex: feedback.findIndex((item) => item.fileName === f.fileName),
+        }))
 
         // Add files that are still processing
         const processingFiles = selectedFiles
-            .filter(file => !feedback.some(f => f.fileName === file.name))
-            .map(file => ({
+            .filter((file) => !feedback.some((f) => f.fileName === file.name))
+            .map((file) => ({
                 fileName: file.name,
                 isProcessing: true,
-                feedbackIndex: -1
-            }));
+                feedbackIndex: -1,
+            }))
 
         // Add direct code input if it's processing
-        const directInput = isLoading[0] === LoadingState.LOADING &&
-                           !feedback.some(f => f.fileName === 'Code Input') &&
-                           selectedFiles.length === 0
-                           ? [{ fileName: 'Code Input', isProcessing: true, feedbackIndex: -1 }]
-                           : [];
+        const directInput =
+            hasCodeInput &&
+            isLoading[0] === LoadingState.LOADING &&
+            !feedback.some((f) => f.fileName === 'Code Input')
+                ? [{ fileName: 'Code Input', isProcessing: true, feedbackIndex: -1 }]
+                : []
 
-        return [...completedFiles, ...processingFiles, ...directInput];
-    };
+        return [...completedFiles, ...processingFiles, ...directInput]
+    }
 
-    const allTabs = hasSubmitted && analysisDone ? getAllTabs() : [];
+    const allTabs = hasSubmitted && analysisDone ? getAllTabs() : []
 
     // Auto-select the most recently completed feedback tab (keep existing behavior)
     useEffect(() => {
@@ -119,10 +118,11 @@ export default function FeedbackSection({
                         <p>
                             {filesCompletedCount > 0 && (
                                 <span>
-                                    <span className="font-semibold">{filesCompletedCount}</span> of {totalFiles} files processed.{ }
-                                </span>
+                  <span className="font-semibold">{filesCompletedCount}</span> of {totalFiles} files processed.
+                </span>
                             )}
-                            <span className="font-semibold">{filesRemainingCount}</span> file{filesRemainingCount !== 1 ? 's' : ''} still processing.
+                            <span className="font-semibold">{' '}{filesRemainingCount}</span> file
+                            {filesRemainingCount !== 1 ? 's' : ''} still processing.
                             <br />
                             Results appear automatically as they become available.
                         </p>
@@ -164,22 +164,17 @@ export default function FeedbackSection({
                                                                     : 'text-gray-600'
                                                             }`}
                                                         >
-
-                                                            <span
-                                                                className="flex items-center justify-center w-full gap-2">
-    <span className="truncate text-center">{tab.fileName}</span>
-                                                                {tab.isProcessing && (
-                                                                    <span
-                                                                        className="flex-shrink-0 w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-                                                                )}
-</span>
+                              <span className="flex items-center justify-center w-full gap-2">
+                                <span className="truncate text-center">{tab.fileName}</span>
+                                  {tab.isProcessing && (
+                                      <span className="flex-shrink-0 w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                                  )}
+                              </span>
                                                         </button>
                                                     </PopoverTrigger>
                                                     <PopoverContent className="w-auto p-2">
-                                                    <p className="text-sm">{tab.fileName}</p>
-                                                        {tab.isProcessing && (
-                                                            <p className="text-xs text-blue-500">Processing...</p>
-                                                        )}
+                                                        <p className="text-sm">{tab.fileName}</p>
+                                                        {tab.isProcessing && <p className="text-xs text-blue-500">Processing...</p>}
                                                     </PopoverContent>
                                                 </Popover>
                                             )

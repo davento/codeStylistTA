@@ -2,26 +2,31 @@
   {
     "name": "Python",
     "extensions": [".py"],
-    "guidelines_location": "./guidelines_files/Python/python_guidelines.md"
+    "guidelines_location": "./guidelines_files/Python/python_guidelines.md",
+    "monacoLanguage": "python"
   },
   {
     "name": "C++",
     "extensions": [".cpp", ".hpp", ".h"],
-    "guidelines_location": "./guidelines_files/C++/Cpp_Guidelines.md"
+    "guidelines_location": "./guidelines_files/C++/Cpp_Guidelines.md",
+    "monacoLanguage": "cpp"
   },
   {
     "name": "JavaScript",
     "extensions": [".js"],
-    "guidelines_location": "./guidelines_files/JavaScript/JS_Guidelines.md"
+    "guidelines_location": "./guidelines_files/JavaScript/JS_Guidelines.md",
+    "monacoLanguage": "javascript"
   },
   {
     "name": "Java",
     "extensions": [".java"],
-    "guidelines_location": "./guidelines_files/Java/Java_Guidelines.md"
+    "guidelines_location": "./guidelines_files/Java/Java_Guidelines.md",
+    "monacoLanguage": "java"
   },
   {
     "name": "C",
     "extensions": [".c", ".h"],
-    "guidelines_location": "./guidelines_files/C/C_Guidelines.md"
+    "guidelines_location": "./guidelines_files/C/C_Guidelines.md",
+    "monacoLanguage": "c"
   }
 ]
