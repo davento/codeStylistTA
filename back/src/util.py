@@ -1,6 +1,7 @@
 from tiktoken import encoding_for_model
 import json
 
+
 def convert_code_str_to_array(code: str, language: str) -> list[str]:
     """
     Processes source code while preserving inline comments (//) and correctly handling:
@@ -24,19 +25,21 @@ def convert_code_str_to_array(code: str, language: str) -> list[str]:
     string_delimiter = None  # Stores which quote type started the string
     is_multiline_string = False  # Tracks if a string continues across lines
     is_in_comment = False  # Tracks if inside a multiline comment
+    current_comment_start = None  # Tracks which comment start marker is being used
+    current_comment_end = None  # Tracks which comment end marker is being used
 
     # Set up language-specific rules
     if language in ["C", "C++", "Java", "JavaScript"]:
         single_line_comment = "//"
-        multiline_comment_start = "/*"
-        multiline_comment_end = "*/"
+        multiline_comment_start = ["/*"]  # Changed to list instead of string
+        multiline_comment_end = ["*/"]  # Changed to list instead of string
         string_types = {'"', "'"}
         supports_backticks = language == "JavaScript"  # JavaScript supports backticks
 
     elif language == "Python":
         single_line_comment = "#"
-        multiline_comment_start = ('"""', "'''")  # Python uses triple quotes
-        multiline_comment_end = ('"""', "'''")
+        multiline_comment_start = ['"""', "'''"]  # Python uses triple quotes as multiline comments
+        multiline_comment_end = ['"""', "'''"]
         string_types = {'"', "'", '"""', "'''"}
         supports_backticks = False
 
@@ -56,16 +59,27 @@ def convert_code_str_to_array(code: str, language: str) -> list[str]:
                 break  # Ignore further processing for this line
 
             # Detect start of a multiline comment
-            if not is_in_string and not is_in_comment and line[i:].startswith(multiline_comment_start):
-                is_in_comment = True
-                processed_line += multiline_comment_start
-                i += len(multiline_comment_start) - 1
+            elif not is_in_string and not is_in_comment:
+                comment_started = False
+                for comment_starter in multiline_comment_start:
+                    if line[i:].startswith(comment_starter):
+                        is_in_comment = True
+                        current_comment_start = comment_starter
+                        current_comment_end = multiline_comment_end[multiline_comment_start.index(comment_starter)]
+                        processed_line += comment_starter
+                        i += len(comment_starter) - 1
+                        comment_started = True
+                        break
+
+                if comment_started:
+                    i += 1
+                    continue
 
             # Detect end of a multiline comment
-            elif is_in_comment and line[i:].startswith(multiline_comment_end):
+            elif is_in_comment and line[i:].startswith(current_comment_end):
                 is_in_comment = False
-                processed_line += multiline_comment_end
-                i += len(multiline_comment_end) - 1
+                processed_line += current_comment_end
+                i += len(current_comment_end) - 1
 
             # Preserve content inside a comment
             elif is_in_comment:
@@ -219,7 +233,7 @@ def clean_json_response(response: str) -> str:
         except json.JSONDecodeError:
             # If it's not valid JSON, raise an error
             raise ValueError("Invalid JSON format in response")
-    
+
     # If the response doesn't start with "```json", return it unchanged
     else:
         return response
