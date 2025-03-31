@@ -17,5 +17,5 @@ COPY . .
 # Expose backend on port 4651
 EXPOSE 4651
 
-# Run Gunicorn, binding to port 5002
-CMD ["gunicorn", "--bind", "0.0.0.0:4651", "app:app"]
+# Run Gunicorn, binding to port 4651
+CMD ["gunicorn", "--bind", "0.0.0.0:4651", "--timeout", "120", "app:app"]

@@ -25,21 +25,19 @@ def convert_code_str_to_array(code: str, language: str) -> list[str]:
     string_delimiter = None  # Stores which quote type started the string
     is_multiline_string = False  # Tracks if a string continues across lines
     is_in_comment = False  # Tracks if inside a multiline comment
-    current_comment_start = None  # Tracks which comment start marker is being used
-    current_comment_end = None  # Tracks which comment end marker is being used
 
     # Set up language-specific rules
     if language in ["C", "C++", "Java", "JavaScript"]:
         single_line_comment = "//"
-        multiline_comment_start = ["/*"]  # Changed to list instead of string
-        multiline_comment_end = ["*/"]  # Changed to list instead of string
+        multiline_comment_start = "/*"
+        multiline_comment_end = "*/"
         string_types = {'"', "'"}
         supports_backticks = language == "JavaScript"  # JavaScript supports backticks
 
     elif language == "Python":
         single_line_comment = "#"
-        multiline_comment_start = ['"""', "'''"]  # Python uses triple quotes as multiline comments
-        multiline_comment_end = ['"""', "'''"]
+        multiline_comment_start = ()  # Python uses triple quotes
+        multiline_comment_end = ()
         string_types = {'"', "'", '"""', "'''"}
         supports_backticks = False
 
@@ -59,27 +57,16 @@ def convert_code_str_to_array(code: str, language: str) -> list[str]:
                 break  # Ignore further processing for this line
 
             # Detect start of a multiline comment
-            elif not is_in_string and not is_in_comment:
-                comment_started = False
-                for comment_starter in multiline_comment_start:
-                    if line[i:].startswith(comment_starter):
-                        is_in_comment = True
-                        current_comment_start = comment_starter
-                        current_comment_end = multiline_comment_end[multiline_comment_start.index(comment_starter)]
-                        processed_line += comment_starter
-                        i += len(comment_starter) - 1
-                        comment_started = True
-                        break
-
-                if comment_started:
-                    i += 1
-                    continue
+            if not is_in_string and not is_in_comment and line[i:].startswith(multiline_comment_start):
+                is_in_comment = True
+                processed_line += multiline_comment_start
+                i += len(multiline_comment_start) - 1
 
             # Detect end of a multiline comment
-            elif is_in_comment and line[i:].startswith(current_comment_end):
+            elif is_in_comment and line[i:].startswith(multiline_comment_end):
                 is_in_comment = False
-                processed_line += current_comment_end
-                i += len(current_comment_end) - 1
+                processed_line += multiline_comment_end
+                i += len(multiline_comment_end) - 1
 
             # Preserve content inside a comment
             elif is_in_comment:
@@ -89,8 +76,8 @@ def convert_code_str_to_array(code: str, language: str) -> list[str]:
             elif not is_in_string and char in string_types:
                 is_in_string = True
                 string_delimiter = char
-                if language == "Python" and i + 2 < len(line) and line[i:i+3] in string_types:
-                    string_delimiter = line[i:i+3]  # Detect triple quotes for Python
+                if language == "Python" and i + 2 < len(line) and line[i:i + 3] in string_types:
+                    string_delimiter = line[i:i + 3]  # Detect triple quotes for Python
                     processed_line += "\\" + string_delimiter
                     i += 2  # Skip next two chars
                 else:
@@ -155,6 +142,7 @@ def convert_code_str_to_array(code: str, language: str) -> list[str]:
 
     return lines
 
+
 # ---
 
 # Print the code array per line
@@ -162,62 +150,69 @@ def print_full_code_array(code: list[str]) -> None:
     print("---Code:")
     i = 0
     while (i < len(code)):
-      print(str(i+1) + " " + code[i])
-      i += 1
-    print ("-------")
+        print(str(i + 1) + " " + code[i])
+        i += 1
+    print("-------")
+
 
 # Same as above but within a delimited range
 def print_code_array_start_end(code: list[str], start: int, end: int) -> None:
     print("---Code:\nStart:")
     i = start
-    while (i < end+1):
-      print(str(i))
-      i += 1
-    print ("\nEnd-------")
+    while (i < end + 1):
+        print(str(i))
+        i += 1
+    print("\nEnd-------")
+
 
 # Convert the code list into a string that simulates an array of strings
 # Each element is a code line with the number of line at the start
 def convert_code_array_to_numbered_str(code_array: list[str], index_start: int, index_end: int) -> str:
     i = index_start
     code_full = "["
-    for i in range(index_start, index_end+1):
-        code_line = '"' + str(i+1) + " " + code_array[i] + '"'
+    for i in range(index_start, index_end + 1):
+        code_line = '"' + str(i + 1) + " " + code_array[i] + '"'
         if (i != index_end):
             code_line += ", "
         code_full += code_line
     code_full += "]"
     return code_full
 
+
 # Function for counting the tokens in a string
 def count_tokens_message(message, model="gpt-4"):
-  encoding = encoding_for_model(model)
-  return len(encoding.encode(message))
+    encoding = encoding_for_model(model)
+    return len(encoding.encode(message))
+
 
 # Function for counting the tokens in a file
 def count_tokens_file(file_path: str, model="gpt-4", chunk_size=100):
-  encoding = encoding_for_model(model)
-  total_tokens = 0
-  with open(file_path, 'r', encoding='utf-8') as file:
-    while True:
-      chunk = file.read(chunk_size)
-      if not chunk:
-        break
-      tokens = encoding.encode(chunk, disallowed_special=None)
-      total_tokens += len(tokens)
-  return total_tokens
+    encoding = encoding_for_model(model)
+    total_tokens = 0
+    with open(file_path, 'r', encoding='utf-8') as file:
+        while True:
+            chunk = file.read(chunk_size)
+            if not chunk:
+                break
+            tokens = encoding.encode(chunk, disallowed_special=None)
+            total_tokens += len(tokens)
+    return total_tokens
+
 
 # Function to create the message for guidelines
 # Granted their content does not exceed the token limit
 def create_guidelines_message(file_path: str, language_name: str, token_limit=8000):
-  message = None
-  if (count_tokens_file(file_path) < token_limit):
-    guidelines = ""
-    with open(file_path, 'rb') as guidelines_file:
-      guidelines = guidelines_file.read()
-    guidelines_prompt = '''To further educate yourself on {} coding standards, use the following information:\n{}'''.format(language_name, guidelines)
-    # print(guidelines_prompt)
-    message = {"role": "system", "content": guidelines_prompt}
-  return message
+    message = None
+    if (count_tokens_file(file_path) < token_limit):
+        guidelines = ""
+        with open(file_path, 'rb') as guidelines_file:
+            guidelines = guidelines_file.read()
+        guidelines_prompt = '''To further educate yourself on {} coding standards, use the following information:\n{}'''.format(
+            language_name, guidelines)
+        # print(guidelines_prompt)
+        message = {"role": "system", "content": guidelines_prompt}
+    return message
+
 
 # Function to clean up the response in case it starts with "```json" and ends with "```"
 def clean_json_response(response: str) -> str:

@@ -236,7 +236,7 @@ export default function AnalyzeForm() {
             setProcessingFiles((prev) => Math.max(0, prev - 1))
             return Promise.reject()
         }
-
+        console.log(codeToAnalyze)
         const inputData = {
             code: codeToAnalyze,
             programming_language: selectedProgLang,

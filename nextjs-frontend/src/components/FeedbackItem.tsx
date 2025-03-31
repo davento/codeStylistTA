@@ -269,7 +269,7 @@ export default function FeedbackItem({ fileName, feedback, loading, tabIndex }: 
     if (loading === LoadingState.DONE && feedback.length === 0) {
         return (
             <div className="border p-4 rounded-md">
-                <p className="text-red-500 font-bold">Error, no feedback returned.</p>
+                <p className="text-slate-950 font-bold">No feedback returned for this file.</p>
             </div>
         );
     }
