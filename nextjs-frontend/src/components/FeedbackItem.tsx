@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Loader2, Star, Info, ThumbsUp, ThumbsDown, Minus } from 'lucide-react'
+import { Loader2, Star, Info, ThumbsUp, ThumbsDown, Minus, ChevronDown, ChevronRight } from 'lucide-react'
 import { LoadingState } from './AnalyzeForm'
 import { useUser } from '@/context/UserContext'
 
@@ -29,6 +29,7 @@ interface SavedFeedbackData {
             rating: number
             submitted: boolean
             resolution: ResolutionStatus
+            expanded: boolean // Track expanded state
         }
     }
 }
@@ -38,6 +39,7 @@ export default function FeedbackItem({ fileName, feedback, loading, tabIndex }: 
     const [ratings, setRatings] = useState<number[]>([])
     const [resolutions, setResolutions] = useState<ResolutionStatus[]>([])
     const [submitted, setSubmitted] = useState<boolean[]>([])
+    const [expanded, setExpanded] = useState<boolean[]>([]) // Track which items are expanded
     const [showInfo, setShowInfo] = useState(false)
     const [isInitialized, setIsInitialized] = useState(false)
 
@@ -55,6 +57,7 @@ export default function FeedbackItem({ fileName, feedback, loading, tabIndex }: 
             setRatings(Array(feedback.length).fill(0))
             setResolutions(Array(feedback.length).fill('neutral'))
             setSubmitted(Array(feedback.length).fill(false))
+            setExpanded(Array(feedback.length).fill(false)) // All collapsed by default
         }
     }, [feedback])
 
@@ -67,6 +70,7 @@ export default function FeedbackItem({ fileName, feedback, loading, tabIndex }: 
             const newRatings = Array(feedback.length).fill(0)
             const newResolutions = Array(feedback.length).fill('neutral' as ResolutionStatus)
             const newSubmitted = Array(feedback.length).fill(false)
+            const newExpanded = Array(feedback.length).fill(false) // All collapsed by default
 
             const savedDataStr = localStorage.getItem(getSavedDataKey())
             if (savedDataStr) {
@@ -82,6 +86,8 @@ export default function FeedbackItem({ fileName, feedback, loading, tabIndex }: 
                             newRatings[idx] = savedData[fileName][itemId].rating
                             newResolutions[idx] = savedData[fileName][itemId].resolution
                             newSubmitted[idx] = savedData[fileName][itemId].submitted
+                            // If expanded state exists in saved data, use it, otherwise default to false
+                            newExpanded[idx] = savedData[fileName][itemId].expanded || false
                         }
                     })
                 }
@@ -91,6 +97,7 @@ export default function FeedbackItem({ fileName, feedback, loading, tabIndex }: 
             setRatings(newRatings)
             setResolutions(newResolutions)
             setSubmitted(newSubmitted)
+            setExpanded(newExpanded)
             setIsInitialized(true)
 
         } catch (error) {
@@ -99,6 +106,7 @@ export default function FeedbackItem({ fileName, feedback, loading, tabIndex }: 
             setRatings(Array(feedback.length).fill(0))
             setResolutions(Array(feedback.length).fill('neutral'))
             setSubmitted(Array(feedback.length).fill(false))
+            setExpanded(Array(feedback.length).fill(false))
             setIsInitialized(true)
         }
     }, [feedback, fileName, username, tabIndex])
@@ -108,7 +116,8 @@ export default function FeedbackItem({ fileName, feedback, loading, tabIndex }: 
         idx: number,
         newRating?: number,
         newResolution?: ResolutionStatus,
-        newSubmitted?: boolean
+        newSubmitted?: boolean,
+        newExpanded?: boolean
     ) => {
         try {
             const savedDataStr = localStorage.getItem(getSavedDataKey())
@@ -127,7 +136,8 @@ export default function FeedbackItem({ fileName, feedback, loading, tabIndex }: 
                 savedData[fileName][itemId] = {
                     rating: 0,
                     resolution: 'neutral',
-                    submitted: false
+                    submitted: false,
+                    expanded: false
                 }
             }
 
@@ -142,6 +152,10 @@ export default function FeedbackItem({ fileName, feedback, loading, tabIndex }: 
 
             if (newSubmitted !== undefined) {
                 savedData[fileName][itemId].submitted = newSubmitted
+            }
+
+            if (newExpanded !== undefined) {
+                savedData[fileName][itemId].expanded = newExpanded
             }
 
             localStorage.setItem(getSavedDataKey(), JSON.stringify(savedData))
@@ -187,6 +201,19 @@ export default function FeedbackItem({ fileName, feedback, loading, tabIndex }: 
 
         // Update this specific item's resolution
         saveDataToLocalStorage(itemIndex, undefined, status, false)
+    }
+
+    const toggleExpanded = (itemIndex: number) => {
+        if (!isInitialized) return
+
+        setExpanded(prev => {
+            const newExpanded = [...prev]
+            newExpanded[itemIndex] = !newExpanded[itemIndex]
+            return newExpanded
+        })
+
+        // Save the expanded state
+        saveDataToLocalStorage(itemIndex, undefined, undefined, undefined, !expanded[itemIndex])
     }
 
     const handleSubmitRating = async (itemIndex: number) => {
@@ -286,84 +313,107 @@ export default function FeedbackItem({ fileName, feedback, loading, tabIndex }: 
                     {feedback.map((item, idx) => (
                         <div key={`${fileName}-${tabIndex}-${idx}-${item.error_location?.substring(0, 10)}`}
                              className="bg-gray-100 p-4 rounded-md">
-                            <p className="mb-1">
-                                <strong>Error location:</strong> {item.error_location}
-                            </p>
-                            <p className="mb-1">
-                                <strong>Things to fix:</strong> {item.things_to_fix}
-                            </p>
-                            <p className="mb-1">
-                                <strong>Suggestions:</strong> {item.suggestions}
-                            </p>
-                            <p className="mb-2">
-                                <strong>Explanation:</strong> {item.explanation}
-                            </p>
-
-                            {/* Rating Stars */}
-                            <div className="flex items-center gap-1 mb-3">
-                                <span className="text-sm text-gray-600 mr-2">Rate this feedback:</span>
-                                {[1, 2, 3, 4, 5].map((starValue) => (
-                                    <Star
-                                        key={`${fileName}-star-${idx}-${tabIndex}-${starValue}`}
-                                        className={`w-5 h-5 cursor-pointer ${
-                                            starValue <= ratings[idx]
-                                                ? 'text-yellow-400 fill-current'
-                                                : 'text-gray-300'
-                                        }`}
-                                        onClick={() => handleRatingChange(idx, starValue)}
-                                    />
-                                ))}
-                                <span className="ml-2 text-sm text-gray-600">
-                                    {ratings[idx] > 0 ? `${ratings[idx]}/5` : 'No rating'}
-                                </span>
-                            </div>
-
-                            {/* Issue Resolution Buttons */}
-                            <div className="mb-3">
-                                <p className="text-sm text-gray-600 mb-2">Issue resolved?</p>
-                                <div className="flex gap-2">
-                                    <button
-                                        className={getResolutionButtonClass('yes', resolutions[idx])}
-                                        onClick={() => handleResolutionChange(idx, 'yes')}
-                                        title="Yes, issue resolved"
-                                    >
-                                        <ThumbsUp size={16} className="mr-1" /> Yes
-                                    </button>
-                                    <button
-                                        className={getResolutionButtonClass('no', resolutions[idx])}
-                                        onClick={() => handleResolutionChange(idx, 'no')}
-                                        title="No, issue not resolved"
-                                    >
-                                        <ThumbsDown size={16} className="mr-1" /> No
-                                    </button>
-                                    <button
-                                        className={getResolutionButtonClass('neutral', resolutions[idx])}
-                                        onClick={() => handleResolutionChange(idx, 'neutral')}
-                                        title="Not applicable"
-                                    >
-                                        <Minus size={16} className="mr-1" /> N/A
-                                    </button>
+                            {/* Collapsible header */}
+                            <div
+                                className="flex items-center cursor-pointer"
+                                onClick={() => toggleExpanded(idx)}
+                            >
+                                {expanded[idx] ? (
+                                    <ChevronDown size={20} className="text-gray-600 mr-2" />
+                                ) : (
+                                    <ChevronRight size={20} className="text-gray-600 mr-2" />
+                                )}
+                                <div className="font-medium text-gray-800">
+                                    {item.error_location}
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-1 text-sm text-gray-500">
-                                <p>Your feedback helps improve our model.</p>
-                                <Info
-                                    className="w-4 h-4 cursor-pointer text-blue-500"
-                                    onClick={() => setShowInfo(true)}
-                                />
-                            </div>
+                            {/* Collapsible content */}
+                            {expanded[idx] && (
+                                <div className="mt-3 ml-6 space-y-2">
+                                    <p className="mb-1">
+                                        <strong>Things to fix:</strong> {item.things_to_fix}
+                                    </p>
+                                    <p className="mb-1">
+                                        <strong>Suggestions:</strong> {item.suggestions}
+                                    </p>
+                                    <p className="mb-2">
+                                        <strong>Explanation:</strong> {item.explanation}
+                                    </p>
 
-                            {ratings[idx] > 0 && !submitted[idx] && (
-                                <button
-                                    onClick={() => handleSubmitRating(idx)}
-                                    className="mt-2 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-                                >
-                                    Submit Feedback
-                                </button>
-                            )}
-                            {submitted[idx] && (
-                                <p className="mt-2 text-green-600 text-sm">Feedback submitted!</p>
+                                    {/* Rating Stars */}
+                                    <div className="flex items-center gap-1 mb-3">
+                                        <span className="text-sm text-gray-600 mr-2">Rate this feedback:</span>
+                                        {[1, 2, 3, 4, 5].map((starValue) => (
+                                            <Star
+                                                key={`${fileName}-star-${idx}-${tabIndex}-${starValue}`}
+                                                className={`w-5 h-5 cursor-pointer ${
+                                                    starValue <= ratings[idx]
+                                                        ? 'text-yellow-400 fill-current'
+                                                        : 'text-gray-300'
+                                                }`}
+                                                onClick={() => handleRatingChange(idx, starValue)}
+                                            />
+                                        ))}
+                                        <span className="ml-2 text-sm text-gray-600">
+                                            {ratings[idx] > 0 ? `${ratings[idx]}/5` : 'No rating'}
+                                        </span>
+                                    </div>
+
+                                    {/* Issue Resolution Buttons */}
+                                    <div className="mb-3">
+                                        <p className="text-sm text-gray-600 mb-2">Issue resolved?</p>
+                                        <div className="flex gap-2">
+                                            <button
+                                                className={getResolutionButtonClass('yes', resolutions[idx])}
+                                                onClick={() => handleResolutionChange(idx, 'yes')}
+                                                title="Yes, issue resolved"
+                                            >
+                                                <ThumbsUp size={16} className="mr-1" /> Yes
+                                            </button>
+                                            <button
+                                                className={getResolutionButtonClass('no', resolutions[idx])}
+                                                onClick={() => handleResolutionChange(idx, 'no')}
+                                                title="No, issue not resolved"
+                                            >
+                                                <ThumbsDown size={16} className="mr-1" /> No
+                                            </button>
+                                            <button
+                                                className={getResolutionButtonClass('neutral', resolutions[idx])}
+                                                onClick={() => handleResolutionChange(idx, 'neutral')}
+                                                title="Not applicable"
+                                            >
+                                                <Minus size={16} className="mr-1" /> N/A
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-1 text-sm text-gray-500">
+                                        <p>Your feedback helps improve our model.</p>
+                                        <Info
+                                            className="w-4 h-4 cursor-pointer text-blue-500"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setShowInfo(true);
+                                            }}
+                                        />
+                                    </div>
+
+                                    {ratings[idx] > 0 && !submitted[idx] && (
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleSubmitRating(idx);
+                                            }}
+                                            className="mt-2 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                                        >
+                                            Submit Feedback
+                                        </button>
+                                    )}
+                                    {submitted[idx] && (
+                                        <p className="mt-2 text-green-600 text-sm">Feedback submitted!</p>
+                                    )}
+                                </div>
                             )}
                         </div>
                     ))}
