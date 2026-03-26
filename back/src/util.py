@@ -10,14 +10,15 @@ def convert_code_str_to_array(code: str, language: str) -> list[str]:
     - Multiline string formats (triple quotes for Python, backticks for JavaScript).
     - Multiline comments (/* ... */, #).
     - Unclosed or incorrectly started strings.
-    - Single-line comments (//) without modifying them.
+    - Single-line comments (//).
+    Without modifying either of them.
 
     Args:
         code (str): The source code as a string.
         language (str): The detected programming language (C, C++, Java, JavaScript, Python).
 
     Returns:
-        list[str]: A list of processed code lines with correct escape handling.
+        list[str]: A list of processed code lines with correct escape handling and safe for array representation.
     """
 
     lines = []
@@ -25,6 +26,9 @@ def convert_code_str_to_array(code: str, language: str) -> list[str]:
     string_delimiter = None  # Stores which quote type started the string
     is_multiline_string = False  # Tracks if a string continues across lines
     is_in_comment = False  # Tracks if inside a multiline comment
+    multiline_comment_start = None # Symbol that marks the start of a multiline comment
+    multiline_comment_end = None # Symbol that marks the end of a multiline comment
+    single_line_comment = None # Symbol that marks the start of an in-line comment
 
     # Set up language-specific rules
     if language in ["C", "C++", "Java", "JavaScript"]:
@@ -81,21 +85,21 @@ def convert_code_str_to_array(code: str, language: str) -> list[str]:
                     processed_line += "\\" + string_delimiter
                     i += 2  # Skip next two chars
                 else:
-                    processed_line += "\\" + char  # Escape opening quote
+                    processed_line += char  # Escape opening quote
 
             # Detect the end of a string (only if not preceded by a backslash)
             elif is_in_string and char == string_delimiter:
                 if i > 0 and line[i - 1] != "\\":
                     is_in_string = False
-                processed_line += "\\" + char  # Escape the closing quote
+                processed_line += char  # Escape the closing quote
 
             # Handle escape sequences (`\` inside strings)
             elif is_in_string and char == "\\":
-                processed_line += "\\\\"  # Convert `\` to `\\` to preserve it
+                processed_line += char  # Convert `\` to `\\` to preserve it
 
             # Escape embedded double quotes inside a string
             elif is_in_string and char == "\"":
-                processed_line += "\\\""  # Convert `"` to `\"` inside a string
+                processed_line += char  # Convert `"` to `\"` inside a string
 
             # Detect if a string continues across multiple lines with `+`
             elif is_in_string and char == "+" and i == len(line) - 1:
@@ -107,9 +111,9 @@ def convert_code_str_to_array(code: str, language: str) -> list[str]:
                 processed_line += " \\\" (UNCLOSED STRING DETECTED) \\\""  # Auto-close with a warning
                 is_in_string = False  # Reset state
 
-            # Ensure backslashes at the end of a string are properly escaped
-            elif is_in_string and char == "\\" and i == len(line) - 1:
-                processed_line += "\\\\"  # Properly escape a trailing backslash
+            # # Ensure backslashes at the end of a string are properly escaped
+            # elif is_in_string and char == "\\" and i == len(line) - 1:
+            #     processed_line += "\\\\"  # Properly escape a trailing backslash
 
             # Handle JavaScript backticks
             elif supports_backticks and char == "`":
@@ -118,7 +122,7 @@ def convert_code_str_to_array(code: str, language: str) -> list[str]:
                 else:
                     is_in_string = True
                     string_delimiter = "`"
-                processed_line += "\\" + char  # Escape the backtick
+                processed_line += char  # Escape the backtick
 
             # Ensure single quotes (`'`) are not mistakenly escaped inside a string
             elif not is_in_string and char == "'":
@@ -138,7 +142,7 @@ def convert_code_str_to_array(code: str, language: str) -> list[str]:
             is_in_string = True  # Ensure next line is still inside the string
             is_multiline_string = False  # Reset the flag
 
-    print_full_code_array(lines)
+    # print_full_code_array(lines)
 
     return lines
 
@@ -168,16 +172,11 @@ def print_code_array_start_end(code: list[str], start: int, end: int) -> None:
 # Convert the code list into a string that simulates an array of strings
 # Each element is a code line with the number of line at the start
 def convert_code_array_to_numbered_str(code_array: list[str], index_start: int, index_end: int) -> str:
-    i = index_start
-    code_full = "["
+    code_full = []
     for i in range(index_start, index_end + 1):
-        code_line = '"' + str(i + 1) + " " + code_array[i] + '"'
-        if (i != index_end):
-            code_line += ", "
-        code_full += code_line
-    code_full += "]"
-    return code_full
-
+        code_line = f"{i+1} {code_array[i]}"
+        code_full.append(code_line)
+    return "\n".join(code_full)
 
 # Function for counting the tokens in a string
 def count_tokens_message(message, model="gpt-4"):
@@ -205,10 +204,11 @@ def create_guidelines_message(file_path: str, language_name: str, token_limit=80
     message = None
     if (count_tokens_file(file_path) < token_limit):
         guidelines = ""
-        with open(file_path, 'rb') as guidelines_file:
+        with open(file_path, 'r', encoding='utf-8') as guidelines_file:
             guidelines = guidelines_file.read()
-        guidelines_prompt = '''To further educate yourself on {} coding standards, use the following information:\n{}'''.format(
-            language_name, guidelines)
+        guidelines_prompt = f'''To further educate yourself on {language_name} coding standards, use the following information:\n--- START OF GUIDELINES ---
+        {guidelines}
+        --- END OF GUIDELINES ---'''
         # print(guidelines_prompt)
         message = {"role": "system", "content": guidelines_prompt}
     return message
