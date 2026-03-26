@@ -4,14 +4,21 @@ sys.path.append("../src")
 import src.util as util
 
 # API keys
-OPENAI_API_KEY = "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"
+OPENAI_API_KEY = "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"
+# old
+# OPENAI_API_KEY = "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"
 ORG_ID = "org-tQQarliDkrBTI1WZcOgFmwJA"
 
 # Initializing the API client
+# client = OpenAI(
+#       api_key=OPENAI_API_KEY,
+#       organization=ORG_ID,
+#   )
+
 client = OpenAI(
-      api_key=OPENAI_API_KEY,
-      organization=ORG_ID,
-  )
+    api_key=OPENAI_API_KEY
+)
+
 
 # Initial prompt detailing the role/persona the AI will take
 role_prompt = '''
@@ -56,9 +63,7 @@ If "f. Format to be used to reply" is JSON, the output should be an array of JSO
 - suggestions (string)
 - explanation (string)
 
-Return only the JSON array. Nothing more, nothing less.
-
-This should also be the default format for your replies. And again, please be specific with your feedback.
+Return only a valid JSON array. No text before or after. And again, please be specific with your feedback.
 '''
 
 # Prompt clarifying the purpose and use of reference material input
@@ -68,11 +73,11 @@ Additionally, you will be given additional reading material for you to educate y
 
 # Prompt specifying instructions on the code input.
 code_details_prompt = '''
-A sequence of user messages will provide variable g, the code. This sequence is delimited by a message saying "Code start" and another one saying "Code end".
+A sequence of user messages will provide variable g, the code. This sequence is delimited by a message saying "Here is the code with line numbers at the start ===" and another one saying "=== Here is where the code ends".
 
-The format of the code is a list of strings, in which each string represents a line on the code. Every string starts with a number that represents its line number. The code starts after a space.
+The format of the code is a plain text string. Each line starts with its line number followed by a space, then the code corresponding said line.
 
-A chunk of this list will be provided on each message.
+A chunk of the code will be provided on each message.
 
 Note that there is a message reading (UNCLOSED STRING DETECTED) appended at the end of lines with unclosed quotes.
 
@@ -83,9 +88,12 @@ Once these values are given, please fulfill the initially stated prompt.
 def get_analysis(configValues: str, code: list[str], guidelines: any=None):
 
   # Initialize client
+  # client = OpenAI(
+  #   api_key=OPENAI_API_KEY,
+  #   organization=ORG_ID
+  # )
   client = OpenAI(
-    api_key=OPENAI_API_KEY,
-    organization=ORG_ID
+    api_key=OPENAI_API_KEY
   )
 
   # Console checking of the initial system prompts
@@ -95,10 +103,7 @@ def get_analysis(configValues: str, code: list[str], guidelines: any=None):
   # print(configValues)
 
   messages_to_send = [
-    {"role": "system", "content": role_prompt},
-    {"role": "system", "content": instructions_prompt},
-    {"role": "system", "content": response_prompt},
-    {"role": "system", "content": configValues}
+    {"role": "system", "content": f"{role_prompt}\n{instructions_prompt}\n{response_prompt}\n{configValues}"}
   ]
 
   # Creating guidelines message
@@ -110,33 +115,83 @@ def get_analysis(configValues: str, code: list[str], guidelines: any=None):
       messages_to_send.append(guidelines_message)
     else:
       # exclude it
-      print("Guidelines are too long. Excluding.\n\n")
+      # print("Guidelines are too long. Excluding.\n\n")
+      pass
   else:
-    print("No guidelines provided.\n\n")
+    # print("No guidelines provided.\n\n")
+    pass
   
   # Start sending the code
-  messages_to_send.append({"role": "user", "content": "Code start\n["})
+  messages_to_send.append({"role": "user", "content": "Here is the code with line numbers at the start ===\n"})
   print("Total number of code lines: ", len(code))
   
   # slice the code in chunks and turn each chunk into a message:
-  print("Code Start ====")
+  # print("Code Start ====")
   skip = 100
   for index in range(-1, len(code)-1, skip):
     index_start = index+1
     index_end = index+skip if index+skip < len(code) else len(code)-1
     query = util.convert_code_array_to_numbered_str(code, index_start, index_end)
-    print(query)
-    print("---")
+    # print(query)
+    # print("---")
     messages_to_send.append({"role": "user", "content": query})
-  messages_to_send.append({"role": "user", "content": "]\n Code end"})
-  print("==== Code End")
+  messages_to_send.append({"role": "user", "content": "\n === Here is where the code ends"})
+  # print("==== Code End")
+
+  import json
+
+  print("\n=== FINAL PAYLOAD ===\n")
+  print(json.dumps(messages_to_send, indent=2))
+
+  # mock_response = """
+  # [
+  #   {
+  #     "error_location": "Line 3",
+  #     "things_to_fix": "Missing comment",
+  #     "suggestions": "Add a comment explaining the function",
+  #     "explanation": "Functions should include documentation for clarity"
+  #   }
+  # ]
+  # """
+
+  # return mock_response
 
   # Send all the messages
   completion = client.chat.completions.create(
     model="gpt-4o",
     messages=messages_to_send
+    # response_format={
+    #     "type": "json_schema",
+    #     "json_schema": {
+    #         "name": "code_feedback_array",
+    #         "schema": {
+    #             "type": "object",
+    #             "properties": {
+    #                 "feedback": {
+    #                     "type": "array",
+    #                     "items": {
+    #                         "type": "object",
+    #                         "properties": {
+    #                             "error_location": {"type": "string"},
+    #                             "things_to_fix": {"type": "string"},
+    #                             "suggestions": {"type": "string"},
+    #                             "explanation": {"type": "string"}
+    #                         },
+    #                         "required": [
+    #                             "error_location",
+    #                             "things_to_fix",
+    #                             "suggestions",
+    #                             "explanation"
+    #                         ]
+    #                     }
+    #                 }
+    #             },
+    #             "required": ["feedback"]
+    #         }
+    #     }
+    # }
   )
 
-  # Return response
+  # # Return response
   response = completion.choices[0].message.content
   return response
