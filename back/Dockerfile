@@ -11,6 +11,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Create data directory
 RUN mkdir -p /app/data
 
+# Set data environment variable (just in case for deploy)
+ENV DATA_DIR=/app/data
+
 # Copy the rest of the application
 COPY . .
 
