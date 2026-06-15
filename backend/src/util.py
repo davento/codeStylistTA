@@ -111,10 +111,6 @@ def convert_code_str_to_array(code: str, language: str) -> list[str]:
                 processed_line += " \\\" (UNCLOSED STRING DETECTED) \\\""  # Auto-close with a warning
                 is_in_string = False  # Reset state
 
-            # # Ensure backslashes at the end of a string are properly escaped
-            # elif is_in_string and char == "\\" and i == len(line) - 1:
-            #     processed_line += "\\\\"  # Properly escape a trailing backslash
-
             # Handle JavaScript backticks
             elif supports_backticks and char == "`":
                 if is_in_string and string_delimiter == "`":
@@ -141,8 +137,6 @@ def convert_code_str_to_array(code: str, language: str) -> list[str]:
         if is_multiline_string:
             is_in_string = True  # Ensure next line is still inside the string
             is_multiline_string = False  # Reset the flag
-
-    # print_full_code_array(lines)
 
     return lines
 

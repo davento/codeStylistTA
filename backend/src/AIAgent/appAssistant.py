@@ -10,7 +10,6 @@ client = OpenAI(
     api_key=OPENAI_API_KEY
 )
 
-
 # Initial prompt detailing the role/persona the AI will take
 role_prompt = '''
 You are a renowned professor of computer science at Purdue University with many years of experience on this institution. You are teaching an introductory programming class. The specifics of said course will be detailed to you in a future message. These details will include:
@@ -77,12 +76,6 @@ Once these values are given, please fulfill the initially stated prompt.
 
 # Analysis function
 def get_analysis(configValues: str, code: list[str], guidelines: any=None):
-
-  # Initialize client
-  # client = OpenAI(
-  #   api_key=OPENAI_API_KEY,
-  #   organization=ORG_ID
-  # )
   client = OpenAI(
     api_key=OPENAI_API_KEY
   )
@@ -105,82 +98,32 @@ def get_analysis(configValues: str, code: list[str], guidelines: any=None):
       # append the guidelines message
       messages_to_send.append(guidelines_message)
     else:
-      # exclude it
-      # print("Guidelines are too long. Excluding.\n\n")
+      # exclude them
       pass
+  # No guidelines were provided
   else:
-    # print("No guidelines provided.\n\n")
     pass
   
   # Start sending the code
   messages_to_send.append({"role": "user", "content": "Here is the code with line numbers at the start ===\n"})
   print("Total number of code lines: ", len(code))
-  
-  # slice the code in chunks and turn each chunk into a message:
-  # print("Code Start ====")
   skip = 100
   for index in range(-1, len(code)-1, skip):
     index_start = index+1
     index_end = index+skip if index+skip < len(code) else len(code)-1
     query = util.convert_code_array_to_numbered_str(code, index_start, index_end)
-    # print(query)
-    # print("---")
     messages_to_send.append({"role": "user", "content": query})
   messages_to_send.append({"role": "user", "content": "\n === Here is where the code ends"})
-  # print("==== Code End")
 
   import json
 
   print("\n=== FINAL PAYLOAD ===\n")
   print(json.dumps(messages_to_send, indent=2))
 
-  # mock_response = """
-  # [
-  #   {
-  #     "error_location": "Line 3",
-  #     "things_to_fix": "Missing comment",
-  #     "suggestions": "Add a comment explaining the function",
-  #     "explanation": "Functions should include documentation for clarity"
-  #   }
-  # ]
-  # """
-
-  # return mock_response
-
   # Send all the messages
   completion = client.chat.completions.create(
     model="gpt-4o",
     messages=messages_to_send
-    # response_format={
-    #     "type": "json_schema",
-    #     "json_schema": {
-    #         "name": "code_feedback_array",
-    #         "schema": {
-    #             "type": "object",
-    #             "properties": {
-    #                 "feedback": {
-    #                     "type": "array",
-    #                     "items": {
-    #                         "type": "object",
-    #                         "properties": {
-    #                             "error_location": {"type": "string"},
-    #                             "things_to_fix": {"type": "string"},
-    #                             "suggestions": {"type": "string"},
-    #                             "explanation": {"type": "string"}
-    #                         },
-    #                         "required": [
-    #                             "error_location",
-    #                             "things_to_fix",
-    #                             "suggestions",
-    #                             "explanation"
-    #                         ]
-    #                     }
-    #                 }
-    #             },
-    #             "required": ["feedback"]
-    #         }
-    #     }
-    # }
   )
 
   # # Return response
