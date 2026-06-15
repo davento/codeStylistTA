@@ -1,5 +1,4 @@
 # Code Stylist TA
-Go Boiler Project
 ---
 
 ## About
