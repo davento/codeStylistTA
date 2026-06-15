@@ -33,26 +33,32 @@ We containerized the frontend and backend as separate services using Docker Comp
 ## Folder Overview
 ```text
 📂 /backend
-├── 📂 /data                  : CSV user and deployment
-├── 📂 /guidelines_files      : markdowns containing coding standards guidelines
-└── 📂 /src                   : app, deployment, environment and package related
+├── 📄 .env
+├── 🐳 Dockerfile
+├── 📂 /data                   : CSV user and deployment
+├── 📂 /guidelines_files       : markdowns containing coding standards guidelines
+└── 📂 /src                    : app, deployment, environment and package related
     ├── 📂 /AIAgent
     │   └── 📄 appAssistant.py : prompt logic
-    └── 📂 /unitTests         : app tests
+    └── 📂 /unitTests          : app tests
 
 📂 /frontend
+├── 📄 .env.example
+├── 🐳 Dockerfile
 └── 📂 /src
     ├── 📂 /app
-    │   ├── 📂 /fonts         : fonts used by the layout
-    │   └── 📂 /login         : login layout
+    │   ├── 📂 /fonts          : fonts used by the layout
+    │   └── 📂 /login          : login layout
     ├── 📂 /components
-    │   └── 📂 /ui            : UI-oriented components
-    ├── 📂 /context           : session logic
-    ├── 📂 /data              : JSON with configuration data
-    └── 📂 /lib               : library imports
+    │   └── 📂 /ui             : UI-oriented components
+    ├── 📂 /context            : session logic
+    ├── 📂 /data               : JSON with configuration data
+    └── 📂 /lib                : library imports
 
 📂 /screenshots
 └── Images of the app used for this README
+
+🐳 docker-compose.yml
 ```
 
 ## How to use the application
