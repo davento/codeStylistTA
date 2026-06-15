@@ -20,7 +20,7 @@ Go to the `/frontend` folder and add `.env.local` with the same format as `.env.
 
 ## Back-end
 
-Powered by Flask. Create a virtual environment with the [environment.yml](https://github.com/davento/codeStylistTA/blob/dev/backend/environment.yml) file. Activate it and install the necessary libraries shown in [requirements.txt](https://github.com/davento/codeStylistTA/blob/dev/back/requirements.txt). After this, in the `/backend` directory, add a file titled `users.csv` adding users in the format shown in `users_csv_example`. Then, run the app using ```flask --app app run --port 5001```. Make sure to fill in your OpenAI API key on the file `appAssistant.py` for correct functioning.
+Powered by Flask. Create a virtual environment with the [environment.yml](https://github.com/davento/codeStylistTA/blob/main/backend/environment.yml) file. Activate it and install the necessary libraries shown in [requirements.txt](https://github.com/davento/codeStylistTA/blob/main/backend/requirements.txt). After this, in the `/backend` directory, add a file titled `users.csv` adding users in the format shown in `users_csv_example`. Then, run the app using ```flask --app app run --port 5001```. Make sure to fill in your OpenAI API key on the file `appAssistant.py` for correct functioning.
 
 ## Deployment
 
@@ -49,4 +49,4 @@ __**OpenAI API:**__
 - [Code Interpreter](https://platform.openai.com/docs/assistants/tools/code-interpreter)
 
 __**Code Standard Guidelines References**__
-- [List of Guidelines Used](https://github.com/davento/codeStylistTA/blob/dev/back/guidelines_files/README.md)
+- [List of Guidelines Used](https://github.com/davento/codeStylistTA/blob/main/backend/guidelines_files/README.md)
