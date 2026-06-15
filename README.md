@@ -30,6 +30,28 @@ We containerized the frontend and backend as separate services using Docker Comp
 
 ---
 
+## Folder Overview
+📂 `/backend`: Python and Flask
+    |- `/data`: CSV user and deployment
+    |- `/guidelines_files`: markdowns containing coding standards guidelines
+    |- `/src`: app, deployment, environment and package related
+        |- `/AIAgent`: GenAI agent
+            |- `appAssistant.py`: prompt logic
+        |- `/unitTests`: app tests
+
+📂 `/frontend`: NextJS configuration
+    |- `/src`: front source code
+        |- `/app`: page layouts
+            |- `/fonts`: fonts used by the layout
+            |- `/login`: login layout
+        |- `/components`: React components
+            |- `/ui`: UI-oriented components 
+        |- `/context`: session logic
+        |- `/data`: JSON with configuration data
+        |- `/lib`: library imports
+
+📂 `/screenshots`: images of the app used for this README
+
 ## How to use the application
 
 After launching the tool, a login interface appears.
