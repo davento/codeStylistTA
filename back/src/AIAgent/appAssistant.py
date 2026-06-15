@@ -3,17 +3,8 @@ import sys
 sys.path.append("../src")
 import src.util as util
 
-# API keys
-OPENAI_API_KEY = "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"
-# old
-# OPENAI_API_KEY = "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"
-ORG_ID = "org-tQQarliDkrBTI1WZcOgFmwJA"
-
-# Initializing the API client
-# client = OpenAI(
-#       api_key=OPENAI_API_KEY,
-#       organization=ORG_ID,
-#   )
+# API keys (fill this in with your respective OpenAI API key)
+OPENAI_API_KEY = ""
 
 client = OpenAI(
     api_key=OPENAI_API_KEY
