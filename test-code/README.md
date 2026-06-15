@@ -1,2 +1,0 @@
-# About these test-codes
-The following are files used for testing the application's functionality that have proven themselves to work. They are files both in English and Spanish and have been anonymized accordingly.

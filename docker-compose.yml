@@ -3,30 +3,30 @@ version: '3.8'
 services:
   backend:
     build:
-      context: ./back
+      context: ./backend
       dockerfile: Dockerfile
     ports:
       - "4651:4651"
     expose:
       - "4651"
     env_file:
-      - ./back/.env
+      - ./backend/.env
     restart: unless-stopped
     volumes:
-      - ./back/data:/data
+      - ./backend/data:/data
     networks:
       - app-network
 
   frontend:
     build:
-      context: ./nextjs-frontend
+      context: ./frontend
       dockerfile: Dockerfile
     ports:
       - "5005:5005"
     expose:
       - "5005"
     env_file:
-      - ./nextjs-frontend/.env.local
+      - ./frontend/.env.local
     depends_on:
       - backend
     restart: unless-stopped

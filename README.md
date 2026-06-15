@@ -14,17 +14,33 @@ Note that a teacher (assistant) would still be the one giving the final grade. I
 
 ## Front-end
 
-This project was generated with NextJS.
+The front-end for this project was generated with NextJS.
 
-Go to the `/nextjs-frontend` folder and add `.env.local` with the same format as `.env.example`. Then, install the necessary libraries using `npm install` and once that is done, run `npm run dev` for a dev server. Navigate to `http://localhost:3000/`. The application will automatically reload if you change any of the source files.
+Go to the `/frontend` folder and add `.env.local` with the same format as `.env.example`. Then, install the necessary libraries using `npm install` and once that is done, run `npm run dev` for a dev server. Navigate to `http://localhost:3000/`. The application will automatically reload if you change any of the source files.
 
 ## Back-end
 
-Powered by Flask. Create a virtual environment with the [environment.yml](https://github.com/davento/codeStylistTA/blob/dev/back/environment.yml) file. Activate it and install the necessary libraries shown in [requirements.txt](https://github.com/davento/codeStylistTA/blob/dev/back/requirements.txt). After this, in the `/back` directory, add a file titled `users.csv` adding users in the format shown in `users_csv_example`. Then, run the app using ```flask --app app run --port 5001```.
+Powered by Flask. Create a virtual environment with the [environment.yml](https://github.com/davento/codeStylistTA/blob/dev/backend/environment.yml) file. Activate it and install the necessary libraries shown in [requirements.txt](https://github.com/davento/codeStylistTA/blob/dev/back/requirements.txt). After this, in the `/backend` directory, add a file titled `users.csv` adding users in the format shown in `users_csv_example`. Then, run the app using ```flask --app app run --port 5001```. Make sure to fill in your OpenAI API key on the file `appAssistant.py` for correct functioning.
 
 ## Deployment
 
-Simply run `docker compose up -d --build`, ensuring that both the `.env.local` in `/nextjs-frontend` and both `users.csv` and `.env` in `/back` are available and correctly initialized.
+> Tl;dr: run `docker compose up -d --build`, ensuring that both the `.env.local` in `/nextjs-frontend` and both `users.csv` and `.env` in `/back` are available and correctly initialized.
+
+We containerized the frontend and backend as separate services using Docker Compose to improve maintainability and deployment consistency. The frontend is exposed on port 5005 and the backend on port 4651, with both services connected through a shared Docker network to enable secure communication. Environment-specific configuration is provided through separate `.env` files, while backend data is persisted through a mounted volume to retain information across deployments.
+
+---
+
+## How to use the application
+
+After launching the tool, a login interface appears.
+![Log in interface](screenshots/loginview.png)
+
+
+Once the user logs in, the main menu shows up. You can select your options on the top left side and pick between either inserting code manually or using an existing file. Clicking green button starts the analysis of the code. The feedback will appear on the right side of the display. The red button restores everything to default settings.
+
+![Main menu interface](screenshots/menu.png)
+
+---
 
 ## Extra Resources
 
