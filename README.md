@@ -20,7 +20,12 @@ Go to the `/frontend` folder and add `.env.local` with the same format as `.env.
 
 ## Back-end
 
-Powered by Flask. Create a virtual environment with the [environment.yml](https://github.com/davento/codeStylistTA/blob/main/backend/environment.yml) file. Activate it and install the necessary libraries shown in [requirements.txt](https://github.com/davento/codeStylistTA/blob/main/backend/requirements.txt). After this, in the `/backend` directory, add a file titled `users.csv` adding users in the format shown in `users_csv_example`. Then, run the app using ```flask --app app run --port 5001```. Make sure to fill in your OpenAI API key on the file `appAssistant.py` for correct functioning.
+Powered by Flask. Create a virtual environment with the [environment.yml](https://github.com/davento/codeStylistTA/blob/main/backend/environment.yml) file. Activate it and install the necessary libraries shown in [requirements.txt](https://github.com/davento/codeStylistTA/blob/main/backend/requirements.txt). After this, in the `/backend` directory, add a file titled `users.csv` adding users in the format shown in `users_csv_example`. Then, run the app using ```flask --app app run --port 5001```.
+
+## Prompt logic
+The file `appAssistant.py` contains the prompt logic. The array `messages_to_send` contains each of the messages that make up the prompt. A first message contains all of the "configuration" for the agent to use (role, instructions, response, options), while the following ones contain the code that is to be evaluated split into chunks.
+
+Make sure to fill in your OpenAI API key on line 7 for correct functioning.
 
 ## Deployment
 
@@ -35,6 +40,7 @@ We containerized the frontend and backend as separate services using Docker Comp
 📂 /backend
 ├── 📄 .env
 ├── 🐳 Dockerfile
+├── 📄 app.py
 ├── 📂 /data                   : CSV user and deployment
 ├── 📂 /guidelines_files       : markdowns containing coding standards guidelines
 └── 📂 /src                    : app, deployment, environment and package related
